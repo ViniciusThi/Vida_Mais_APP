@@ -32,6 +32,43 @@ router.get('/minhas-turmas', async (req: AuthRequest, res, next) => {
   }
 });
 
+// GET /prof/turmas/:id/alunos - Buscar alunos de uma turma (somente visualização)
+router.get('/turmas/:id/alunos', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se a turma pertence ao professor
+    const turma = await prisma.turma.findUnique({
+      where: { id },
+      select: { professorId: true }
+    });
+
+    if (!turma || turma.professorId !== req.user!.id) {
+      return res.status(403).json({ error: 'Acesso negado a esta turma' });
+    }
+
+    const alunos = await prisma.alunoTurma.findMany({
+      where: { turmaId: id },
+      include: {
+        aluno: {
+          select: {
+            id: true,
+            nome: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        aluno: { nome: 'asc' }
+      }
+    });
+
+    res.json(alunos);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ========== QUESTIONÁRIOS ==========
 
 const createQuestionarioSchema = z.object({
