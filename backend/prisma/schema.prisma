@@ -1,0 +1,179 @@
+// Vida Mais - Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum para roles de usuários
+enum Role {
+  ADMIN
+  PROF
+  ALUNO
+}
+
+// Enum para visibilidade de questionários
+enum Visibilidade {
+  GLOBAL
+  TURMA
+}
+
+// Enum para tipos de pergunta
+enum TipoPergunta {
+  TEXTO
+  MULTIPLA
+  UNICA
+  ESCALA
+  BOOLEAN
+}
+
+// Tabela de usuários (Admin, Professores, Alunos)
+model User {
+  id           String   @id @default(uuid())
+  nome         String
+  email        String   @unique
+  senhaHash    String   @map("senha_hash")
+  role         Role     @default(ALUNO)
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  // Relações
+  turmasProfessor Turma[]         @relation("ProfessorTurmas")
+  alunoTurmas     AlunoTurma[]
+  questionarios   Questionario[]
+  respostas       Resposta[]
+
+  @@map("users")
+}
+
+// Tabela de turmas
+model Turma {
+  id           String   @id @default(uuid())
+  nome         String
+  ano          Int
+  professorId  String   @map("professor_id")
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  // Relações
+  professor     User           @relation("ProfessorTurmas", fields: [professorId], references: [id])
+  alunos        AlunoTurma[]
+  questionarios Questionario[]
+  respostas     Resposta[]
+  convites      Convite[]
+
+  @@index([professorId])
+  @@map("turmas")
+}
+
+// Tabela de relacionamento Aluno-Turma (muitos para muitos)
+model AlunoTurma {
+  id           String   @id @default(uuid())
+  alunoId      String   @map("aluno_id")
+  turmaId      String   @map("turma_id")
+  criadoEm     DateTime @default(now()) @map("criado_em")
+
+  // Relações
+  aluno User  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  turma Turma @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  @@unique([alunoId, turmaId])
+  @@index([alunoId])
+  @@index([turmaId])
+  @@map("alunos_turmas")
+}
+
+// Tabela de questionários
+model Questionario {
+  id             String        @id @default(uuid())
+  titulo         String
+  descricao      String?
+  criadoPor      String        @map("criado_por")
+  visibilidade   Visibilidade  @default(TURMA)
+  turmaId        String?       @map("turma_id")
+  ativo          Boolean       @default(true)
+  periodoInicio  DateTime?     @map("periodo_inicio")
+  periodoFim     DateTime?     @map("periodo_fim")
+  criadoEm       DateTime      @default(now()) @map("criado_em")
+  atualizadoEm   DateTime      @updatedAt @map("atualizado_em")
+
+  // Relações
+  criador   User       @relation(fields: [criadoPor], references: [id])
+  turma     Turma?     @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  perguntas Pergunta[]
+  respostas Resposta[]
+
+  @@index([criadoPor])
+  @@index([turmaId])
+  @@index([ativo])
+  @@map("questionarios")
+}
+
+// Tabela de perguntas
+model Pergunta {
+  id             String        @id @default(uuid())
+  questionarioId String        @map("questionario_id")
+  ordem          Int
+  tipo           TipoPergunta
+  enunciado      String
+  obrigatoria    Boolean       @default(true)
+  opcoesJson     String?       @map("opcoes_json") // JSON array de strings
+  criadoEm       DateTime      @default(now()) @map("criado_em")
+  atualizadoEm   DateTime      @updatedAt @map("atualizado_em")
+
+  // Relações
+  questionario Questionario @relation(fields: [questionarioId], references: [id], onDelete: Cascade)
+  respostas    Resposta[]
+
+  @@index([questionarioId])
+  @@map("perguntas")
+}
+
+// Tabela de respostas
+model Resposta {
+  id             String    @id @default(uuid())
+  questionarioId String    @map("questionario_id")
+  perguntaId     String    @map("pergunta_id")
+  alunoId        String    @map("aluno_id")
+  turmaId        String    @map("turma_id")
+  valorTexto     String?   @map("valor_texto")
+  valorNum       Int?      @map("valor_num")
+  valorBool      Boolean?  @map("valor_bool")
+  valorOpcao     String?   @map("valor_opcao")
+  criadoEm       DateTime  @default(now()) @map("criado_em")
+
+  // Relações
+  questionario Questionario @relation(fields: [questionarioId], references: [id], onDelete: Cascade)
+  pergunta     Pergunta     @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
+  aluno        User         @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  turma        Turma        @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  @@index([questionarioId])
+  @@index([perguntaId])
+  @@index([alunoId])
+  @@index([turmaId])
+  @@map("respostas")
+}
+
+// Tabela de convites (QR Code)
+model Convite {
+  id        String    @id @default(uuid())
+  codigoQr  String    @unique @map("codigo_qr")
+  turmaId   String    @map("turma_id")
+  expiraEm  DateTime  @map("expira_em")
+  criadoEm  DateTime  @default(now()) @map("criado_em")
+
+  // Relações
+  turma Turma @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  @@index([turmaId])
+  @@index([codigoQr])
+  @@map("convites")
+}
+
