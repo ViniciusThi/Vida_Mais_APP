@@ -54,6 +54,18 @@ export const adminService = {
   async vincularAluno(alunoId: string, turmaId: string) {
     const { data } = await api.post('/admin/vincular-aluno', { alunoId, turmaId });
     return data;
+  },
+
+  async deleteProfessor(id: string) {
+    await api.delete(`/admin/professores/${id}`);
+  },
+
+  async deleteAluno(id: string) {
+    await api.delete(`/admin/alunos/${id}`);
+  },
+
+  async deleteTurma(id: string) {
+    await api.delete(`/admin/turmas/${id}`);
   }
 };
 
@@ -91,6 +103,18 @@ export const professorService = {
   async getRelatorio(questionarioId: string) {
     const { data } = await api.get(`/prof/relatorios/${questionarioId}`);
     return data;
+  },
+
+  async exportar(questionarioId: string, formato: 'xlsx' | 'csv') {
+    const response = await api.get(`/prof/export/${questionarioId}`, {
+      params: { formato },
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  async deleteQuestionario(id: string) {
+    await api.delete(`/prof/questionarios/${id}`);
   }
 };
 

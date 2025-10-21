@@ -1,8 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
+
+const { width } = Dimensions.get('window');
 
 export default function TurmasScreen() {
   const [showForm, setShowForm] = useState(false);
@@ -35,6 +37,28 @@ export default function TurmasScreen() {
       Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar turma');
     }
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: adminService.deleteTurma,
+    onSuccess: () => {
+      Alert.alert('Sucesso', 'Turma removida com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['turmas'] });
+    },
+    onError: (error: any) => {
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover turma');
+    }
+  });
+
+  const handleDelete = (id: string, nome: string) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Deseja realmente remover a turma ${nome}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Remover', style: 'destructive', onPress: () => deleteMutation.mutate(id) }
+      ]
+    );
+  };
 
   const handleSubmit = () => {
     if (!nome || !ano || !professorId) {
@@ -121,6 +145,13 @@ export default function TurmasScreen() {
                 {turma._count?.alunos || 0} alunos
               </Text>
             </View>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDelete(turma.id, turma.nome)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.deleteButtonText}>🗑️ Remover</Text>
+            </TouchableOpacity>
           </View>
         ))}
 
@@ -213,30 +244,46 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 2,
-    borderColor: '#e5e7eb'
+    borderWidth: 3,
+    borderColor: '#075D94'
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: Math.min(width * 0.05, 22),
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#075D94',
     marginBottom: 8
   },
   cardSubtitle: {
-    fontSize: 16,
+    fontSize: Math.min(width * 0.04, 18),
     color: '#6b7280',
     marginBottom: 12
   },
   cardFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginBottom: 12
   },
   cardMeta: {
-    fontSize: 14,
+    fontSize: Math.min(width * 0.038, 16),
     color: '#9ca3af'
+  },
+  deleteButton: {
+    backgroundColor: '#FEE2E2',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#DC2626',
+    marginTop: 12,
+    alignItems: 'center'
+  },
+  deleteButtonText: {
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#DC2626',
+    fontWeight: '700'
   },
   emptyText: {
     fontSize: 18,

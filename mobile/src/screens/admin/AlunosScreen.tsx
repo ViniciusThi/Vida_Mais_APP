@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
+
+const { width } = Dimensions.get('window');
 
 export default function AlunosScreen() {
   const [showForm, setShowForm] = useState(false);
@@ -29,6 +31,28 @@ export default function AlunosScreen() {
       Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar aluno');
     }
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: adminService.deleteAluno,
+    onSuccess: () => {
+      Alert.alert('Sucesso', 'Aluno removido com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['alunos'] });
+    },
+    onError: (error: any) => {
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover aluno');
+    }
+  });
+
+  const handleDelete = (id: string, nome: string) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Deseja realmente remover ${nome}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Remover', style: 'destructive', onPress: () => deleteMutation.mutate(id) }
+      ]
+    );
+  };
 
   const handleSubmit = () => {
     if (!nome || !email || !senha) {
@@ -102,17 +126,26 @@ export default function AlunosScreen() {
         {alunos?.map((aluno: any) => (
           <View key={aluno.id} style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{aluno.nome}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>{aluno.nome}</Text>
+                <Text style={styles.cardEmail}>{aluno.email}</Text>
+                <Text style={styles.cardMeta}>
+                  {aluno.alunoTurmas?.map((at: any) => at.turma.nome).join(', ') || 'Sem turma'}
+                </Text>
+              </View>
               <View style={aluno.ativo ? styles.badgeActive : styles.badgeInactive}>
                 <Text style={styles.badgeText}>
                   {aluno.ativo ? 'Ativo' : 'Inativo'}
                 </Text>
               </View>
             </View>
-            <Text style={styles.cardEmail}>{aluno.email}</Text>
-            <Text style={styles.cardMeta}>
-              {aluno.alunoTurmas?.map((at: any) => at.turma.nome).join(', ') || 'Sem turma'}
-            </Text>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDelete(aluno.id, aluno.nome)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.deleteButtonText}>🗑️ Remover</Text>
+            </TouchableOpacity>
           </View>
         ))}
 
@@ -195,32 +228,47 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 2,
-    borderColor: '#e5e7eb'
+    borderWidth: 3,
+    borderColor: '#075D94'
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8
+    marginBottom: 16
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: Math.min(width * 0.05, 22),
     fontWeight: 'bold',
-    color: '#111827',
-    flex: 1
+    color: '#075D94',
+    marginBottom: 6
   },
   cardEmail: {
-    fontSize: 16,
+    fontSize: Math.min(width * 0.04, 18),
     color: '#6b7280',
     marginBottom: 8
   },
   cardMeta: {
-    fontSize: 14,
+    fontSize: Math.min(width * 0.038, 16),
     color: '#9ca3af'
+  },
+  deleteButton: {
+    backgroundColor: '#FEE2E2',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#DC2626',
+    marginTop: 12,
+    alignItems: 'center'
+  },
+  deleteButtonText: {
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#DC2626',
+    fontWeight: '700'
   },
   badgeActive: {
     backgroundColor: '#d1fae5',

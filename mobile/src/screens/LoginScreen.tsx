@@ -52,8 +52,9 @@ export default function LoginScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.header}>
-        <Text style={styles.logoEmoji}>❤️</Text>
-        <Text style={styles.title}>Vida Mais</Text>
+        <View style={styles.logoCircle}>
+          <Text style={styles.logoText}>VIDA{'\n'}MAIS</Text>
+        </View>
         <Text style={styles.subtitle}>Pesquisa de Satisfação</Text>
       </View>
 
@@ -118,24 +119,38 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: height * 0.05
+    marginBottom: height * 0.06
   },
-  logoEmoji: {
-    fontSize: width * 0.2,
-    marginBottom: 16
+  logoCircle: {
+    width: Math.min(width * 0.35, 140),
+    height: Math.min(width * 0.35, 140),
+    borderRadius: Math.min(width * 0.175, 70),
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 5,
+    borderColor: '#FF7E00', // Laranja
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8
   },
-  title: {
-    fontSize: Math.min(width * 0.12, 48),
+  logoText: {
+    fontSize: Math.min(width * 0.08, 32),
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textAlign: 'center'
+    color: '#075D94', // Azul
+    textAlign: 'center',
+    letterSpacing: 1,
+    lineHeight: 36
   },
   subtitle: {
-    fontSize: Math.min(width * 0.055, 24),
+    fontSize: Math.min(width * 0.065, 28),
     color: '#FFFFFF',
-    opacity: 0.9,
-    textAlign: 'center'
+    textAlign: 'center',
+    fontWeight: '600',
+    letterSpacing: 0.5
   },
   formContainer: {
     width: '100%',

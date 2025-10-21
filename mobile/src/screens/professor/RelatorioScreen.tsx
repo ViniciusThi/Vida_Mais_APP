@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert, Linking, Platform } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute } from '@react-navigation/native';
 import { professorService } from '../../services/api';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 export default function RelatorioScreen() {
   const route = useRoute<any>();
@@ -11,6 +13,30 @@ export default function RelatorioScreen() {
     queryKey: ['relatorio', id],
     queryFn: () => professorService.getRelatorio(id)
   });
+
+  const handleExport = async (formato: 'xlsx' | 'csv') => {
+    try {
+      Alert.alert(
+        'Exportar Relatório',
+        `Deseja exportar para ${formato.toUpperCase()}?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Exportar',
+            onPress: async () => {
+              Alert.alert(
+                'Atenção',
+                'A exportação está disponível apenas no painel web. Acesse http://54.233.110.183 no navegador para exportar.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível exportar');
+    }
+  };
 
   if (isLoading || !relatorio) {
     return (
@@ -33,6 +59,23 @@ export default function RelatorioScreen() {
           <Text style={styles.subtitle}>
             {relatorio.totalRespondentes} respondentes
           </Text>
+          
+          <View style={styles.exportButtons}>
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={() => handleExport('xlsx')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.exportButtonText}>📊 Excel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={() => handleExport('csv')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.exportButtonText}>📄 CSV</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {relatorio.relatorio.map((item: any, index: number) => (
@@ -143,18 +186,45 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
     marginBottom: 24,
-    borderWidth: 2,
-    borderColor: '#e5e7eb'
+    borderWidth: 3,
+    borderColor: '#075D94'
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8
+    color: '#075D94',
+    marginBottom: 8,
+    lineHeight: 32
   },
   subtitle: {
+    fontSize: 20,
+    color: '#6b7280',
+    marginBottom: 20
+  },
+  exportButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16
+  },
+  exportButton: {
+    flex: 1,
+    backgroundColor: '#FF7E00',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    minHeight: 60,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4
+  },
+  exportButtonText: {
+    color: '#FFFFFF',
     fontSize: 18,
-    color: '#6b7280'
+    fontWeight: 'bold'
   },
   card: {
     backgroundColor: '#fff',

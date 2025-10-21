@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl } from 'react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl, Dimensions } from 'react-native';
+import { useQuery, useMutation, useQueryClient } from '@tantml:react-query';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
+
+const { width } = Dimensions.get('window');
 
 export default function ProfessoresScreen() {
   const [showForm, setShowForm] = useState(false);
@@ -29,6 +31,28 @@ export default function ProfessoresScreen() {
       Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar professor');
     }
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: adminService.deleteProfessor,
+    onSuccess: () => {
+      Alert.alert('Sucesso', 'Professor removido com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['professores'] });
+    },
+    onError: (error: any) => {
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover professor');
+    }
+  });
+
+  const handleDelete = (id: string, nome: string) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Deseja realmente remover ${nome}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Remover', style: 'destructive', onPress: () => deleteMutation.mutate(id) }
+      ]
+    );
+  };
 
   const handleSubmit = () => {
     if (!nome || !email || !senha) {
@@ -102,17 +126,26 @@ export default function ProfessoresScreen() {
         {professores?.map((prof: any) => (
           <View key={prof.id} style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{prof.nome}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>{prof.nome}</Text>
+                <Text style={styles.cardEmail}>{prof.email}</Text>
+                <Text style={styles.cardMeta}>
+                  {prof._count?.turmasProfessor || 0} turmas
+                </Text>
+              </View>
               <View style={prof.ativo ? styles.badgeActive : styles.badgeInactive}>
                 <Text style={styles.badgeText}>
                   {prof.ativo ? 'Ativo' : 'Inativo'}
                 </Text>
               </View>
             </View>
-            <Text style={styles.cardEmail}>{prof.email}</Text>
-            <Text style={styles.cardMeta}>
-              {prof._count?.turmasProfessor || 0} turmas
-            </Text>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDelete(prof.id, prof.nome)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.deleteButtonText}>🗑️ Remover</Text>
+            </TouchableOpacity>
           </View>
         ))}
 
@@ -195,32 +228,47 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 2,
-    borderColor: '#e5e7eb'
+    borderWidth: 3,
+    borderColor: '#075D94'
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8
+    marginBottom: 16
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: Math.min(width * 0.05, 22),
     fontWeight: 'bold',
-    color: '#111827',
-    flex: 1
+    color: '#075D94',
+    marginBottom: 6
   },
   cardEmail: {
-    fontSize: 16,
+    fontSize: Math.min(width * 0.04, 18),
     color: '#6b7280',
     marginBottom: 8
   },
   cardMeta: {
-    fontSize: 14,
+    fontSize: Math.min(width * 0.038, 16),
     color: '#9ca3af'
+  },
+  deleteButton: {
+    backgroundColor: '#FEE2E2',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#DC2626',
+    marginTop: 12,
+    alignItems: 'center'
+  },
+  deleteButtonText: {
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#DC2626',
+    fontWeight: '700'
   },
   badgeActive: {
     backgroundColor: '#d1fae5',
