@@ -8,7 +8,8 @@ import {
   Alert,
   ScrollView,
   Platform,
-  Dimensions
+  Dimensions,
+  Image
 } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import { authService, setAuthToken } from '../services/api';
