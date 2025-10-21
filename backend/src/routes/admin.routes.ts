@@ -74,6 +74,32 @@ router.get('/professores', async (req, res, next) => {
   }
 });
 
+// DELETE /admin/professores/:id - Deletar professor
+router.delete('/professores/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se o professor existe e é realmente um professor
+    const professor = await prisma.user.findUnique({
+      where: { id },
+      select: { role: true }
+    });
+
+    if (!professor || professor.role !== Role.PROF) {
+      return res.status(404).json({ error: 'Professor não encontrado' });
+    }
+
+    // Deleta o professor (cascade vai remover as turmas associadas)
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ========== ALUNOS ==========
 
 const createAlunoSchema = z.object({
@@ -137,6 +163,32 @@ router.get('/alunos', async (req, res, next) => {
     });
 
     res.json(alunos);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /admin/alunos/:id - Deletar aluno
+router.delete('/alunos/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se o aluno existe e é realmente um aluno
+    const aluno = await prisma.user.findUnique({
+      where: { id },
+      select: { role: true }
+    });
+
+    if (!aluno || aluno.role !== Role.ALUNO) {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    // Deleta o aluno (cascade vai remover os vínculos e respostas)
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
@@ -252,6 +304,31 @@ router.get('/turmas', async (req, res, next) => {
     });
 
     res.json(turmas);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /admin/turmas/:id - Deletar turma
+router.delete('/turmas/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se a turma existe
+    const turma = await prisma.turma.findUnique({
+      where: { id }
+    });
+
+    if (!turma) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    // Deleta a turma (cascade vai remover os vínculos)
+    await prisma.turma.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
