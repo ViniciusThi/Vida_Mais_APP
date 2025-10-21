@@ -74,6 +74,45 @@ router.get('/professores', async (req, res, next) => {
   }
 });
 
+// PUT /admin/professores/:id - Atualizar professor
+router.put('/professores/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, senha } = req.body;
+
+    // Verifica se o professor existe
+    const professor = await prisma.user.findUnique({
+      where: { id },
+      select: { role: true }
+    });
+
+    if (!professor || professor.role !== Role.PROF) {
+      return res.status(404).json({ error: 'Professor não encontrado' });
+    }
+
+    const updateData: any = { nome, email };
+    
+    if (senha) {
+      updateData.senhaHash = await bcrypt.hash(senha, 10);
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        role: true
+      }
+    });
+
+    res.json(updated);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE /admin/professores/:id - Deletar professor
 router.delete('/professores/:id', async (req: AuthRequest, res, next) => {
   try {
@@ -163,6 +202,45 @@ router.get('/alunos', async (req, res, next) => {
     });
 
     res.json(alunos);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /admin/alunos/:id - Atualizar aluno
+router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, senha } = req.body;
+
+    // Verifica se o aluno existe
+    const aluno = await prisma.user.findUnique({
+      where: { id },
+      select: { role: true }
+    });
+
+    if (!aluno || aluno.role !== Role.ALUNO) {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    const updateData: any = { nome, email };
+    
+    if (senha) {
+      updateData.senhaHash = await bcrypt.hash(senha, 10);
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        role: true
+      }
+    });
+
+    res.json(updated);
   } catch (error) {
     next(error);
   }

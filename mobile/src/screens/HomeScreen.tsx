@@ -90,7 +90,7 @@ function ProfessorMenu({ navigation }: any) {
   const menuItems = [
     { title: 'Meus Questionários', subtitle: 'Ver questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
     { title: 'Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕', color: '#FF7E00' },
-    { title: 'Minhas Turmas', subtitle: 'Ver turmas', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
+    { title: 'Minhas Turmas', subtitle: 'Ver alunos', screen: 'MinhasTurmas', icon: '📚', color: '#7ABA43' },
   ];
 
   return (

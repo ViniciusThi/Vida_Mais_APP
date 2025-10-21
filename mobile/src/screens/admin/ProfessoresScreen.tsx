@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
 
 const { width } = Dimensions.get('window');
 
 export default function ProfessoresScreen() {
+  const navigation = useNavigation<any>();
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -139,13 +141,24 @@ export default function ProfessoresScreen() {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDelete(prof.id, prof.nome)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.deleteButtonText}>🗑️ Remover</Text>
-            </TouchableOpacity>
+            
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => navigation.navigate('EditarProfessor', { professorId: prof.id })}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.editButtonText}>✏️ Editar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDelete(prof.id, prof.nome)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.deleteButtonText}>🗑️ Remover</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
 
@@ -255,14 +268,34 @@ const styles = StyleSheet.create({
     fontSize: Math.min(width * 0.038, 16),
     color: '#9ca3af'
   },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: '#DBEAFE',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#075D94',
+    alignItems: 'center'
+  },
+  editButtonText: {
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#075D94',
+    fontWeight: '700'
+  },
   deleteButton: {
+    flex: 1,
     backgroundColor: '#FEE2E2',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#DC2626',
-    marginTop: 12,
     alignItems: 'center'
   },
   deleteButtonText: {

@@ -75,6 +75,16 @@ export const adminService = {
 
   async desvincularAluno(alunoTurmaId: string) {
     await api.delete(`/admin/vincular-aluno/${alunoTurmaId}`);
+  },
+
+  async updateProfessor(id: string, data: { nome: string; email: string; senha?: string }) {
+    const { data: result } = await api.put(`/admin/professores/${id}`, data);
+    return result;
+  },
+
+  async updateAluno(id: string, data: { nome: string; email: string; senha?: string }) {
+    const { data: result } = await api.put(`/admin/alunos/${id}`, data);
+    return result;
   }
 };
 
