@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { alunoService } from '../services/api';
 import { useState } from 'react';
-import { colors, fontSizes, spacing, borderRadius } from '../theme/colors';
+
+const { width, height } = Dimensions.get('window');
+const isTablet = width >= 768;
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
@@ -20,7 +22,6 @@ export default function HomeScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   };
 
-  // Menu baseado no role
   const renderMenu = () => {
     if (user?.role === 'ADMIN') {
       return <AdminMenu navigation={navigation} />;
@@ -32,90 +33,87 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Olá, {user?.nome}! 👋</Text>
+        <Text style={styles.greeting}>Olá, {user?.nome}!</Text>
         <Text style={styles.subtitle}>
-          {user?.role === 'ADMIN' ? 'Administrador Geral' : 
-           user?.role === 'PROF' ? 'Professor' : 'Aluno'}
+          {user?.role === 'ADMIN' ? '👨‍💼 Administrador' : 
+           user?.role === 'PROF' ? '👨‍🏫 Professor' : '👤 Aluno'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Sair</Text>
+          <Text style={styles.logoutText}>SAIR</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {renderMenu()}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
-// Menu do Admin
 function AdminMenu({ navigation }: any) {
   const menuItems = [
-    { title: '👨‍🏫 Professores', subtitle: 'Gerenciar professores', screen: 'Professores', icon: '👨‍🏫' },
-    { title: '👥 Alunos', subtitle: 'Gerenciar alunos', screen: 'Alunos', icon: '👥' },
-    { title: '🎓 Turmas', subtitle: 'Gerenciar turmas', screen: 'Turmas', icon: '🎓' },
-    { title: '📋 Questionários', subtitle: 'Criar questionários globais', screen: 'MeusQuestionarios', icon: '📋' },
+    { title: 'Professores', subtitle: 'Gerenciar professores', screen: 'Professores', icon: '👨‍🏫', color: '#075D94' },
+    { title: 'Alunos', subtitle: 'Gerenciar alunos', screen: 'Alunos', icon: '👥', color: '#FF7E00' },
+    { title: 'Turmas', subtitle: 'Gerenciar turmas', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
+    { title: 'Questionários', subtitle: 'Criar questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
   ];
 
   return (
-    <>
-      <Text style={styles.sectionTitle}>Menu Administrativo</Text>
+    <View style={styles.menuContainer}>
       {menuItems.map((item) => (
         <TouchableOpacity
           key={item.screen}
-          style={styles.menuCard}
+          style={[styles.menuCard, { borderLeftColor: item.color, borderLeftWidth: 6 }]}
           onPress={() => navigation.navigate(item.screen)}
+          activeOpacity={0.7}
         >
           <Text style={styles.menuIcon}>{item.icon}</Text>
-          <View style={styles.menuContent}>
+          <View style={styles.menuTextContainer}>
             <Text style={styles.menuTitle}>{item.title}</Text>
             <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
           </View>
-          <Text style={styles.menuArrow}>›</Text>
+          <Text style={[styles.menuArrow, { color: item.color }]}>›</Text>
         </TouchableOpacity>
       ))}
-    </>
+    </View>
   );
 }
 
-// Menu do Professor
 function ProfessorMenu({ navigation }: any) {
   const menuItems = [
-    { title: '📋 Meus Questionários', subtitle: 'Ver e criar questionários', screen: 'MeusQuestionarios', icon: '📋' },
-    { title: '➕ Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕' },
-    { title: '🎓 Minhas Turmas', subtitle: 'Ver suas turmas', screen: 'Turmas', icon: '🎓' },
+    { title: 'Meus Questionários', subtitle: 'Ver questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
+    { title: 'Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕', color: '#FF7E00' },
+    { title: 'Minhas Turmas', subtitle: 'Ver turmas', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
   ];
 
   return (
-    <>
-      <Text style={styles.sectionTitle}>Menu do Professor</Text>
+    <View style={styles.menuContainer}>
       {menuItems.map((item) => (
         <TouchableOpacity
           key={item.screen}
-          style={styles.menuCard}
+          style={[styles.menuCard, { borderLeftColor: item.color, borderLeftWidth: 6 }]}
           onPress={() => navigation.navigate(item.screen)}
+          activeOpacity={0.7}
         >
           <Text style={styles.menuIcon}>{item.icon}</Text>
-          <View style={styles.menuContent}>
+          <View style={styles.menuTextContainer}>
             <Text style={styles.menuTitle}>{item.title}</Text>
             <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
           </View>
-          <Text style={styles.menuArrow}>›</Text>
+          <Text style={[styles.menuArrow, { color: item.color }]}>›</Text>
         </TouchableOpacity>
       ))}
-    </>
+    </View>
   );
 }
 
-// Menu do Aluno
 function AlunoMenu({ navigation }: any) {
   const { data: turmas } = useQuery({
     queryKey: ['minhas-turmas'],
@@ -131,34 +129,38 @@ function AlunoMenu({ navigation }: any) {
   const respondidos = questionarios?.filter((q: any) => q.respondido) || [];
 
   return (
-    <>
-      <Text style={styles.sectionTitle}>
-        {turmas?.length > 0 
-          ? `Turma: ${turmas.map((t: any) => t.nome).join(', ')}`
-          : 'Questionários Disponíveis'
-        }
-      </Text>
+    <View style={styles.menuContainer}>
+      {turmas && turmas.length > 0 && (
+        <View style={styles.infoCard}>
+          <Text style={styles.infoText}>
+            🎓 {turmas.map((t: any) => t.nome).join(', ')}
+          </Text>
+        </View>
+      )}
 
-      {isLoading && <Text style={styles.emptyText}>Carregando...</Text>}
+      {isLoading && <Text style={styles.loadingText}>Carregando...</Text>}
 
       {pendentes.length > 0 && (
         <>
-          <Text style={styles.subtitle2}>📋 Questionários Pendentes</Text>
+          <Text style={styles.sectionTitle}>📋 Questionários Disponíveis</Text>
           {pendentes.map((item: any) => (
             <TouchableOpacity
               key={item.id}
-              style={styles.card}
+              style={styles.questionCard}
               onPress={() => navigation.navigate('Questionario', { id: item.id, turmaId: turmas?.[0]?.id })}
+              activeOpacity={0.7}
             >
-              <Text style={styles.cardTitle}>{item.titulo}</Text>
+              <Text style={styles.questionTitle}>{item.titulo}</Text>
               {item.descricao && (
-                <Text style={styles.cardDescription}>{item.descricao}</Text>
+                <Text style={styles.questionDescription}>{item.descricao}</Text>
               )}
-              <View style={styles.cardFooter}>
-                <Text style={styles.cardMeta}>
-                  {item._count.perguntas} perguntas
+              <View style={styles.questionFooter}>
+                <Text style={styles.questionMeta}>
+                  {item._count?.perguntas || 0} perguntas
                 </Text>
-                <Text style={styles.cardBadge}>Responder →</Text>
+                <View style={styles.answerButton}>
+                  <Text style={styles.answerButtonText}>RESPONDER ›</Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -166,170 +168,223 @@ function AlunoMenu({ navigation }: any) {
       )}
 
       {pendentes.length === 0 && !isLoading && (
-        <Text style={styles.emptyText}>
-          Nenhum questionário pendente no momento.
-        </Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>✓</Text>
+          <Text style={styles.emptyText}>
+            Nenhum questionário pendente no momento
+          </Text>
+        </View>
       )}
 
       {respondidos.length > 0 && (
         <>
-          <Text style={[styles.subtitle2, { marginTop: 32 }]}>✅ Já Respondidos</Text>
+          <Text style={[styles.sectionTitle, { marginTop: 32 }]}>✅ Já Respondidos</Text>
           {respondidos.map((item: any) => (
-            <View key={item.id} style={[styles.card, styles.cardDone]}>
-              <Text style={styles.cardTitle}>{item.titulo}</Text>
-              <Text style={styles.cardDoneText}>Obrigado pela participação!</Text>
+            <View key={item.id} style={styles.doneCard}>
+              <Text style={styles.doneTitle}>{item.titulo}</Text>
+              <Text style={styles.doneText}>Obrigado pela participação!</Text>
             </View>
           ))}
         </>
       )}
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral.fundoApp
+    backgroundColor: '#F9FAFB'
   },
   header: {
-    backgroundColor: colors.primary.azul,
-    padding: spacing.xl + 8,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.primary.laranja
+    backgroundColor: '#075D94', // Azul Vida Mais
+    paddingHorizontal: width * 0.05,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingBottom: 24,
+    borderBottomWidth: 4,
+    borderBottomColor: '#FF7E00' // Laranja Vida Mais
   },
   greeting: {
-    fontSize: fontSizes.xl,
+    fontSize: Math.min(width * 0.08, 32),
     fontWeight: 'bold',
-    color: colors.neutral.branco,
-    marginBottom: spacing.sm
+    color: '#FFFFFF',
+    marginBottom: 8
   },
   subtitle: {
-    fontSize: fontSizes.md,
-    color: colors.primary.azulMuitoClaro,
-    fontWeight: '500'
-  },
-  subtitle2: {
-    fontSize: fontSizes.lg,
-    fontWeight: 'bold',
-    color: colors.neutral.preto,
-    marginTop: spacing.md,
-    marginBottom: spacing.lg
+    fontSize: Math.min(width * 0.055, 22),
+    color: '#FFFFFF',
+    opacity: 0.95,
+    marginBottom: 16
   },
   logoutButton: {
-    marginTop: spacing.lg,
-    padding: spacing.md,
-    backgroundColor: colors.neutral.branco,
-    borderRadius: borderRadius.medium,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 10,
     alignSelf: 'flex-start',
     borderWidth: 2,
-    borderColor: colors.primary.laranjaClaro
+    borderColor: '#FF7E00'
   },
   logoutText: {
-    fontSize: fontSizes.sm,
-    color: colors.feedback.erro,
+    fontSize: Math.min(width * 0.045, 18),
+    color: '#DC2626',
     fontWeight: '700'
   },
   content: {
-    padding: spacing.xl
+    flex: 1
+  },
+  menuContainer: {
+    padding: width * 0.04
   },
   sectionTitle: {
-    fontSize: fontSizes.lg,
+    fontSize: Math.min(width * 0.065, 26),
     fontWeight: 'bold',
-    color: colors.primary.azul,
-    marginBottom: spacing.xl
+    color: '#075D94',
+    marginBottom: 16,
+    marginTop: 8
   },
   menuCard: {
-    backgroundColor: colors.neutral.branco,
-    borderRadius: borderRadius.large,
-    padding: spacing.xl + 8,
-    marginBottom: spacing.lg,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: width * 0.05,
+    marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: colors.primary.azulClaro,
-    shadowColor: colors.shadow.media,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 5,
-    minHeight: 100
+    minHeight: isTablet ? 100 : 90,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 2,
+    borderColor: '#E5E7EB'
   },
   menuIcon: {
-    fontSize: 56,
-    marginRight: spacing.xl
+    fontSize: isTablet ? 56 : 48,
+    marginRight: width * 0.04,
+    width: isTablet ? 70 : 60,
+    textAlign: 'center'
   },
-  menuContent: {
+  menuTextContainer: {
     flex: 1
   },
   menuTitle: {
-    fontSize: fontSizes.lg,
+    fontSize: Math.min(width * 0.055, 24),
     fontWeight: 'bold',
-    color: colors.primary.azul,
-    marginBottom: spacing.xs
+    color: '#1F2937',
+    marginBottom: 4
   },
   menuSubtitle: {
-    fontSize: fontSizes.sm,
-    color: colors.neutral.cinzaMedio,
-    lineHeight: 24
+    fontSize: Math.min(width * 0.04, 18),
+    color: '#6B7280'
   },
   menuArrow: {
-    fontSize: 40,
-    color: colors.primary.laranja,
-    fontWeight: 'bold'
-  },
-  card: {
-    backgroundColor: colors.neutral.branco,
-    borderRadius: borderRadius.large,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
-    borderWidth: 3,
-    borderColor: colors.primary.laranjaClaro,
-    minHeight: 120
-  },
-  cardDone: {
-    borderColor: colors.primary.verde,
-    backgroundColor: colors.primary.verdeMuitoClaro
-  },
-  cardTitle: {
-    fontSize: fontSizes.lg,
+    fontSize: isTablet ? 48 : 40,
     fontWeight: 'bold',
-    color: colors.neutral.preto,
-    marginBottom: spacing.sm,
-    lineHeight: 32
+    marginLeft: 8
   },
-  cardDescription: {
-    fontSize: fontSizes.sm,
-    color: colors.neutral.cinzaEscuro,
-    marginBottom: spacing.md,
-    lineHeight: 26
+  infoCard: {
+    backgroundColor: '#E6F3FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#075D94'
   },
-  cardFooter: {
+  infoText: {
+    fontSize: Math.min(width * 0.045, 20),
+    color: '#075D94',
+    fontWeight: '600',
+    textAlign: 'center'
+  },
+  questionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: width * 0.05,
+    marginBottom: 16,
+    borderWidth: 3,
+    borderColor: '#FF7E00', // Laranja
+    minHeight: 110,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4
+  },
+  questionTitle: {
+    fontSize: Math.min(width * 0.055, 24),
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 8,
+    lineHeight: 30
+  },
+  questionDescription: {
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#6B7280',
+    marginBottom: 12,
+    lineHeight: 24
+  },
+  questionFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.sm
+    marginTop: 8
   },
-  cardMeta: {
-    fontSize: fontSizes.xs,
-    color: colors.neutral.cinzaMedio
+  questionMeta: {
+    fontSize: Math.min(width * 0.038, 16),
+    color: '#9CA3AF'
   },
-  cardBadge: {
-    fontSize: fontSizes.sm,
-    color: colors.primary.laranja,
+  answerButton: {
+    backgroundColor: '#FF7E00',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8
+  },
+  answerButtonText: {
+    color: '#FFFFFF',
+    fontSize: Math.min(width * 0.04, 18),
     fontWeight: '700'
   },
-  cardDoneText: {
-    fontSize: fontSizes.sm,
-    color: colors.primary.verdeEscuro,
-    fontWeight: '700'
+  doneCard: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 16,
+    padding: width * 0.05,
+    marginBottom: 16,
+    borderWidth: 3,
+    borderColor: '#7ABA43', // Verde
+    minHeight: 90
+  },
+  doneTitle: {
+    fontSize: Math.min(width * 0.05, 22),
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 8
+  },
+  doneText: {
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#5E8E2E',
+    fontWeight: '600'
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: height * 0.1,
+    paddingHorizontal: width * 0.1
+  },
+  emptyIcon: {
+    fontSize: width * 0.2,
+    marginBottom: 20,
+    opacity: 0.3
   },
   emptyText: {
-    fontSize: fontSizes.md,
-    color: colors.neutral.cinzaMedio,
+    fontSize: Math.min(width * 0.05, 22),
+    color: '#9CA3AF',
     textAlign: 'center',
-    marginTop: spacing.xxxl,
-    marginBottom: spacing.xxxl,
-    lineHeight: 32
+    lineHeight: 30
+  },
+  loadingText: {
+    fontSize: Math.min(width * 0.05, 22),
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 40
   }
 });
-

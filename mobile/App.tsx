@@ -42,7 +42,7 @@ export default function App() {
         <StatusBar style="light" />
         <Stack.Navigator
           screenOptions={{
-            headerStyle: { backgroundColor: '#0284c7' },
+            headerStyle: { backgroundColor: '#075D94' }, // Azul Vida Mais
             headerTintColor: '#fff',
             headerTitleStyle: { fontWeight: 'bold', fontSize: 22 }
           }}

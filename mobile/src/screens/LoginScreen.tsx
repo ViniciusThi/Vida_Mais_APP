@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
+  ScrollView,
   Platform,
-  Image
+  Dimensions
 } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import { authService, setAuthToken } from '../services/api';
-import { colors, fontSizes, spacing, buttonSizes, borderRadius } from '../theme/colors';
+
+const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -45,30 +46,24 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <ScrollView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          {/* Quando adicionar a logo, descomente:
-          <Image 
-            source={require('../../assets/images/Logo_VidaMais.png')} 
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-          */}
-          <Text style={styles.logoEmoji}>❤️</Text>
-          <Text style={styles.title}>Vida Mais</Text>
-          <Text style={styles.subtitle}>Pesquisa de Satisfação</Text>
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.logoEmoji}>❤️</Text>
+        <Text style={styles.title}>Vida Mais</Text>
+        <Text style={styles.subtitle}>Pesquisa de Satisfação</Text>
+      </View>
 
+      <View style={styles.formContainer}>
         <View style={styles.form}>
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
             placeholder="Digite seu email"
-            placeholderTextColor={colors.neutral.cinzaMedio}
+            placeholderTextColor="#9CA3AF"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -80,7 +75,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Digite sua senha"
-            placeholderTextColor={colors.neutral.cinzaMedio}
+            placeholderTextColor="#9CA3AF"
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
@@ -90,131 +85,140 @@ export default function LoginScreen() {
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={loading}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
           >
             <Text style={styles.buttonText}>
-              {loading ? 'Entrando...' : 'ENTRAR'}
+              {loading ? 'ENTRANDO...' : '✓ ENTRAR'}
             </Text>
           </TouchableOpacity>
+        </View>
 
-          <View style={styles.hint}>
-            <Text style={styles.hintTitle}>💡 Credenciais de teste</Text>
-            <Text style={styles.hintText}>Aluno: aluno1@vidamais.com</Text>
-            <Text style={styles.hintText}>Professor: prof1@vidamais.com</Text>
-            <Text style={styles.hintText}>Admin: admin@vidamais.com</Text>
-            <Text style={[styles.hintText, { marginTop: 8, fontWeight: '600' }]}>
-              Senha para todos: aluno123 ou prof123 ou admin123
-            </Text>
-          </View>
+        <View style={styles.hint}>
+          <Text style={styles.hintTitle}>💡 Para Testar</Text>
+          <Text style={styles.hintText}>Aluno: aluno1@vidamais.com</Text>
+          <Text style={styles.hintText}>Professor: prof1@vidamais.com</Text>
+          <Text style={styles.hintText}>Admin: admin@vidamais.com</Text>
+          <Text style={styles.hintTextSmall}>Senha: aluno123 / prof123 / admin123</Text>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary.azul,
+    backgroundColor: '#075D94' // Azul Vida Mais
   },
-  content: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.xl
+    paddingHorizontal: width * 0.05,
+    paddingVertical: height * 0.05
   },
-  logoContainer: {
+  header: {
     alignItems: 'center',
-    marginBottom: spacing.xxxl + 20
-  },
-  logoImage: {
-    width: 120,
-    height: 120,
-    marginBottom: spacing.xl
+    marginBottom: height * 0.05
   },
   logoEmoji: {
-    fontSize: 80,
-    marginBottom: spacing.lg
+    fontSize: width * 0.2,
+    marginBottom: 16
   },
   title: {
-    fontSize: fontSizes.xxl + 4,
+    fontSize: Math.min(width * 0.12, 48),
     fontWeight: 'bold',
-    color: colors.neutral.branco,
-    marginBottom: spacing.sm,
-    letterSpacing: 0.5
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center'
   },
   subtitle: {
-    fontSize: fontSizes.md,
-    color: colors.primary.azulMuitoClaro,
-    fontWeight: '500'
+    fontSize: Math.min(width * 0.055, 24),
+    color: '#FFFFFF',
+    opacity: 0.9,
+    textAlign: 'center'
+  },
+  formContainer: {
+    width: '100%',
+    maxWidth: 500
   },
   form: {
-    backgroundColor: colors.neutral.branco,
-    borderRadius: borderRadius.xlarge,
-    padding: spacing.xxxl,
-    shadowColor: colors.shadow.forte,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: width * 0.06,
+    marginBottom: 20,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 8
   },
   label: {
-    fontSize: fontSizes.md,
+    fontSize: Math.min(width * 0.055, 24),
     fontWeight: '700',
-    marginBottom: spacing.sm,
-    color: colors.neutral.preto
+    marginBottom: 10,
+    color: '#1F2937'
   },
   input: {
-    fontSize: fontSizes.md,
-    borderWidth: 3,
-    borderColor: colors.neutral.cinzaClaro,
-    borderRadius: borderRadius.medium,
-    padding: spacing.lg + 4,
-    marginBottom: spacing.xl + 4,
-    backgroundColor: colors.neutral.branco,
-    color: colors.neutral.preto
+    fontSize: Math.min(width * 0.05, 22),
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    padding: 18,
+    marginBottom: 24,
+    backgroundColor: '#FFFFFF',
+    color: '#1F2937',
+    minHeight: 60
   },
   button: {
-    backgroundColor: colors.primary.laranja,
-    borderRadius: borderRadius.medium,
-    padding: spacing.xl + 4,
+    backgroundColor: '#FF7E00', // Laranja Vida Mais
+    borderRadius: 12,
+    paddingVertical: 22,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    minHeight: buttonSizes.large,
     justifyContent: 'center',
-    shadowColor: colors.shadow.media,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4
+    minHeight: 70,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6
   },
   buttonDisabled: {
     opacity: 0.6
   },
   buttonText: {
-    color: colors.neutral.branco,
-    fontSize: fontSizes.buttonLarge,
+    color: '#FFFFFF',
+    fontSize: Math.min(width * 0.06, 26),
     fontWeight: 'bold',
-    letterSpacing: 0.5
+    letterSpacing: 1
   },
   hint: {
-    marginTop: spacing.xl + 8,
-    padding: spacing.lg,
-    backgroundColor: colors.primary.azulMuitoClaro,
-    borderRadius: borderRadius.medium,
+    backgroundColor: '#E6F3FA', // Azul claro
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 2,
-    borderColor: colors.primary.azulClaro
+    borderColor: '#075D94'
   },
   hintTitle: {
-    fontSize: fontSizes.sm,
+    fontSize: Math.min(width * 0.048, 20),
     fontWeight: '700',
-    color: colors.primary.azul,
-    marginBottom: spacing.sm,
+    color: '#075D94',
+    marginBottom: 12,
     textAlign: 'center'
   },
   hintText: {
-    fontSize: fontSizes.xs,
-    color: colors.primary.azulEscuro,
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#054A75',
     textAlign: 'center',
+    marginBottom: 6,
     lineHeight: 24
+  },
+  hintTextSmall: {
+    fontSize: Math.min(width * 0.038, 16),
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 8,
+    fontStyle: 'italic'
   }
 });
 

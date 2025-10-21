@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Alert
+  Alert,
+  Dimensions
 } from 'react-native';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import * as Speech from 'expo-speech';
-import { colors, fontSizes, spacing, buttonSizes, borderRadius } from '../theme/colors';
+
+const { width, height } = Dimensions.get('window');
+const isTablet = width >= 768;
 
 export default function QuestionarioScreen() {
   const route = useRoute<any>();
@@ -39,8 +42,8 @@ export default function QuestionarioScreen() {
 
   if (isLoading || !questionario) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loading}>Carregando...</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Carregando questionário...</Text>
       </View>
     );
   }
@@ -57,7 +60,9 @@ export default function QuestionarioScreen() {
 
   const handleProxima = () => {
     if (pergunta.obrigatoria && !respostas[pergunta.id]) {
-      Alert.alert('Atenção', 'Por favor, responda esta pergunta antes de continuar.');
+      Alert.alert('Atenção', 'Por favor, responda esta pergunta antes de continuar.', [
+        { text: 'OK', style: 'default' }
+      ]);
       return;
     }
 
@@ -94,34 +99,35 @@ export default function QuestionarioScreen() {
   };
 
   const falar = () => {
-    Speech.speak(pergunta.enunciado, { language: 'pt-BR', rate: 0.8 });
+    Speech.speak(pergunta.enunciado, { language: 'pt-BR', rate: 0.75 });
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.progress}>
-          <Text style={styles.progressText}>
-            Pergunta {currentIndex + 1} de {perguntas.length}
-          </Text>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill, 
-                { width: `${((currentIndex + 1) / perguntas.length) * 100}%` }
-              ]} 
-            />
-          </View>
+      {/* Progress Bar */}
+      <View style={styles.progressContainer}>
+        <Text style={styles.progressText}>
+          Pergunta {currentIndex + 1} de {perguntas.length}
+        </Text>
+        <View style={styles.progressBar}>
+          <View 
+            style={[styles.progressFill, { width: `${((currentIndex + 1) / perguntas.length) * 100}%` }]} 
+          />
         </View>
+      </View>
 
+      {/* Question Card */}
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
         <View style={styles.questionCard}>
-          <TouchableOpacity onPress={falar} style={styles.speakerButton}>
+          {/* Speaker Button */}
+          <TouchableOpacity onPress={falar} style={styles.speakerButton} activeOpacity={0.7}>
             <Text style={styles.speakerIcon}>🔊</Text>
+            <Text style={styles.speakerText}>Ouvir</Text>
           </TouchableOpacity>
           
           <Text style={styles.question}>{pergunta.enunciado}</Text>
           {pergunta.obrigatoria && (
-            <Text style={styles.required}>* Obrigatória</Text>
+            <Text style={styles.required}>* Pergunta obrigatória</Text>
           )}
 
           {/* TEXTO */}
@@ -130,7 +136,8 @@ export default function QuestionarioScreen() {
               style={styles.textInput}
               multiline
               numberOfLines={4}
-              placeholder="Digite sua resposta..."
+              placeholder="Digite sua resposta aqui..."
+              placeholderTextColor="#9CA3AF"
               value={respostas[pergunta.id]?.valor || ''}
               onChangeText={(text) => handleResposta(text, 'TEXTO')}
             />
@@ -147,6 +154,7 @@ export default function QuestionarioScreen() {
                     respostas[pergunta.id]?.valor === num && styles.escalaButtonActive
                   ]}
                   onPress={() => handleResposta(num, 'ESCALA')}
+                  activeOpacity={0.7}
                 >
                   <Text style={[
                     styles.escalaText,
@@ -168,8 +176,10 @@ export default function QuestionarioScreen() {
                   respostas[pergunta.id]?.valor === true && styles.booleanButtonActive
                 ]}
                 onPress={() => handleResposta(true, 'BOOLEAN')}
+                activeOpacity={0.7}
               >
-                <Text style={styles.booleanText}>✓ Sim</Text>
+                <Text style={styles.booleanIcon}>✓</Text>
+                <Text style={styles.booleanText}>SIM</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -177,8 +187,10 @@ export default function QuestionarioScreen() {
                   respostas[pergunta.id]?.valor === false && styles.booleanButtonActive
                 ]}
                 onPress={() => handleResposta(false, 'BOOLEAN')}
+                activeOpacity={0.7}
               >
-                <Text style={styles.booleanText}>✗ Não</Text>
+                <Text style={styles.booleanIcon}>✗</Text>
+                <Text style={styles.booleanText}>NÃO</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -194,8 +206,14 @@ export default function QuestionarioScreen() {
                     respostas[pergunta.id]?.valor === opcao && styles.opcaoButtonActive
                   ]}
                   onPress={() => handleResposta(opcao, pergunta.tipo)}
+                  activeOpacity={0.7}
                 >
-                  <Text style={styles.opcaoText}>{opcao}</Text>
+                  <Text style={[
+                    styles.opcaoText,
+                    respostas[pergunta.id]?.valor === opcao && styles.opcaoTextActive
+                  ]}>
+                    {opcao}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -203,21 +221,26 @@ export default function QuestionarioScreen() {
         </View>
       </ScrollView>
 
+      {/* Navigation Footer */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.navButton, currentIndex === 0 && styles.navButtonDisabled]}
+          style={[styles.navButton, styles.navButtonSecondary, currentIndex === 0 && styles.navButtonDisabled]}
           onPress={handleAnterior}
           disabled={currentIndex === 0}
+          activeOpacity={0.7}
         >
-          <Text style={styles.navButtonText}>← Anterior</Text>
+          <Text style={[styles.navButtonText, currentIndex === 0 && styles.navButtonTextDisabled]}>
+            ← ANTERIOR
+          </Text>
         </TouchableOpacity>
         
         <TouchableOpacity
           style={[styles.navButton, styles.navButtonPrimary]}
           onPress={handleProxima}
+          activeOpacity={0.7}
         >
           <Text style={styles.navButtonTextPrimary}>
-            {currentIndex === perguntas.length - 1 ? 'Enviar' : 'Próxima →'}
+            {currentIndex === perguntas.length - 1 ? '✓ ENVIAR' : 'PRÓXIMA →'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -228,45 +251,56 @@ export default function QuestionarioScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral.fundoApp
+    backgroundColor: '#F9FAFB'
   },
-  content: {
-    padding: spacing.xl
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB'
   },
-  loading: {
-    fontSize: fontSizes.lg,
-    textAlign: 'center',
-    marginTop: 100,
-    color: colors.neutral.cinzaMedio
+  loadingText: {
+    fontSize: Math.min(width * 0.055, 24),
+    color: '#6B7280'
   },
-  progress: {
-    marginBottom: spacing.xl + 8
+  scrollContainer: {
+    flex: 1
+  },
+  scrollContent: {
+    padding: width * 0.04
+  },
+  progressContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: width * 0.05,
+    paddingVertical: 16,
+    borderBottomWidth: 3,
+    borderBottomColor: '#7ABA43' // Verde
   },
   progressText: {
-    fontSize: fontSizes.md,
-    color: colors.primary.azul,
-    marginBottom: spacing.md,
+    fontSize: Math.min(width * 0.05, 22),
+    color: '#075D94', // Azul
+    marginBottom: 10,
     textAlign: 'center',
     fontWeight: '700'
   },
   progressBar: {
     height: 12,
-    backgroundColor: colors.neutral.cinzaClaro,
-    borderRadius: borderRadius.medium,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 6,
     overflow: 'hidden'
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.primary.verde
+    backgroundColor: '#7ABA43' // Verde
   },
   questionCard: {
-    backgroundColor: colors.neutral.branco,
-    borderRadius: borderRadius.xlarge,
-    padding: spacing.xxxl,
-    marginBottom: spacing.xl,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: width * 0.06,
+    marginBottom: 20,
     borderWidth: 3,
-    borderColor: colors.primary.azulClaro,
-    shadowColor: colors.shadow.media,
+    borderColor: '#075D94', // Azul
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
@@ -274,150 +308,184 @@ const styles = StyleSheet.create({
   },
   speakerButton: {
     alignSelf: 'flex-end',
-    marginBottom: spacing.lg,
-    backgroundColor: colors.primary.laranjaMuitoClaro,
-    padding: spacing.md,
-    borderRadius: borderRadius.round,
-    minWidth: 60,
-    minHeight: 60,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFE5CC', // Laranja claro
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 20,
     borderWidth: 3,
-    borderColor: colors.primary.laranja
+    borderColor: '#FF7E00', // Laranja
+    minHeight: 60
   },
   speakerIcon: {
-    fontSize: 40
+    fontSize: 32,
+    marginRight: 8
+  },
+  speakerText: {
+    fontSize: Math.min(width * 0.045, 20),
+    fontWeight: '700',
+    color: '#CC6500'
   },
   question: {
-    fontSize: fontSizes.xl,
+    fontSize: Math.min(width * 0.07, 30),
     fontWeight: 'bold',
-    color: colors.neutral.preto,
-    marginBottom: spacing.md,
-    lineHeight: 42
+    color: '#1F2937',
+    marginBottom: 16,
+    lineHeight: 40
   },
   required: {
-    fontSize: fontSizes.sm,
-    color: colors.feedback.erro,
-    marginBottom: spacing.xl,
+    fontSize: Math.min(width * 0.042, 18),
+    color: '#DC2626',
+    marginBottom: 24,
     fontWeight: '600'
   },
   textInput: {
-    borderWidth: 3,
-    borderColor: colors.neutral.cinzaClaro,
-    borderRadius: borderRadius.medium,
-    padding: spacing.lg + 4,
-    fontSize: fontSizes.md,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    padding: 18,
+    fontSize: Math.min(width * 0.048, 20),
     minHeight: 140,
     textAlignVertical: 'top',
-    color: colors.neutral.preto,
-    backgroundColor: colors.neutral.branco
+    color: '#1F2937',
+    backgroundColor: '#F9FAFB'
   },
   escalaContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xs
+    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    gap: isTablet ? 16 : 8
   },
   escalaButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 4,
-    borderColor: colors.neutral.cinzaClaro,
+    width: isTablet ? 90 : Math.min(width * 0.16, 70),
+    height: isTablet ? 90 : Math.min(width * 0.16, 70),
+    borderRadius: isTablet ? 45 : Math.min(width * 0.08, 35),
+    borderWidth: 3,
+    borderColor: '#D1D5DB',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.neutral.branco
+    backgroundColor: '#FFFFFF'
   },
   escalaButtonActive: {
-    backgroundColor: colors.primary.verde,
-    borderColor: colors.primary.verde
+    backgroundColor: '#7ABA43', // Verde
+    borderColor: '#7ABA43'
   },
   escalaText: {
-    fontSize: fontSizes.xl,
+    fontSize: Math.min(width * 0.08, 32),
     fontWeight: 'bold',
-    color: colors.neutral.cinzaMedio
+    color: '#6B7280'
   },
   escalaTextActive: {
-    color: colors.neutral.branco
+    color: '#FFFFFF'
   },
   booleanContainer: {
-    gap: spacing.lg
+    gap: 16
   },
   booleanButton: {
-    padding: spacing.xxxl,
-    borderRadius: borderRadius.large,
-    borderWidth: 4,
-    borderColor: colors.neutral.cinzaClaro,
+    flexDirection: 'row',
     alignItems: 'center',
-    minHeight: buttonSizes.large + 20,
-    backgroundColor: colors.neutral.branco
+    justifyContent: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 3,
+    borderColor: '#D1D5DB',
+    minHeight: 90,
+    backgroundColor: '#FFFFFF'
   },
   booleanButtonActive: {
-    backgroundColor: colors.primary.verde,
-    borderColor: colors.primary.verde
+    backgroundColor: '#7ABA43', // Verde
+    borderColor: '#7ABA43'
+  },
+  booleanIcon: {
+    fontSize: Math.min(width * 0.08, 32),
+    marginRight: 12,
+    fontWeight: 'bold'
   },
   booleanText: {
-    fontSize: fontSizes.xl,
+    fontSize: Math.min(width * 0.065, 28),
     fontWeight: 'bold',
-    color: colors.neutral.preto
+    color: '#1F2937'
   },
   opcoesContainer: {
-    gap: spacing.lg
+    gap: 14
   },
   opcaoButton: {
-    padding: spacing.xl + 4,
-    borderRadius: borderRadius.large,
-    borderWidth: 4,
-    borderColor: colors.neutral.cinzaClaro,
-    minHeight: buttonSizes.large,
+    paddingVertical: 20,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: '#D1D5DB',
+    minHeight: 75,
     justifyContent: 'center',
-    backgroundColor: colors.neutral.branco
+    backgroundColor: '#FFFFFF'
   },
   opcaoButtonActive: {
-    backgroundColor: colors.primary.laranja,
-    borderColor: colors.primary.laranja
+    backgroundColor: '#FF7E00', // Laranja
+    borderColor: '#FF7E00'
   },
   opcaoText: {
-    fontSize: fontSizes.md,
-    color: colors.neutral.preto,
+    fontSize: Math.min(width * 0.05, 22),
+    color: '#1F2937',
     textAlign: 'center',
     fontWeight: '600',
-    lineHeight: 30
+    lineHeight: 28
+  },
+  opcaoTextActive: {
+    color: '#FFFFFF',
+    fontWeight: 'bold'
   },
   footer: {
     flexDirection: 'row',
-    gap: spacing.md,
-    padding: spacing.xl,
-    backgroundColor: colors.neutral.branco,
+    gap: 12,
+    padding: width * 0.04,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 3,
-    borderTopColor: colors.primary.azulClaro
+    borderTopColor: '#075D94', // Azul
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 8
   },
   navButton: {
     flex: 1,
-    padding: spacing.xl + 4,
-    borderRadius: borderRadius.medium,
-    backgroundColor: colors.neutral.cinzaMuitoClaro,
+    paddingVertical: 20,
+    borderRadius: 12,
     alignItems: 'center',
-    minHeight: buttonSizes.large,
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: colors.neutral.cinzaClaro
+    minHeight: 70
   },
-  navButtonDisabled: {
-    opacity: 0.3
+  navButtonSecondary: {
+    backgroundColor: '#F3F4F6',
+    borderWidth: 2,
+    borderColor: '#D1D5DB'
   },
   navButtonPrimary: {
-    backgroundColor: colors.primary.laranja,
-    borderColor: colors.primary.laranja
+    backgroundColor: '#FF7E00', // Laranja
+    borderWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4
+  },
+  navButtonDisabled: {
+    opacity: 0.4
   },
   navButtonText: {
-    fontSize: fontSizes.buttonMedium,
+    fontSize: Math.min(width * 0.048, 20),
     fontWeight: 'bold',
-    color: colors.neutral.preto
+    color: '#1F2937'
+  },
+  navButtonTextDisabled: {
+    color: '#9CA3AF'
   },
   navButtonTextPrimary: {
-    fontSize: fontSizes.buttonMedium,
+    fontSize: Math.min(width * 0.048, 20),
     fontWeight: 'bold',
-    color: colors.neutral.branco
+    color: '#FFFFFF'
   }
 });
-
