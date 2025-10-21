@@ -12,7 +12,7 @@ export default function EditarQuestionarioPage() {
   const queryClient = useQueryClient();
   const [showPerguntaModal, setShowPerguntaModal] = useState(false);
   
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, watch } = useForm();
   const tipoPergunta = watch('tipo');
 
   const { data: questionario } = useQuery({
