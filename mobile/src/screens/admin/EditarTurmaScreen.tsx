@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
 
 const { width } = Dimensions.get('window');
 
@@ -15,8 +14,6 @@ export default function EditarTurmaScreen() {
 
   const [nome, setNome] = useState('');
   const [ano, setAno] = useState('');
-  const [selectedAluno, setSelectedAluno] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
 
   // Buscar dados da turma COM alunos
   const { data: turma, isLoading } = useQuery({
@@ -81,13 +78,6 @@ export default function EditarTurmaScreen() {
     }
   });
 
-  const handleAddAluno = () => {
-    if (!selectedAluno) {
-      Alert.alert('Atenção', 'Selecione um aluno');
-      return;
-    }
-    addAlunoMutation.mutate(selectedAluno);
-  };
 
   const handleRemoveAluno = (alunoTurmaId: string, nomeAluno: string) => {
     Alert.alert(
@@ -132,37 +122,50 @@ export default function EditarTurmaScreen() {
 
           {/* Adicionar Aluno */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>➕ Adicionar Aluno</Text>
+          <Text style={styles.sectionTitle}>➕ Adicionar Aluno à Turma</Text>
           <View style={styles.addCard}>
             {isLoadingAlunos ? (
               <Text style={styles.loadingText}>Carregando alunos...</Text>
+            ) : alunosDisponiveis.length === 0 ? (
+              <View style={styles.emptyBox}>
+                <Text style={styles.emptyText}>✅ Todos os alunos já estão nesta turma!</Text>
+              </View>
             ) : (
-              <>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={selectedAluno}
-                    onValueChange={setSelectedAluno}
-                    style={styles.picker}
+              <ScrollView style={styles.alunosListContainer} nestedScrollEnabled>
+                <Text style={styles.helperText}>Toque no aluno para adicioná-lo:</Text>
+                {alunosDisponiveis.map((aluno: any) => (
+                  <TouchableOpacity
+                    key={aluno.id}
+                    style={styles.alunoSelectCard}
+                    onPress={() => {
+                      Alert.alert(
+                        'Confirmar',
+                        `Adicionar ${aluno.nome} a esta turma?`,
+                        [
+                          { text: 'Cancelar', style: 'cancel' },
+                          { 
+                            text: 'Adicionar', 
+                            onPress: () => addAlunoMutation.mutate(aluno.id)
+                          }
+                        ]
+                      );
+                    }}
+                    activeOpacity={0.7}
                   >
-                    <Picker.Item label="Selecione um aluno..." value="" />
-                    {alunosDisponiveis.length === 0 && (
-                      <Picker.Item label="Nenhum aluno disponível" value="" />
-                    )}
-                    {alunosDisponiveis.map((aluno: any) => (
-                      <Picker.Item key={aluno.id} label={aluno.nome} value={aluno.id} />
-                    ))}
-                  </Picker>
-                </View>
-              </>
+                    <View style={styles.alunoSelectIcon}>
+                      <Text style={styles.alunoSelectIconText}>👤</Text>
+                    </View>
+                    <View style={styles.alunoSelectInfo}>
+                      <Text style={styles.alunoSelectNome}>{aluno.nome}</Text>
+                      <Text style={styles.alunoSelectEmail}>{aluno.email}</Text>
+                    </View>
+                    <View style={styles.addIconBox}>
+                      <Text style={styles.addIcon}>➕</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             )}
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={handleAddAluno}
-              disabled={!selectedAluno}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.addButtonText}>Adicionar à Turma</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -255,29 +258,80 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#7ABA43'
   },
-  pickerContainer: {
+  emptyBox: {
+    backgroundColor: '#ECFDF5',
+    padding: 24,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
+    borderColor: '#7ABA43',
+    borderStyle: 'dashed'
+  },
+  emptyText: {
+    fontSize: Math.min(width * 0.04, 18),
+    color: '#7ABA43',
+    textAlign: 'center',
+    fontWeight: '600'
+  },
+  helperText: {
+    fontSize: Math.min(width * 0.04, 16),
+    color: '#6b7280',
     marginBottom: 16,
-    overflow: 'hidden'
+    fontStyle: 'italic'
   },
-  picker: {
-    height: 60,
-    fontSize: 18
+  alunosListContainer: {
+    maxHeight: 400
   },
-  addButton: {
-    backgroundColor: '#7ABA43',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+  alunoSelectCard: {
+    backgroundColor: '#F0FDF4',
     borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 60
+    borderWidth: 2,
+    borderColor: '#7ABA43',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2
   },
-  addButtonText: {
-    color: '#fff',
-    fontSize: Math.min(width * 0.045, 20),
-    fontWeight: 'bold'
+  alunoSelectIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#DCFCE7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12
+  },
+  alunoSelectIconText: {
+    fontSize: 24
+  },
+  alunoSelectInfo: {
+    flex: 1
+  },
+  alunoSelectNome: {
+    fontSize: Math.min(width * 0.042, 18),
+    fontWeight: 'bold',
+    color: '#166534',
+    marginBottom: 4
+  },
+  alunoSelectEmail: {
+    fontSize: Math.min(width * 0.035, 14),
+    color: '#6b7280'
+  },
+  addIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#7ABA43',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  addIcon: {
+    fontSize: 20,
+    color: '#fff'
   },
   alunoCard: {
     backgroundColor: '#fff',
