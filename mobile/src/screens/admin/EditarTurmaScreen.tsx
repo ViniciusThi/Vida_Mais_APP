@@ -18,17 +18,16 @@ export default function EditarTurmaScreen() {
   const [selectedAluno, setSelectedAluno] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Buscar dados da turma
+  // Buscar dados da turma COM alunos
   const { data: turma, isLoading } = useQuery({
     queryKey: ['turma', turmaId],
     queryFn: async () => {
-      const turmas = await adminService.getTurmas();
-      const found = turmas.find((t: any) => t.id === turmaId);
-      if (found) {
-        setNome(found.nome);
-        setAno(found.ano.toString());
+      const turmaData = await adminService.getTurma(turmaId);
+      if (turmaData) {
+        setNome(turmaData.nome);
+        setAno(turmaData.ano.toString());
       }
-      return found;
+      return turmaData;
     }
   });
 
@@ -49,6 +48,8 @@ export default function EditarTurmaScreen() {
     onSuccess: () => {
       Alert.alert('Sucesso', 'Aluno adicionado à turma!');
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
+      queryClient.invalidateQueries({ queryKey: ['turmas'] });
+      queryClient.invalidateQueries({ queryKey: ['alunos'] });
       setSelectedAluno('');
     },
     onError: (error: any) => {
@@ -58,18 +59,12 @@ export default function EditarTurmaScreen() {
 
   // Mutation para remover aluno da turma
   const removeAlunoMutation = useMutation({
-    mutationFn: async (alunoTurmaId: string) => {
-      const response = await fetch(`${require('../../config/api').API_URL}/admin/vincular-aluno/${alunoTurmaId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${await import('../../stores/authStore').then(m => m.useAuthStore.getState().token)}`
-        }
-      });
-      if (!response.ok) throw new Error('Erro ao remover');
-    },
+    mutationFn: (alunoTurmaId: string) => adminService.desvincularAluno(alunoTurmaId),
     onSuccess: () => {
       Alert.alert('Sucesso', 'Aluno removido da turma!');
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
+      queryClient.invalidateQueries({ queryKey: ['turmas'] });
+      queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
       Alert.alert('Erro', 'Erro ao remover aluno da turma');

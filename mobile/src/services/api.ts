@@ -134,6 +134,11 @@ export const professorService = {
 
   async deleteQuestionario(id: string) {
     await api.delete(`/prof/questionarios/${id}`);
+  },
+
+  async getAlunosDaTurma(turmaId: string) {
+    const { data } = await api.get(`/prof/turmas/${turmaId}/alunos`);
+    return data;
   }
 };
 

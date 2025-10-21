@@ -12,12 +12,13 @@ export default function MinhasTurmasScreen() {
       // Buscar detalhes de cada turma com alunos
       const detalhadas = await Promise.all(
         turmasList.map(async (turma: any) => {
-          const { data } = await fetch(`${require('../../config/api').API_URL}/prof/turmas/${turma.id}/alunos`, {
-            headers: {
-              'Authorization': `Bearer ${await import('../../stores/authStore').then(m => m.useAuthStore.getState().token)}`
-            }
-          }).then(res => res.json());
-          return { ...turma, alunos: data };
+          try {
+            const alunos = await professorService.getAlunosDaTurma(turma.id);
+            return { ...turma, alunos };
+          } catch (error) {
+            console.error('Erro ao buscar alunos da turma:', error);
+            return { ...turma, alunos: [] };
+          }
         })
       );
       return detalhadas;
