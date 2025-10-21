@@ -25,12 +25,19 @@ export default function EditarAlunoScreen() {
   });
 
   // Buscar todas as turmas
-  const { data: turmas } = useQuery({
+  const { data: turmas, isLoading: isLoadingTurmas } = useQuery({
     queryKey: ['turmas'],
     queryFn: adminService.getTurmas
   });
 
   const aluno = alunos?.find((a: any) => a.id === alunoId);
+
+  // Debug: log dos dados
+  if (aluno) {
+    console.log('📊 EditarAlunoScreen DEBUG:');
+    console.log('- Total turmas:', turmas?.length || 0);
+    console.log('- Turmas do aluno:', aluno.alunoTurmas?.length || 0);
+  }
 
   useEffect(() => {
     if (aluno) {
@@ -122,9 +129,15 @@ export default function EditarAlunoScreen() {
   const turmasDoAluno = aluno.alunoTurmas || [];
   
   // Turmas disponíveis para adicionar (que o aluno não está)
-  const turmasDisponiveis = turmas?.filter((turma: any) =>
-    !turmasDoAluno.some((at: any) => at.turmaId === turma.id)
-  ) || [];
+  const turmasDisponiveis = turmas?.filter((turma: any) => {
+    if (!turmasDoAluno || turmasDoAluno.length === 0) return true;
+    // Verifica tanto turmaId quanto turma.id para compatibilidade
+    return !turmasDoAluno.some((at: any) => 
+      at.turmaId === turma.id || at.turma?.id === turma.id
+    );
+  }) || [];
+
+  console.log('- Turmas disponíveis:', turmasDisponiveis.length);
 
   return (
     <ScrollView style={styles.container}>
@@ -188,18 +201,25 @@ export default function EditarAlunoScreen() {
           
           {/* Adicionar a uma turma */}
           <Text style={styles.label}>Adicionar a uma turma:</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedTurma}
-              onValueChange={setSelectedTurma}
-              style={styles.picker}
-            >
-              <Picker.Item label="Selecione uma turma..." value="" />
-              {turmasDisponiveis.map((turma: any) => (
-                <Picker.Item key={turma.id} label={`${turma.nome} (${turma.ano})`} value={turma.id} />
-              ))}
-            </Picker>
-          </View>
+          {isLoadingTurmas ? (
+            <Text style={styles.loadingText}>Carregando turmas...</Text>
+          ) : (
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedTurma}
+                onValueChange={setSelectedTurma}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione uma turma..." value="" />
+                {turmasDisponiveis.length === 0 && (
+                  <Picker.Item label="Nenhuma turma disponível" value="" />
+                )}
+                {turmasDisponiveis.map((turma: any) => (
+                  <Picker.Item key={turma.id} label={`${turma.nome} (${turma.ano})`} value={turma.id} />
+                ))}
+              </Picker>
+            </View>
+          )}
           
           <TouchableOpacity
             style={styles.addTurmaButton}
@@ -259,6 +279,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 100,
     color: '#6b7280'
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    padding: 20
   },
   form: {
     backgroundColor: '#fff',

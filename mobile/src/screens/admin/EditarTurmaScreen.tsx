@@ -32,15 +32,25 @@ export default function EditarTurmaScreen() {
   });
 
   // Buscar todos os alunos (para adicionar)
-  const { data: todosAlunos } = useQuery({
+  const { data: todosAlunos, isLoading: isLoadingAlunos } = useQuery({
     queryKey: ['alunos'],
     queryFn: adminService.getAlunos
   });
 
   // Alunos disponíveis para adicionar (que não estão na turma)
-  const alunosDisponiveis = todosAlunos?.filter((aluno: any) => 
-    !turma?.alunos?.some((at: any) => at.alunoId === aluno.id)
-  ) || [];
+  const alunosDisponiveis = todosAlunos?.filter((aluno: any) => {
+    if (!turma?.alunos || turma.alunos.length === 0) return true;
+    // Verifica tanto alunoId quanto aluno.id para compatibilidade
+    return !turma.alunos.some((at: any) => 
+      at.alunoId === aluno.id || at.aluno?.id === aluno.id
+    );
+  }) || [];
+
+  // Debug: log dos dados
+  console.log('📊 EditarTurmaScreen DEBUG:');
+  console.log('- Total alunos:', todosAlunos?.length || 0);
+  console.log('- Alunos na turma:', turma?.alunos?.length || 0);
+  console.log('- Alunos disponíveis:', alunosDisponiveis.length);
 
   // Mutation para adicionar aluno na turma
   const addAlunoMutation = useMutation({
@@ -120,22 +130,31 @@ export default function EditarTurmaScreen() {
           </View>
         </View>
 
-        {/* Adicionar Aluno */}
+          {/* Adicionar Aluno */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>➕ Adicionar Aluno</Text>
           <View style={styles.addCard}>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedAluno}
-                onValueChange={setSelectedAluno}
-                style={styles.picker}
-              >
-                <Picker.Item label="Selecione um aluno..." value="" />
-                {alunosDisponiveis.map((aluno: any) => (
-                  <Picker.Item key={aluno.id} label={aluno.nome} value={aluno.id} />
-                ))}
-              </Picker>
-            </View>
+            {isLoadingAlunos ? (
+              <Text style={styles.loadingText}>Carregando alunos...</Text>
+            ) : (
+              <>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={selectedAluno}
+                    onValueChange={setSelectedAluno}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Selecione um aluno..." value="" />
+                    {alunosDisponiveis.length === 0 && (
+                      <Picker.Item label="Nenhum aluno disponível" value="" />
+                    )}
+                    {alunosDisponiveis.map((aluno: any) => (
+                      <Picker.Item key={aluno.id} label={aluno.nome} value={aluno.id} />
+                    ))}
+                  </Picker>
+                </View>
+              </>
+            )}
             <TouchableOpacity
               style={styles.addButton}
               onPress={handleAddAluno}
@@ -191,6 +210,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 100,
     color: '#6b7280'
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    padding: 20
   },
   section: {
     marginBottom: 24
