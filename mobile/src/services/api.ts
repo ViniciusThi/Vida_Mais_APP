@@ -19,6 +19,82 @@ export const authService = {
   }
 };
 
+// Serviços do Admin
+export const adminService = {
+  async getProfessores() {
+    const { data } = await api.get('/admin/professores');
+    return data;
+  },
+
+  async createProfessor(professor: { nome: string; email: string; senha: string }) {
+    const { data } = await api.post('/admin/professores', professor);
+    return data;
+  },
+
+  async getAlunos() {
+    const { data } = await api.get('/admin/alunos');
+    return data;
+  },
+
+  async createAluno(aluno: { nome: string; email: string; senha: string }) {
+    const { data } = await api.post('/admin/alunos', aluno);
+    return data;
+  },
+
+  async getTurmas() {
+    const { data } = await api.get('/admin/turmas');
+    return data;
+  },
+
+  async createTurma(turma: { nome: string; ano: number; professorId: string }) {
+    const { data } = await api.post('/admin/turmas', turma);
+    return data;
+  },
+
+  async vincularAluno(alunoId: string, turmaId: string) {
+    const { data } = await api.post('/admin/vincular-aluno', { alunoId, turmaId });
+    return data;
+  }
+};
+
+// Serviços do Professor
+export const professorService = {
+  async getMinhasTurmas() {
+    const { data } = await api.get('/prof/minhas-turmas');
+    return data;
+  },
+
+  async getQuestionarios() {
+    const { data } = await api.get('/prof/questionarios');
+    return data;
+  },
+
+  async getQuestionario(id: string) {
+    const { data } = await api.get(`/prof/questionarios/${id}`);
+    return data;
+  },
+
+  async createQuestionario(questionario: any) {
+    const { data } = await api.post('/prof/questionarios', questionario);
+    return data;
+  },
+
+  async createPergunta(pergunta: any) {
+    const { data } = await api.post('/prof/perguntas', pergunta);
+    return data;
+  },
+
+  async deletePergunta(id: string) {
+    await api.delete(`/prof/perguntas/${id}`);
+  },
+
+  async getRelatorio(questionarioId: string) {
+    const { data } = await api.get(`/prof/relatorios/${questionarioId}`);
+    return data;
+  }
+};
+
+// Serviços do Aluno
 export const alunoService = {
   async getMinhasTurmas() {
     const { data } = await api.get('/aluno/minhas-turmas');

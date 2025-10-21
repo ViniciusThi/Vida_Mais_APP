@@ -11,6 +11,16 @@ import HomeScreen from './src/screens/HomeScreen';
 import QuestionarioScreen from './src/screens/QuestionarioScreen';
 import SuccessScreen from './src/screens/SuccessScreen';
 
+// Admin Screens
+import ProfessoresScreen from './src/screens/admin/ProfessoresScreen';
+import AlunosScreen from './src/screens/admin/AlunosScreen';
+import TurmasScreen from './src/screens/admin/TurmasScreen';
+
+// Professor Screens
+import MeusQuestionariosScreen from './src/screens/professor/MeusQuestionariosScreen';
+import CriarQuestionarioScreen from './src/screens/professor/CriarQuestionarioScreen';
+import RelatorioScreen from './src/screens/professor/RelatorioScreen';
+
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
 
@@ -34,7 +44,7 @@ export default function App() {
           screenOptions={{
             headerStyle: { backgroundColor: '#0284c7' },
             headerTintColor: '#fff',
-            headerTitleStyle: { fontWeight: 'bold' }
+            headerTitleStyle: { fontWeight: 'bold', fontSize: 22 }
           }}
         >
           {!token ? (
@@ -50,15 +60,51 @@ export default function App() {
                 component={HomeScreen} 
                 options={{ title: 'Vida Mais' }}
               />
+              
+              {/* Telas de Aluno */}
               <Stack.Screen 
                 name="Questionario" 
                 component={QuestionarioScreen} 
-                options={{ title: 'Questionário' }}
+                options={{ title: 'Responder Questionário' }}
               />
               <Stack.Screen 
                 name="Success" 
                 component={SuccessScreen} 
                 options={{ headerShown: false }}
+              />
+              
+              {/* Telas de Admin */}
+              <Stack.Screen 
+                name="Professores" 
+                component={ProfessoresScreen} 
+                options={{ title: 'Gerenciar Professores' }}
+              />
+              <Stack.Screen 
+                name="Alunos" 
+                component={AlunosScreen} 
+                options={{ title: 'Gerenciar Alunos' }}
+              />
+              <Stack.Screen 
+                name="Turmas" 
+                component={TurmasScreen} 
+                options={{ title: 'Gerenciar Turmas' }}
+              />
+              
+              {/* Telas de Professor */}
+              <Stack.Screen 
+                name="MeusQuestionarios" 
+                component={MeusQuestionariosScreen} 
+                options={{ title: 'Meus Questionários' }}
+              />
+              <Stack.Screen 
+                name="CriarQuestionario" 
+                component={CriarQuestionarioScreen} 
+                options={{ title: 'Criar Questionário' }}
+              />
+              <Stack.Screen 
+                name="Relatorio" 
+                component={RelatorioScreen} 
+                options={{ title: 'Relatório' }}
               />
             </>
           )}

@@ -1,0 +1,249 @@
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, RefreshControl } from 'react-native';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { adminService } from '../../services/api';
+import { useState } from 'react';
+
+export default function ProfessoresScreen() {
+  const [showForm, setShowForm] = useState(false);
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const queryClient = useQueryClient();
+
+  const { data: professores, isLoading, refetch } = useQuery({
+    queryKey: ['professores'],
+    queryFn: adminService.getProfessores
+  });
+
+  const createMutation = useMutation({
+    mutationFn: adminService.createProfessor,
+    onSuccess: () => {
+      Alert.alert('Sucesso', 'Professor criado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['professores'] });
+      setShowForm(false);
+      setNome('');
+      setEmail('');
+      setSenha('');
+    },
+    onError: (error: any) => {
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar professor');
+    }
+  });
+
+  const handleSubmit = () => {
+    if (!nome || !email || !senha) {
+      Alert.alert('Atenção', 'Preencha todos os campos');
+      return;
+    }
+    createMutation.mutate({ nome, email, senha });
+  };
+
+  return (
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
+    >
+      <View style={styles.content}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setShowForm(!showForm)}
+        >
+          <Text style={styles.addButtonText}>
+            {showForm ? '✕ Cancelar' : '➕ Novo Professor'}
+          </Text>
+        </TouchableOpacity>
+
+        {showForm && (
+          <View style={styles.form}>
+            <Text style={styles.formTitle}>Novo Professor</Text>
+            
+            <Text style={styles.label}>Nome</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nome completo"
+              value={nome}
+              onChangeText={setNome}
+            />
+
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="email@exemplo.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Mínimo 6 caracteres"
+              value={senha}
+              onChangeText={setSenha}
+              secureTextEntry
+            />
+
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleSubmit}
+            >
+              <Text style={styles.submitButtonText}>Criar Professor</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <Text style={styles.sectionTitle}>
+          Professores Cadastrados ({professores?.length || 0})
+        </Text>
+
+        {professores?.map((prof: any) => (
+          <View key={prof.id} style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{prof.nome}</Text>
+              <View style={prof.ativo ? styles.badgeActive : styles.badgeInactive}>
+                <Text style={styles.badgeText}>
+                  {prof.ativo ? 'Ativo' : 'Inativo'}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.cardEmail}>{prof.email}</Text>
+            <Text style={styles.cardMeta}>
+              {prof._count?.turmasProfessor || 0} turmas
+            </Text>
+          </View>
+        ))}
+
+        {professores?.length === 0 && !isLoading && (
+          <Text style={styles.emptyText}>
+            Nenhum professor cadastrado ainda.
+          </Text>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb'
+  },
+  content: {
+    padding: 20
+  },
+  addButton: {
+    backgroundColor: '#0284c7',
+    padding: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  form: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#0284c7'
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 20
+  },
+  label: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#374151'
+  },
+  input: {
+    fontSize: 18,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    backgroundColor: '#fff'
+  },
+  submitButton: {
+    backgroundColor: '#10b981',
+    padding: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 16
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#e5e7eb'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111827',
+    flex: 1
+  },
+  cardEmail: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 8
+  },
+  cardMeta: {
+    fontSize: 14,
+    color: '#9ca3af'
+  },
+  badgeActive: {
+    backgroundColor: '#d1fae5',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12
+  },
+  badgeInactive: {
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#059669'
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#9ca3af',
+    textAlign: 'center',
+    marginTop: 40
+  }
+});
+

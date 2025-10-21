@@ -136,12 +136,12 @@ nano .env
 
 Cole o seguinte conteúdo (ajuste conforme necessário):
 ```env
-DATABASE_URL="postgresql://postgres:SUA_SENHA_AQUI@localhost:5432/vida_mais"
+DATABASE_URL="postgresql://postgres:PI05fatec@2025@localhost:5432/vida_mais"
 JWT_SECRET="sua_chave_secreta_super_forte_e_aleatoria_aqui_2025"
 JWT_EXPIRES_IN="7d"
 PORT=3000
 NODE_ENV="production"
-ALLOWED_ORIGINS="https://seudominio.com,http://SEU_IP"
+ALLOWED_ORIGINS="http://54.233.110.183,http://localhost:3000"
 ```
 
 Salve com `Ctrl+O`, Enter, `Ctrl+X`

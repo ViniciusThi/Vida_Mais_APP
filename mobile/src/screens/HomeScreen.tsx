@@ -1,94 +1,187 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { alunoService } from '../services/api';
+import { useState } from 'react';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { user, logout } = useAuthStore();
-
-  const { data: turmas, refetch: refetchTurmas } = useQuery({
-    queryKey: ['minhas-turmas'],
-    queryFn: alunoService.getMinhasTurmas
-  });
-
-  const { data: questionarios, isLoading, refetch } = useQuery({
-    queryKey: ['questionarios-ativos'],
-    queryFn: () => alunoService.getQuestionariosAtivos()
-  });
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleLogout = async () => {
     await logout();
   };
 
-  const pendentes = questionarios?.filter((q: any) => !q.respondido) || [];
-  const respondidos = questionarios?.filter((q: any) => q.respondido) || [];
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  // Menu baseado no role
+  const renderMenu = () => {
+    if (user?.role === 'ADMIN') {
+      return <AdminMenu navigation={navigation} />;
+    } else if (user?.role === 'PROF') {
+      return <ProfessorMenu navigation={navigation} />;
+    } else {
+      return <AlunoMenu navigation={navigation} />;
+    }
+  };
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.greeting}>Olá, {user?.nome}! 👋</Text>
         <Text style={styles.subtitle}>
-          {turmas?.length > 0 
-            ? `Turma: ${turmas.map((t: any) => t.nome).join(', ')}`
-            : 'Nenhuma turma vinculada'
-          }
+          {user?.role === 'ADMIN' ? 'Administrador Geral' : 
+           user?.role === 'PROF' ? 'Professor' : 'Aluno'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutText}>Sair</Text>
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={pendentes}
-        keyExtractor={(item: any) => item.id}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
-        ListHeaderComponent={() => (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>📋 Questionários Pendentes</Text>
-            {pendentes.length === 0 && (
-              <Text style={styles.emptyText}>
-                Nenhum questionário pendente no momento.
-              </Text>
-            )}
+      <View style={styles.content}>
+        {renderMenu()}
+      </View>
+    </ScrollView>
+  );
+}
+
+// Menu do Admin
+function AdminMenu({ navigation }: any) {
+  const menuItems = [
+    { title: '👨‍🏫 Professores', subtitle: 'Gerenciar professores', screen: 'Professores', icon: '👨‍🏫' },
+    { title: '👥 Alunos', subtitle: 'Gerenciar alunos', screen: 'Alunos', icon: '👥' },
+    { title: '🎓 Turmas', subtitle: 'Gerenciar turmas', screen: 'Turmas', icon: '🎓' },
+    { title: '📋 Questionários', subtitle: 'Criar questionários globais', screen: 'MeusQuestionarios', icon: '📋' },
+  ];
+
+  return (
+    <>
+      <Text style={styles.sectionTitle}>Menu Administrativo</Text>
+      {menuItems.map((item) => (
+        <TouchableOpacity
+          key={item.screen}
+          style={styles.menuCard}
+          onPress={() => navigation.navigate(item.screen)}
+        >
+          <Text style={styles.menuIcon}>{item.icon}</Text>
+          <View style={styles.menuContent}>
+            <Text style={styles.menuTitle}>{item.title}</Text>
+            <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
           </View>
-        )}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('Questionario', { id: item.id, turmaId: turmas?.[0]?.id })}
-          >
-            <Text style={styles.cardTitle}>{item.titulo}</Text>
-            {item.descricao && (
-              <Text style={styles.cardDescription}>{item.descricao}</Text>
-            )}
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardMeta}>
-                {item._count.perguntas} perguntas
-              </Text>
-              <Text style={styles.cardBadge}>Responder →</Text>
+          <Text style={styles.menuArrow}>›</Text>
+        </TouchableOpacity>
+      ))}
+    </>
+  );
+}
+
+// Menu do Professor
+function ProfessorMenu({ navigation }: any) {
+  const menuItems = [
+    { title: '📋 Meus Questionários', subtitle: 'Ver e criar questionários', screen: 'MeusQuestionarios', icon: '📋' },
+    { title: '➕ Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕' },
+    { title: '🎓 Minhas Turmas', subtitle: 'Ver suas turmas', screen: 'Turmas', icon: '🎓' },
+  ];
+
+  return (
+    <>
+      <Text style={styles.sectionTitle}>Menu do Professor</Text>
+      {menuItems.map((item) => (
+        <TouchableOpacity
+          key={item.screen}
+          style={styles.menuCard}
+          onPress={() => navigation.navigate(item.screen)}
+        >
+          <Text style={styles.menuIcon}>{item.icon}</Text>
+          <View style={styles.menuContent}>
+            <Text style={styles.menuTitle}>{item.title}</Text>
+            <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+          </View>
+          <Text style={styles.menuArrow}>›</Text>
+        </TouchableOpacity>
+      ))}
+    </>
+  );
+}
+
+// Menu do Aluno
+function AlunoMenu({ navigation }: any) {
+  const { data: turmas } = useQuery({
+    queryKey: ['minhas-turmas'],
+    queryFn: alunoService.getMinhasTurmas
+  });
+
+  const { data: questionarios, isLoading } = useQuery({
+    queryKey: ['questionarios-ativos'],
+    queryFn: () => alunoService.getQuestionariosAtivos()
+  });
+
+  const pendentes = questionarios?.filter((q: any) => !q.respondido) || [];
+  const respondidos = questionarios?.filter((q: any) => q.respondido) || [];
+
+  return (
+    <>
+      <Text style={styles.sectionTitle}>
+        {turmas?.length > 0 
+          ? `Turma: ${turmas.map((t: any) => t.nome).join(', ')}`
+          : 'Questionários Disponíveis'
+        }
+      </Text>
+
+      {isLoading && <Text style={styles.emptyText}>Carregando...</Text>}
+
+      {pendentes.length > 0 && (
+        <>
+          <Text style={styles.subtitle2}>📋 Questionários Pendentes</Text>
+          {pendentes.map((item: any) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.card}
+              onPress={() => navigation.navigate('Questionario', { id: item.id, turmaId: turmas?.[0]?.id })}
+            >
+              <Text style={styles.cardTitle}>{item.titulo}</Text>
+              {item.descricao && (
+                <Text style={styles.cardDescription}>{item.descricao}</Text>
+              )}
+              <View style={styles.cardFooter}>
+                <Text style={styles.cardMeta}>
+                  {item._count.perguntas} perguntas
+                </Text>
+                <Text style={styles.cardBadge}>Responder →</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </>
+      )}
+
+      {pendentes.length === 0 && !isLoading && (
+        <Text style={styles.emptyText}>
+          Nenhum questionário pendente no momento.
+        </Text>
+      )}
+
+      {respondidos.length > 0 && (
+        <>
+          <Text style={[styles.subtitle2, { marginTop: 32 }]}>✅ Já Respondidos</Text>
+          {respondidos.map((item: any) => (
+            <View key={item.id} style={[styles.card, styles.cardDone]}>
+              <Text style={styles.cardTitle}>{item.titulo}</Text>
+              <Text style={styles.cardDoneText}>Obrigado pela participação!</Text>
             </View>
-          </TouchableOpacity>
-        )}
-        ListFooterComponent={() => (
-          respondidos.length > 0 ? (
-            <View style={[styles.section, { marginTop: 32 }]}>
-              <Text style={styles.sectionTitle}>✅ Já Respondidos</Text>
-              {respondidos.map((item: any) => (
-                <View key={item.id} style={[styles.card, styles.cardDone]}>
-                  <Text style={styles.cardTitle}>{item.titulo}</Text>
-                  <Text style={styles.cardDoneText}>Obrigado pela participação!</Text>
-                </View>
-              ))}
-            </View>
-          ) : null
-        )}
-        contentContainerStyle={styles.list}
-      />
-    </View>
+          ))}
+        </>
+      )}
+    </>
   );
 }
 
@@ -113,6 +206,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#6b7280'
   },
+  subtitle2: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginTop: 8,
+    marginBottom: 16
+  },
   logoutButton: {
     marginTop: 12,
     padding: 12,
@@ -125,17 +225,50 @@ const styles = StyleSheet.create({
     color: '#ef4444',
     fontWeight: '600'
   },
-  list: {
-    padding: 16
-  },
-  section: {
-    marginBottom: 16
+  content: {
+    padding: 20
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 16
+    marginBottom: 20
+  },
+  menuCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
+  },
+  menuIcon: {
+    fontSize: 48,
+    marginRight: 20
+  },
+  menuContent: {
+    flex: 1
+  },
+  menuTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 4
+  },
+  menuSubtitle: {
+    fontSize: 16,
+    color: '#6b7280'
+  },
+  menuArrow: {
+    fontSize: 36,
+    color: '#9ca3af'
   },
   card: {
     backgroundColor: '#fff',
@@ -183,7 +316,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#9ca3af',
     textAlign: 'center',
-    marginTop: 32
+    marginTop: 32,
+    marginBottom: 32
   }
 });
 
