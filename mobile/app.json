@@ -4,35 +4,34 @@
     "slug": "vida-mais-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "primaryColor": "#FF7E00",
     "splash": {
-      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0284c7"
+      "backgroundColor": "#075D94"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vidamais.app"
+      "bundleIdentifier": "com.vidamais.app",
+      "backgroundColor": "#FFFFFF"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0284c7"
+        "backgroundColor": "#FF7E00"
       },
-      "package": "com.vidamais.app"
+      "package": "com.vidamais.app",
+      "backgroundColor": "#FFFFFF"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
+    "web": {},
     "extra": {
       "eas": {
         "projectId": "your-project-id"
       }
-    }
+    },
+    "scheme": "vidamais"
   }
 }
 

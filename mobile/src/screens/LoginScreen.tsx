@@ -7,10 +7,12 @@ import {
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Image
 } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import { authService, setAuthToken } from '../services/api';
+import { colors, fontSizes, spacing, buttonSizes, borderRadius } from '../theme/colors';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -20,7 +22,9 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !senha) {
-      Alert.alert('Erro', 'Preencha todos os campos');
+      Alert.alert('Atenção', 'Por favor, preencha todos os campos', [
+        { text: 'OK', style: 'default' }
+      ]);
       return;
     }
 
@@ -31,8 +35,9 @@ export default function LoginScreen() {
       await setAuth(response.token, response.user);
     } catch (error: any) {
       Alert.alert(
-        'Erro ao fazer login',
-        error.response?.data?.error || 'Verifique suas credenciais'
+        'Não foi possível entrar',
+        error.response?.data?.error || 'Verifique seu email e senha',
+        [{ text: 'Tentar novamente', style: 'default' }]
       );
     } finally {
       setLoading(false);
@@ -46,7 +51,14 @@ export default function LoginScreen() {
     >
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>❤️</Text>
+          {/* Quando adicionar a logo, descomente:
+          <Image 
+            source={require('../../assets/images/Logo_VidaMais.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          */}
+          <Text style={styles.logoEmoji}>❤️</Text>
           <Text style={styles.title}>Vida Mais</Text>
           <Text style={styles.subtitle}>Pesquisa de Satisfação</Text>
         </View>
@@ -55,17 +67,20 @@ export default function LoginScreen() {
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            placeholder="seu@email.com"
+            placeholder="Digite seu email"
+            placeholderTextColor={colors.neutral.cinzaMedio}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
           />
 
           <Text style={styles.label}>Senha</Text>
           <TextInput
             style={styles.input}
-            placeholder="••••••"
+            placeholder="Digite sua senha"
+            placeholderTextColor={colors.neutral.cinzaMedio}
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
@@ -75,15 +90,21 @@ export default function LoginScreen() {
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={loading}
+            activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? 'Entrando...' : 'ENTRAR'}
             </Text>
           </TouchableOpacity>
 
           <View style={styles.hint}>
-            <Text style={styles.hintText}>Credenciais de teste:</Text>
-            <Text style={styles.hintText}>aluno1@vidamais.com / aluno123</Text>
+            <Text style={styles.hintTitle}>💡 Credenciais de teste</Text>
+            <Text style={styles.hintText}>Aluno: aluno1@vidamais.com</Text>
+            <Text style={styles.hintText}>Professor: prof1@vidamais.com</Text>
+            <Text style={styles.hintText}>Admin: admin@vidamais.com</Text>
+            <Text style={[styles.hintText, { marginTop: 8, fontWeight: '600' }]}>
+              Senha para todos: aluno123 ou prof123 ou admin123
+            </Text>
           </View>
         </View>
       </View>
@@ -94,74 +115,106 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0284c7'
+    backgroundColor: colors.primary.azul,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: 24
+    padding: spacing.xl
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 48
+    marginBottom: spacing.xxxl + 20
   },
-  logo: {
-    fontSize: 64,
-    marginBottom: 16
+  logoImage: {
+    width: 120,
+    height: 120,
+    marginBottom: spacing.xl
+  },
+  logoEmoji: {
+    fontSize: 80,
+    marginBottom: spacing.lg
   },
   title: {
-    fontSize: 32,
+    fontSize: fontSizes.xxl + 4,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8
+    color: colors.neutral.branco,
+    marginBottom: spacing.sm,
+    letterSpacing: 0.5
   },
   subtitle: {
-    fontSize: 18,
-    color: '#e0f2fe'
+    fontSize: fontSizes.md,
+    color: colors.primary.azulMuitoClaro,
+    fontWeight: '500'
   },
   form: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24
+    backgroundColor: colors.neutral.branco,
+    borderRadius: borderRadius.xlarge,
+    padding: spacing.xxxl,
+    shadowColor: colors.shadow.forte,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8
   },
   label: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#1f2937'
+    fontSize: fontSizes.md,
+    fontWeight: '700',
+    marginBottom: spacing.sm,
+    color: colors.neutral.preto
   },
   input: {
-    fontSize: 20,
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24
+    fontSize: fontSizes.md,
+    borderWidth: 3,
+    borderColor: colors.neutral.cinzaClaro,
+    borderRadius: borderRadius.medium,
+    padding: spacing.lg + 4,
+    marginBottom: spacing.xl + 4,
+    backgroundColor: colors.neutral.branco,
+    color: colors.neutral.preto
   },
   button: {
-    backgroundColor: '#0284c7',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center'
+    backgroundColor: colors.primary.laranja,
+    borderRadius: borderRadius.medium,
+    padding: spacing.xl + 4,
+    alignItems: 'center',
+    minHeight: buttonSizes.large,
+    justifyContent: 'center',
+    shadowColor: colors.shadow.media,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4
   },
   buttonDisabled: {
     opacity: 0.6
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold'
+    color: colors.neutral.branco,
+    fontSize: fontSizes.buttonLarge,
+    fontWeight: 'bold',
+    letterSpacing: 0.5
   },
   hint: {
-    marginTop: 24,
-    padding: 12,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 8
+    marginTop: spacing.xl + 8,
+    padding: spacing.lg,
+    backgroundColor: colors.primary.azulMuitoClaro,
+    borderRadius: borderRadius.medium,
+    borderWidth: 2,
+    borderColor: colors.primary.azulClaro
+  },
+  hintTitle: {
+    fontSize: fontSizes.sm,
+    fontWeight: '700',
+    color: colors.primary.azul,
+    marginBottom: spacing.sm,
+    textAlign: 'center'
   },
   hintText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center'
+    fontSize: fontSizes.xs,
+    color: colors.primary.azulEscuro,
+    textAlign: 'center',
+    lineHeight: 24
   }
 });
 

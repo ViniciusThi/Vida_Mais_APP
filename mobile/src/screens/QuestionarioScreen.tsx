@@ -12,6 +12,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import * as Speech from 'expo-speech';
+import { colors, fontSizes, spacing, buttonSizes, borderRadius } from '../theme/colors';
 
 export default function QuestionarioScreen() {
   const route = useRoute<any>();
@@ -227,161 +228,196 @@ export default function QuestionarioScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb'
+    backgroundColor: colors.neutral.fundoApp
   },
   content: {
-    padding: 20
+    padding: spacing.xl
   },
   loading: {
-    fontSize: 24,
+    fontSize: fontSizes.lg,
     textAlign: 'center',
-    marginTop: 100
+    marginTop: 100,
+    color: colors.neutral.cinzaMedio
   },
   progress: {
-    marginBottom: 24
+    marginBottom: spacing.xl + 8
   },
   progressText: {
-    fontSize: 18,
-    color: '#6b7280',
-    marginBottom: 8,
-    textAlign: 'center'
+    fontSize: fontSizes.md,
+    color: colors.primary.azul,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+    fontWeight: '700'
   },
   progressBar: {
-    height: 8,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 4,
+    height: 12,
+    backgroundColor: colors.neutral.cinzaClaro,
+    borderRadius: borderRadius.medium,
     overflow: 'hidden'
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#0284c7'
+    backgroundColor: colors.primary.verde
   },
   questionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 20
+    backgroundColor: colors.neutral.branco,
+    borderRadius: borderRadius.xlarge,
+    padding: spacing.xxxl,
+    marginBottom: spacing.xl,
+    borderWidth: 3,
+    borderColor: colors.primary.azulClaro,
+    shadowColor: colors.shadow.media,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5
   },
   speakerButton: {
     alignSelf: 'flex-end',
-    marginBottom: 16
+    marginBottom: spacing.lg,
+    backgroundColor: colors.primary.laranjaMuitoClaro,
+    padding: spacing.md,
+    borderRadius: borderRadius.round,
+    minWidth: 60,
+    minHeight: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.primary.laranja
   },
   speakerIcon: {
-    fontSize: 32
+    fontSize: 40
   },
   question: {
-    fontSize: 28,
+    fontSize: fontSizes.xl,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8,
-    lineHeight: 36
+    color: colors.neutral.preto,
+    marginBottom: spacing.md,
+    lineHeight: 42
   },
   required: {
-    fontSize: 16,
-    color: '#ef4444',
-    marginBottom: 24
+    fontSize: fontSizes.sm,
+    color: colors.feedback.erro,
+    marginBottom: spacing.xl,
+    fontWeight: '600'
   },
   textInput: {
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 20,
-    minHeight: 120,
-    textAlignVertical: 'top'
+    borderWidth: 3,
+    borderColor: colors.neutral.cinzaClaro,
+    borderRadius: borderRadius.medium,
+    padding: spacing.lg + 4,
+    fontSize: fontSizes.md,
+    minHeight: 140,
+    textAlignVertical: 'top',
+    color: colors.neutral.preto,
+    backgroundColor: colors.neutral.branco
   },
   escalaContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.xs
   },
   escalaButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 4,
+    borderColor: colors.neutral.cinzaClaro,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: colors.neutral.branco
   },
   escalaButtonActive: {
-    backgroundColor: '#0284c7',
-    borderColor: '#0284c7'
+    backgroundColor: colors.primary.verde,
+    borderColor: colors.primary.verde
   },
   escalaText: {
-    fontSize: 24,
+    fontSize: fontSizes.xl,
     fontWeight: 'bold',
-    color: '#6b7280'
+    color: colors.neutral.cinzaMedio
   },
   escalaTextActive: {
-    color: '#fff'
+    color: colors.neutral.branco
   },
   booleanContainer: {
-    gap: 16
+    gap: spacing.lg
   },
   booleanButton: {
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    alignItems: 'center'
+    padding: spacing.xxxl,
+    borderRadius: borderRadius.large,
+    borderWidth: 4,
+    borderColor: colors.neutral.cinzaClaro,
+    alignItems: 'center',
+    minHeight: buttonSizes.large + 20,
+    backgroundColor: colors.neutral.branco
   },
   booleanButtonActive: {
-    backgroundColor: '#0284c7',
-    borderColor: '#0284c7'
+    backgroundColor: colors.primary.verde,
+    borderColor: colors.primary.verde
   },
   booleanText: {
-    fontSize: 24,
+    fontSize: fontSizes.xl,
     fontWeight: 'bold',
-    color: '#111827'
+    color: colors.neutral.preto
   },
   opcoesContainer: {
-    gap: 12
+    gap: spacing.lg
   },
   opcaoButton: {
-    padding: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#e5e7eb'
+    padding: spacing.xl + 4,
+    borderRadius: borderRadius.large,
+    borderWidth: 4,
+    borderColor: colors.neutral.cinzaClaro,
+    minHeight: buttonSizes.large,
+    justifyContent: 'center',
+    backgroundColor: colors.neutral.branco
   },
   opcaoButtonActive: {
-    backgroundColor: '#0284c7',
-    borderColor: '#0284c7'
+    backgroundColor: colors.primary.laranja,
+    borderColor: colors.primary.laranja
   },
   opcaoText: {
-    fontSize: 20,
-    color: '#111827',
-    textAlign: 'center'
+    fontSize: fontSizes.md,
+    color: colors.neutral.preto,
+    textAlign: 'center',
+    fontWeight: '600',
+    lineHeight: 30
   },
   footer: {
     flexDirection: 'row',
-    gap: 12,
-    padding: 20,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb'
+    gap: spacing.md,
+    padding: spacing.xl,
+    backgroundColor: colors.neutral.branco,
+    borderTopWidth: 3,
+    borderTopColor: colors.primary.azulClaro
   },
   navButton: {
     flex: 1,
-    padding: 18,
-    borderRadius: 12,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center'
+    padding: spacing.xl + 4,
+    borderRadius: borderRadius.medium,
+    backgroundColor: colors.neutral.cinzaMuitoClaro,
+    alignItems: 'center',
+    minHeight: buttonSizes.large,
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: colors.neutral.cinzaClaro
   },
   navButtonDisabled: {
     opacity: 0.3
   },
   navButtonPrimary: {
-    backgroundColor: '#0284c7'
+    backgroundColor: colors.primary.laranja,
+    borderColor: colors.primary.laranja
   },
   navButtonText: {
-    fontSize: 20,
+    fontSize: fontSizes.buttonMedium,
     fontWeight: 'bold',
-    color: '#111827'
+    color: colors.neutral.preto
   },
   navButtonTextPrimary: {
-    fontSize: 20,
+    fontSize: fontSizes.buttonMedium,
     fontWeight: 'bold',
-    color: '#fff'
+    color: colors.neutral.branco
   }
 });
 

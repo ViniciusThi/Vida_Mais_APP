@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { alunoService } from '../services/api';
 import { useState } from 'react';
+import { colors, fontSizes, spacing, borderRadius } from '../theme/colors';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
@@ -188,136 +189,147 @@ function AlunoMenu({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb'
+    backgroundColor: colors.neutral.fundoApp
   },
   header: {
-    backgroundColor: '#fff',
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb'
+    backgroundColor: colors.primary.azul,
+    padding: spacing.xl + 8,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.primary.laranja
   },
   greeting: {
-    fontSize: 28,
+    fontSize: fontSizes.xl,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8
+    color: colors.neutral.branco,
+    marginBottom: spacing.sm
   },
   subtitle: {
-    fontSize: 18,
-    color: '#6b7280'
+    fontSize: fontSizes.md,
+    color: colors.primary.azulMuitoClaro,
+    fontWeight: '500'
   },
   subtitle2: {
-    fontSize: 22,
+    fontSize: fontSizes.lg,
     fontWeight: 'bold',
-    color: '#111827',
-    marginTop: 8,
-    marginBottom: 16
+    color: colors.neutral.preto,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg
   },
   logoutButton: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 8,
-    alignSelf: 'flex-start'
+    marginTop: spacing.lg,
+    padding: spacing.md,
+    backgroundColor: colors.neutral.branco,
+    borderRadius: borderRadius.medium,
+    alignSelf: 'flex-start',
+    borderWidth: 2,
+    borderColor: colors.primary.laranjaClaro
   },
   logoutText: {
-    fontSize: 16,
-    color: '#ef4444',
-    fontWeight: '600'
+    fontSize: fontSizes.sm,
+    color: colors.feedback.erro,
+    fontWeight: '700'
   },
   content: {
-    padding: 20
+    padding: spacing.xl
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: fontSizes.lg,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 20
+    color: colors.primary.azul,
+    marginBottom: spacing.xl
   },
   menuCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 16,
+    backgroundColor: colors.neutral.branco,
+    borderRadius: borderRadius.large,
+    padding: spacing.xl + 8,
+    marginBottom: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3
+    borderWidth: 3,
+    borderColor: colors.primary.azulClaro,
+    shadowColor: colors.shadow.media,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+    minHeight: 100
   },
   menuIcon: {
-    fontSize: 48,
-    marginRight: 20
+    fontSize: 56,
+    marginRight: spacing.xl
   },
   menuContent: {
     flex: 1
   },
   menuTitle: {
-    fontSize: 22,
+    fontSize: fontSizes.lg,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 4
+    color: colors.primary.azul,
+    marginBottom: spacing.xs
   },
   menuSubtitle: {
-    fontSize: 16,
-    color: '#6b7280'
+    fontSize: fontSizes.sm,
+    color: colors.neutral.cinzaMedio,
+    lineHeight: 24
   },
   menuArrow: {
-    fontSize: 36,
-    color: '#9ca3af'
+    fontSize: 40,
+    color: colors.primary.laranja,
+    fontWeight: 'bold'
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: '#e5e7eb'
+    backgroundColor: colors.neutral.branco,
+    borderRadius: borderRadius.large,
+    padding: spacing.xl,
+    marginBottom: spacing.lg,
+    borderWidth: 3,
+    borderColor: colors.primary.laranjaClaro,
+    minHeight: 120
   },
   cardDone: {
-    borderColor: '#d1fae5',
-    backgroundColor: '#f0fdf4'
+    borderColor: colors.primary.verde,
+    backgroundColor: colors.primary.verdeMuitoClaro
   },
   cardTitle: {
-    fontSize: 22,
+    fontSize: fontSizes.lg,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8
+    color: colors.neutral.preto,
+    marginBottom: spacing.sm,
+    lineHeight: 32
   },
   cardDescription: {
-    fontSize: 18,
-    color: '#6b7280',
-    marginBottom: 12
+    fontSize: fontSizes.sm,
+    color: colors.neutral.cinzaEscuro,
+    marginBottom: spacing.md,
+    lineHeight: 26
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: spacing.sm
   },
   cardMeta: {
-    fontSize: 16,
-    color: '#9ca3af'
+    fontSize: fontSizes.xs,
+    color: colors.neutral.cinzaMedio
   },
   cardBadge: {
-    fontSize: 18,
-    color: '#0284c7',
-    fontWeight: '600'
+    fontSize: fontSizes.sm,
+    color: colors.primary.laranja,
+    fontWeight: '700'
   },
   cardDoneText: {
-    fontSize: 16,
-    color: '#059669',
-    fontWeight: '600'
+    fontSize: fontSizes.sm,
+    color: colors.primary.verdeEscuro,
+    fontWeight: '700'
   },
   emptyText: {
-    fontSize: 18,
-    color: '#9ca3af',
+    fontSize: fontSizes.md,
+    color: colors.neutral.cinzaMedio,
     textAlign: 'center',
-    marginTop: 32,
-    marginBottom: 32
+    marginTop: spacing.xxxl,
+    marginBottom: spacing.xxxl,
+    lineHeight: 32
   }
 });
 
