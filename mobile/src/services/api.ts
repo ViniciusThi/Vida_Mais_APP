@@ -66,6 +66,15 @@ export const adminService = {
 
   async deleteTurma(id: string) {
     await api.delete(`/admin/turmas/${id}`);
+  },
+
+  async getTurma(id: string) {
+    const { data } = await api.get(`/admin/turmas/${id}`);
+    return data;
+  },
+
+  async desvincularAluno(alunoTurmaId: string) {
+    await api.delete(`/admin/vincular-aluno/${alunoTurmaId}`);
   }
 };
 

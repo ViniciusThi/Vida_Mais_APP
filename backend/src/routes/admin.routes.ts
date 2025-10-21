@@ -309,6 +309,45 @@ router.get('/turmas', async (req, res, next) => {
   }
 });
 
+// GET /admin/turmas/:id - Buscar turma específica com alunos
+router.get('/turmas/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const turma = await prisma.turma.findUnique({
+      where: { id },
+      include: {
+        professor: {
+          select: {
+            id: true,
+            nome: true,
+            email: true
+          }
+        },
+        alunos: {
+          include: {
+            aluno: {
+              select: {
+                id: true,
+                nome: true,
+                email: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!turma) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    res.json(turma);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE /admin/turmas/:id - Deletar turma
 router.delete('/turmas/:id', async (req: AuthRequest, res, next) => {
   try {

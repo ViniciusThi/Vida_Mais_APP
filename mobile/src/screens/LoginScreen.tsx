@@ -52,8 +52,12 @@ export default function LoginScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.header}>
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>VIDA{'\n'}MAIS</Text>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../assets/Logo_VidaMais.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
         <Text style={styles.subtitle}>Pesquisa de Satisfação</Text>
       </View>
@@ -119,31 +123,26 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: height * 0.06
+    marginBottom: height * 0.05
   },
-  logoCircle: {
-    width: Math.min(width * 0.35, 140),
-    height: Math.min(width * 0.35, 140),
-    borderRadius: Math.min(width * 0.175, 70),
-    backgroundColor: '#FFFFFF',
+  logoContainer: {
+    width: Math.min(width * 0.6, 240),
+    height: Math.min(width * 0.6, 240),
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
-    borderWidth: 5,
-    borderColor: '#FF7E00', // Laranja
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8
   },
-  logoText: {
-    fontSize: Math.min(width * 0.08, 32),
-    fontWeight: 'bold',
-    color: '#075D94', // Azul
-    textAlign: 'center',
-    letterSpacing: 1,
-    lineHeight: 36
+  logo: {
+    width: '100%',
+    height: '100%'
   },
   subtitle: {
     fontSize: Math.min(width * 0.065, 28),
