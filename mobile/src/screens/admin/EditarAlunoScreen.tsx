@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState, useEffect } from 'react';
-import { Picker } from '@react-native-picker/picker';
 
 const { width } = Dimensions.get('window');
 
@@ -16,7 +15,6 @@ export default function EditarAlunoScreen() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [selectedTurma, setSelectedTurma] = useState('');
 
   // Buscar dados do aluno
   const { data: alunos, isLoading } = useQuery({
@@ -24,20 +22,7 @@ export default function EditarAlunoScreen() {
     queryFn: adminService.getAlunos
   });
 
-  // Buscar todas as turmas
-  const { data: turmas, isLoading: isLoadingTurmas } = useQuery({
-    queryKey: ['turmas'],
-    queryFn: adminService.getTurmas
-  });
-
   const aluno = alunos?.find((a: any) => a.id === alunoId);
-
-  // Debug: log dos dados
-  if (aluno) {
-    console.log('📊 EditarAlunoScreen DEBUG:');
-    console.log('- Total turmas:', turmas?.length || 0);
-    console.log('- Turmas do aluno:', aluno.alunoTurmas?.length || 0);
-  }
 
   useEffect(() => {
     if (aluno) {
@@ -59,31 +44,6 @@ export default function EditarAlunoScreen() {
     }
   });
 
-  const addTurmaMutation = useMutation({
-    mutationFn: (turmaId: string) => adminService.vincularAluno(alunoId, turmaId),
-    onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno adicionado à turma!');
-      queryClient.invalidateQueries({ queryKey: ['alunos'] });
-      queryClient.invalidateQueries({ queryKey: ['turmas'] });
-      setSelectedTurma('');
-    },
-    onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao adicionar à turma');
-    }
-  });
-
-  const removeTurmaMutation = useMutation({
-    mutationFn: (alunoTurmaId: string) => adminService.desvincularAluno(alunoTurmaId),
-    onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno removido da turma!');
-      queryClient.invalidateQueries({ queryKey: ['alunos'] });
-      queryClient.invalidateQueries({ queryKey: ['turmas'] });
-    },
-    onError: (error: any) => {
-      Alert.alert('Erro', 'Erro ao remover da turma');
-    }
-  });
-
   const handleSubmit = () => {
     if (!nome || !email) {
       Alert.alert('Atenção', 'Preencha nome e email');
@@ -98,25 +58,6 @@ export default function EditarAlunoScreen() {
     updateMutation.mutate(data);
   };
 
-  const handleAddTurma = () => {
-    if (!selectedTurma) {
-      Alert.alert('Atenção', 'Selecione uma turma');
-      return;
-    }
-    addTurmaMutation.mutate(selectedTurma);
-  };
-
-  const handleRemoveTurma = (alunoTurmaId: string, turmaNome: string) => {
-    Alert.alert(
-      'Confirmar Remoção',
-      `Deseja remover o aluno de ${turmaNome}?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Remover', style: 'destructive', onPress: () => removeTurmaMutation.mutate(alunoTurmaId) }
-      ]
-    );
-  };
-
   if (isLoading || !aluno) {
     return (
       <View style={styles.container}>
@@ -125,19 +66,8 @@ export default function EditarAlunoScreen() {
     );
   }
 
-  // Turmas que o aluno já está
+  // Turmas que o aluno está
   const turmasDoAluno = aluno.alunoTurmas || [];
-  
-  // Turmas disponíveis para adicionar (que o aluno não está)
-  const turmasDisponiveis = turmas?.filter((turma: any) => {
-    if (!turmasDoAluno || turmasDoAluno.length === 0) return true;
-    // Verifica tanto turmaId quanto turma.id para compatibilidade
-    return !turmasDoAluno.some((at: any) => 
-      at.turmaId === turma.id || at.turma?.id === turma.id
-    );
-  }) || [];
-
-  console.log('- Turmas disponíveis:', turmasDisponiveis.length);
 
   return (
     <ScrollView style={styles.container}>
@@ -195,61 +125,33 @@ export default function EditarAlunoScreen() {
           </View>
         </View>
 
-        {/* Gerenciar Turmas */}
+        {/* Turmas do Aluno */}
         <View style={styles.turmasCard}>
-          <Text style={styles.turmasTitle}>📚 Gerenciar Turmas</Text>
+          <Text style={styles.turmasTitle}>📚 Turmas do Aluno</Text>
           
-          {/* Adicionar a uma turma */}
-          <Text style={styles.label}>Adicionar a uma turma:</Text>
-          {isLoadingTurmas ? (
-            <Text style={styles.loadingText}>Carregando turmas...</Text>
-          ) : (
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedTurma}
-                onValueChange={setSelectedTurma}
-                style={styles.picker}
-              >
-                <Picker.Item label="Selecione uma turma..." value="" />
-                {turmasDisponiveis.length === 0 && (
-                  <Picker.Item label="Nenhuma turma disponível" value="" />
-                )}
-                {turmasDisponiveis.map((turma: any) => (
-                  <Picker.Item key={turma.id} label={`${turma.nome} (${turma.ano})`} value={turma.id} />
-                ))}
-              </Picker>
-            </View>
-          )}
-          
-          <TouchableOpacity
-            style={styles.addTurmaButton}
-            onPress={handleAddTurma}
-            disabled={!selectedTurma}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.addTurmaButtonText}>➕ Adicionar à Turma</Text>
-          </TouchableOpacity>
-
-          {/* Turmas atuais */}
-          <View style={styles.divider} />
-          <Text style={styles.label}>Turmas atuais ({turmasDoAluno.length}):</Text>
+          <Text style={styles.infoText} style={{ marginBottom: 16 }}>
+            Para adicionar ou remover o aluno de turmas, vá em <Text style={{ fontWeight: 'bold', color: '#075D94' }}>Turmas → Editar Turma</Text>
+          </Text>
           
           {turmasDoAluno.length === 0 ? (
-            <Text style={styles.noTurmas}>Aluno não está em nenhuma turma</Text>
+            <View style={styles.emptyTurmasBox}>
+              <Text style={styles.noTurmas}>❌ Aluno não está em nenhuma turma</Text>
+            </View>
           ) : (
             turmasDoAluno.map((at: any) => (
-              <View key={at.id} style={styles.turmaItem}>
+              <View key={at.id} style={styles.turmaItemReadonly}>
+                <View style={styles.turmaIconBox}>
+                  <Text style={styles.turmaIcon}>📚</Text>
+                </View>
                 <View style={styles.turmaInfo}>
                   <Text style={styles.turmaNome}>{at.turma.nome}</Text>
                   <Text style={styles.turmaAno}>Ano {at.turma.ano}</Text>
+                  {at.turma.professor && (
+                    <Text style={styles.turmaProfessor}>
+                      Prof: {at.turma.professor.nome}
+                    </Text>
+                  )}
                 </View>
-                <TouchableOpacity
-                  style={styles.removeTurmaButton}
-                  onPress={() => handleRemoveTurma(at.id, at.turma.nome)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.removeTurmaButtonText}>🗑️</Text>
-                </TouchableOpacity>
               </View>
             ))
           )}
@@ -259,7 +161,7 @@ export default function EditarAlunoScreen() {
           <Text style={styles.infoTitle}>ℹ️ Informações</Text>
           <Text style={styles.infoText}>• O email é usado para login</Text>
           <Text style={styles.infoText}>• Altere a senha apenas se necessário</Text>
-          <Text style={styles.infoText}>• Gerencie as turmas do aluno acima</Text>
+          <Text style={styles.infoText}>• Para gerenciar turmas, vá em Turmas → Editar</Text>
         </View>
       </View>
     </ScrollView>
@@ -384,80 +286,63 @@ const styles = StyleSheet.create({
   turmasTitle: {
     fontSize: Math.min(width * 0.055, 24),
     fontWeight: 'bold',
-    color: '#7ABA43',
+    color: '#075D94',
     marginBottom: 20
   },
-  pickerContainer: {
+  emptyTurmasBox: {
+    backgroundColor: '#FEF2F2',
+    padding: 20,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden'
-  },
-  picker: {
-    height: 60,
-    fontSize: 18
-  },
-  addTurmaButton: {
-    backgroundColor: '#7ABA43',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    minHeight: 60
-  },
-  addTurmaButtonText: {
-    color: '#fff',
-    fontSize: Math.min(width * 0.045, 20),
-    fontWeight: 'bold'
-  },
-  divider: {
-    height: 2,
-    backgroundColor: '#e5e7eb',
-    marginVertical: 20
+    borderColor: '#FCA5A5',
+    borderStyle: 'dashed'
   },
   noTurmas: {
-    fontSize: Math.min(width * 0.04, 16),
-    color: '#9ca3af',
+    fontSize: Math.min(width * 0.04, 18),
+    color: '#DC2626',
     textAlign: 'center',
-    padding: 20,
-    backgroundColor: '#f9fafb',
-    borderRadius: 8
+    fontWeight: '600'
   },
-  turmaItem: {
-    backgroundColor: '#f9fafb',
-    padding: 16,
+  turmaItemReadonly: {
+    backgroundColor: '#EFF6FF',
+    padding: 18,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    borderLeftWidth: 4,
-    borderLeftColor: '#7ABA43'
+    borderWidth: 2,
+    borderColor: '#075D94'
+  },
+  turmaIconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#DBEAFE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16
+  },
+  turmaIcon: {
+    fontSize: 24
   },
   turmaInfo: {
     flex: 1
   },
   turmaNome: {
-    fontSize: Math.min(width * 0.04, 18),
-    fontWeight: '600',
-    color: '#111827',
+    fontSize: Math.min(width * 0.045, 20),
+    fontWeight: 'bold',
+    color: '#075D94',
     marginBottom: 4
   },
   turmaAno: {
-    fontSize: Math.min(width * 0.035, 16),
-    color: '#6b7280'
+    fontSize: Math.min(width * 0.038, 16),
+    color: '#6b7280',
+    marginBottom: 2
   },
-  removeTurmaButton: {
-    backgroundColor: '#FEE2E2',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#DC2626'
-  },
-  removeTurmaButtonText: {
-    fontSize: 24
+  turmaProfessor: {
+    fontSize: Math.min(width * 0.035, 14),
+    color: '#9ca3af',
+    fontStyle: 'italic'
   }
 });
 
