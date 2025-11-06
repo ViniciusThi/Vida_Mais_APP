@@ -334,6 +334,7 @@ npm start
 - [`COMANDOS_PRONTOS.txt`](COMANDOS_PRONTOS.txt) - Comandos prontos para copiar
 
 ### Documentação Técnica
+- [`docs/REQUISITOS.md`](docs/REQUISITOS.md) - Requisitos funcionais e não funcionais do sistema
 - [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) - Arquitetura detalhada e modelo de dados
 - [`docs/API.md`](docs/API.md) - Documentação completa da API REST
 - [`docs/DEPLOY_AWS.md`](docs/DEPLOY_AWS.md) - Deploy em produção na AWS
