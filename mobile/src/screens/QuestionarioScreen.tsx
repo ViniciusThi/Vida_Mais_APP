@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  ScrollView,
   Alert,
   Dimensions
 } from 'react-native';
@@ -99,7 +98,24 @@ export default function QuestionarioScreen() {
   };
 
   const falar = () => {
-    Speech.speak(pergunta.enunciado, { language: 'pt-BR', rate: 0.75 });
+    try {
+      // Para perguntas de múltipla escolha, ler também as opções
+      let textoParaLer = pergunta.enunciado;
+      
+      if (['UNICA', 'MULTIPLA'].includes(pergunta.tipo) && pergunta.opcoes && pergunta.opcoes.length > 0) {
+        textoParaLer += '. Opções: ' + pergunta.opcoes.join('. ');
+      }
+      
+      Speech.speak(textoParaLer, { 
+        language: 'pt-BR', 
+        rate: 0.7, // Mais lento para idosos
+        pitch: 1.0,
+        volume: 1.0
+      });
+    } catch (error) {
+      console.error('Erro ao reproduzir áudio:', error);
+      Alert.alert('Erro', 'Não foi possível reproduzir o áudio. Verifique as configurações do dispositivo.');
+    }
   };
 
   return (
@@ -117,7 +133,7 @@ export default function QuestionarioScreen() {
       </View>
 
       {/* Question Card */}
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.scrollContainer}>
         <View style={styles.questionCard}>
           {/* Speaker Button */}
           <TouchableOpacity onPress={falar} style={styles.speakerButton} activeOpacity={0.7}>
@@ -219,7 +235,7 @@ export default function QuestionarioScreen() {
             </View>
           )}
         </View>
-      </ScrollView>
+      </View>
 
       {/* Navigation Footer */}
       <View style={styles.footer}>
@@ -260,26 +276,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB'
   },
   loadingText: {
-    fontSize: Math.min(width * 0.055, 24),
+    fontSize: Math.min(width * 0.065, 28),
     color: '#6B7280'
   },
   scrollContainer: {
-    flex: 1
-  },
-  scrollContent: {
-    padding: width * 0.04
+    flex: 1,
+    padding: width * 0.04,
+    justifyContent: 'flex-start'
   },
   progressContainer: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: width * 0.05,
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderBottomWidth: 3,
     borderBottomColor: '#7ABA43' // Verde
   },
   progressText: {
-    fontSize: Math.min(width * 0.05, 22),
+    fontSize: Math.min(width * 0.06, 26),
     color: '#075D94', // Azul
-    marginBottom: 10,
+    marginBottom: 12,
     textAlign: 'center',
     fontWeight: '700'
   },
@@ -296,58 +311,61 @@ const styles = StyleSheet.create({
   questionCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: width * 0.06,
-    marginBottom: 20,
+    padding: width * 0.05,
+    marginBottom: 12,
     borderWidth: 3,
     borderColor: '#075D94', // Azul
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    elevation: 5
+    elevation: 5,
+    flexShrink: 1,
+    maxHeight: '100%'
   },
   speakerButton: {
     alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFE5CC', // Laranja claro
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
     borderRadius: 12,
-    marginBottom: 20,
+    marginBottom: 16,
     borderWidth: 3,
     borderColor: '#FF7E00', // Laranja
-    minHeight: 60
+    minHeight: 70
   },
   speakerIcon: {
-    fontSize: 32,
-    marginRight: 8
+    fontSize: 36,
+    marginRight: 10
   },
   speakerText: {
-    fontSize: Math.min(width * 0.045, 20),
+    fontSize: Math.min(width * 0.055, 24),
     fontWeight: '700',
     color: '#CC6500'
   },
   question: {
-    fontSize: Math.min(width * 0.07, 30),
+    fontSize: Math.min(width * 0.08, 36),
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 16,
-    lineHeight: 40
+    marginBottom: 14,
+    lineHeight: 44
   },
   required: {
-    fontSize: Math.min(width * 0.042, 18),
+    fontSize: Math.min(width * 0.052, 22),
     color: '#DC2626',
-    marginBottom: 24,
+    marginBottom: 20,
     fontWeight: '600'
   },
   textInput: {
     borderWidth: 2,
     borderColor: '#D1D5DB',
     borderRadius: 12,
-    padding: 18,
-    fontSize: Math.min(width * 0.048, 20),
-    minHeight: 140,
+    padding: 20,
+    fontSize: Math.min(width * 0.058, 24),
+    minHeight: 120,
+    maxHeight: 150,
     textAlignVertical: 'top',
     color: '#1F2937',
     backgroundColor: '#F9FAFB'
@@ -356,7 +374,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     flexWrap: 'wrap',
-    gap: isTablet ? 16 : 8
+    gap: isTablet ? 16 : 8,
+    flexShrink: 1
   },
   escalaButton: {
     width: isTablet ? 90 : Math.min(width * 0.16, 70),
@@ -373,7 +392,7 @@ const styles = StyleSheet.create({
     borderColor: '#7ABA43'
   },
   escalaText: {
-    fontSize: Math.min(width * 0.08, 32),
+    fontSize: Math.min(width * 0.09, 36),
     fontWeight: 'bold',
     color: '#6B7280'
   },
@@ -381,7 +400,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF'
   },
   booleanContainer: {
-    gap: 16
+    gap: 14,
+    flexShrink: 1
   },
   booleanButton: {
     flexDirection: 'row',
@@ -405,20 +425,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   booleanText: {
-    fontSize: Math.min(width * 0.065, 28),
+    fontSize: Math.min(width * 0.075, 32),
     fontWeight: 'bold',
     color: '#1F2937'
   },
   opcoesContainer: {
-    gap: 14
+    gap: 12,
+    flexShrink: 1
   },
   opcaoButton: {
-    paddingVertical: 20,
-    paddingHorizontal: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 3,
     borderColor: '#D1D5DB',
-    minHeight: 75,
+    minHeight: 70,
     justifyContent: 'center',
     backgroundColor: '#FFFFFF'
   },
@@ -427,11 +448,11 @@ const styles = StyleSheet.create({
     borderColor: '#FF7E00'
   },
   opcaoText: {
-    fontSize: Math.min(width * 0.05, 22),
+    fontSize: Math.min(width * 0.06, 26),
     color: '#1F2937',
     textAlign: 'center',
     fontWeight: '600',
-    lineHeight: 28
+    lineHeight: 32
   },
   opcaoTextActive: {
     color: '#FFFFFF',
@@ -476,7 +497,7 @@ const styles = StyleSheet.create({
     opacity: 0.4
   },
   navButtonText: {
-    fontSize: Math.min(width * 0.048, 20),
+    fontSize: Math.min(width * 0.058, 24),
     fontWeight: 'bold',
     color: '#1F2937'
   },
@@ -484,7 +505,7 @@ const styles = StyleSheet.create({
     color: '#9CA3AF'
   },
   navButtonTextPrimary: {
-    fontSize: Math.min(width * 0.048, 20),
+    fontSize: Math.min(width * 0.058, 24),
     fontWeight: 'bold',
     color: '#FFFFFF'
   }
