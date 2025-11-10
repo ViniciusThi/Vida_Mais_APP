@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  Dimensions
+  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import * as Speech from 'expo-speech';
+import { Audio } from 'expo-av';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -25,6 +28,22 @@ export default function QuestionarioScreen() {
   const [respostas, setRespostas] = useState<Record<string, any>>({});
   const [vozPtBr, setVozPtBr] = useState<string | null>(null);
   useEffect(() => {
+    const configurarAudio = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          playsInSilentLockedModeIOS: true,
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DUCK_OTHERS,
+          shouldDuckAndroid: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: false
+        });
+      } catch (error) {
+        console.error('Erro ao configurar modo de áudio:', error);
+      }
+    };
+
     const carregarVozes = async () => {
       try {
         const vozes = await Speech.getAvailableVoicesAsync();
@@ -41,6 +60,7 @@ export default function QuestionarioScreen() {
       }
     };
 
+    configurarAudio();
     carregarVozes();
   }, []);
 
@@ -118,7 +138,7 @@ export default function QuestionarioScreen() {
     });
   };
 
-  const falar = () => {
+  const falar = async () => {
     try {
       // Para perguntas de múltipla escolha, ler também as opções
       let textoParaLer = pergunta.enunciado;
@@ -126,8 +146,11 @@ export default function QuestionarioScreen() {
       if (['UNICA', 'MULTIPLA'].includes(pergunta.tipo) && pergunta.opcoes && pergunta.opcoes.length > 0) {
         textoParaLer += '. Opções: ' + pergunta.opcoes.join('. ');
       }
-      
-      Speech.stop();
+
+      const falando = await Speech.isSpeakingAsync();
+      if (falando) {
+        await Speech.stop();
+      }
 
       const opcoesDeVoz: Speech.SpeechOptions = {
         language: vozPtBr ? 'pt-BR' : undefined,
@@ -145,148 +168,151 @@ export default function QuestionarioScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>
-          Pergunta {currentIndex + 1} de {perguntas.length}
-        </Text>
-        <View style={styles.progressBar}>
-          <View 
-            style={[styles.progressFill, { width: `${((currentIndex + 1) / perguntas.length) * 100}%` }]} 
-          />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>
+            Pergunta {currentIndex + 1} de {perguntas.length}
+          </Text>
+          <View style={styles.progressBar}>
+            <View 
+              style={[styles.progressFill, { width: `${((currentIndex + 1) / perguntas.length) * 100}%` }]} 
+            />
+          </View>
         </View>
-      </View>
 
-      {/* Question Card */}
-      <View style={styles.scrollContainer}>
-        <View style={styles.questionCard}>
-          {/* Speaker Button */}
-          <TouchableOpacity onPress={falar} style={styles.speakerButton} activeOpacity={0.7}>
-            <Text style={styles.speakerIcon}>🔊</Text>
-            <Text style={styles.speakerText}>Ouvir</Text>
+        {/* Question Card */}
+        <View style={styles.scrollContainer}>
+          <View style={styles.questionCard}>
+            {/* Speaker Button */}
+            <TouchableOpacity onPress={falar} style={styles.speakerButton} activeOpacity={0.7}>
+              <Text style={styles.speakerIcon}>🔊</Text>
+              <Text style={styles.speakerText}>Ouvir</Text>
+            </TouchableOpacity>
+            
+            <Text style={styles.question}>{pergunta.enunciado}</Text>
+            {pergunta.obrigatoria && (
+              <Text style={styles.required}>* Pergunta obrigatória</Text>
+            )}
+
+            {/* TEXTO */}
+            {pergunta.tipo === 'TEXTO' && (
+              <TextInput
+                style={styles.textInput}
+                multiline
+                numberOfLines={4}
+                placeholder="Digite sua resposta aqui..."
+                placeholderTextColor="#9CA3AF"
+                value={respostas[pergunta.id]?.valor || ''}
+                onChangeText={(text) => handleResposta(text, 'TEXTO')}
+                onBlur={() => Keyboard.dismiss()}
+              />
+            )}
+
+            {/* ESCALA */}
+            {pergunta.tipo === 'ESCALA' && (
+              <View style={styles.escalaContainer}>
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <TouchableOpacity
+                    key={num}
+                    style={[
+                      styles.escalaButton,
+                      respostas[pergunta.id]?.valor === num && styles.escalaButtonActive
+                    ]}
+                    onPress={() => handleResposta(num, 'ESCALA')}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[
+                      styles.escalaText,
+                      respostas[pergunta.id]?.valor === num && styles.escalaTextActive
+                    ]}>
+                      {num}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* BOOLEAN */}
+            {pergunta.tipo === 'BOOLEAN' && (
+              <View style={styles.booleanContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.booleanButton,
+                    respostas[pergunta.id]?.valor === true && styles.booleanButtonActive
+                  ]}
+                  onPress={() => handleResposta(true, 'BOOLEAN')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.booleanIcon}>✓</Text>
+                  <Text style={styles.booleanText}>SIM</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.booleanButton,
+                    respostas[pergunta.id]?.valor === false && styles.booleanButtonActive
+                  ]}
+                  onPress={() => handleResposta(false, 'BOOLEAN')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.booleanIcon}>✗</Text>
+                  <Text style={styles.booleanText}>NÃO</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* UNICA / MULTIPLA */}
+            {['UNICA', 'MULTIPLA'].includes(pergunta.tipo) && pergunta.opcoes && (
+              <View style={styles.opcoesContainer}>
+                {pergunta.opcoes.map((opcao: string) => (
+                  <TouchableOpacity
+                    key={opcao}
+                    style={[
+                      styles.opcaoButton,
+                      respostas[pergunta.id]?.valor === opcao && styles.opcaoButtonActive
+                    ]}
+                    onPress={() => handleResposta(opcao, pergunta.tipo)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[
+                      styles.opcaoText,
+                      respostas[pergunta.id]?.valor === opcao && styles.opcaoTextActive
+                    ]}>
+                      {opcao}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Navigation Footer */}
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.navButton, styles.navButtonSecondary, currentIndex === 0 && styles.navButtonDisabled]}
+            onPress={handleAnterior}
+            disabled={currentIndex === 0}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.navButtonText, currentIndex === 0 && styles.navButtonTextDisabled]}>
+              ← ANTERIOR
+            </Text>
           </TouchableOpacity>
           
-          <Text style={styles.question}>{pergunta.enunciado}</Text>
-          {pergunta.obrigatoria && (
-            <Text style={styles.required}>* Pergunta obrigatória</Text>
-          )}
-
-          {/* TEXTO */}
-          {pergunta.tipo === 'TEXTO' && (
-            <TextInput
-              style={styles.textInput}
-              multiline
-              numberOfLines={4}
-              placeholder="Digite sua resposta aqui..."
-              placeholderTextColor="#9CA3AF"
-              value={respostas[pergunta.id]?.valor || ''}
-              onChangeText={(text) => handleResposta(text, 'TEXTO')}
-            />
-          )}
-
-          {/* ESCALA */}
-          {pergunta.tipo === 'ESCALA' && (
-            <View style={styles.escalaContainer}>
-              {[1, 2, 3, 4, 5].map((num) => (
-                <TouchableOpacity
-                  key={num}
-                  style={[
-                    styles.escalaButton,
-                    respostas[pergunta.id]?.valor === num && styles.escalaButtonActive
-                  ]}
-                  onPress={() => handleResposta(num, 'ESCALA')}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[
-                    styles.escalaText,
-                    respostas[pergunta.id]?.valor === num && styles.escalaTextActive
-                  ]}>
-                    {num}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          {/* BOOLEAN */}
-          {pergunta.tipo === 'BOOLEAN' && (
-            <View style={styles.booleanContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.booleanButton,
-                  respostas[pergunta.id]?.valor === true && styles.booleanButtonActive
-                ]}
-                onPress={() => handleResposta(true, 'BOOLEAN')}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.booleanIcon}>✓</Text>
-                <Text style={styles.booleanText}>SIM</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.booleanButton,
-                  respostas[pergunta.id]?.valor === false && styles.booleanButtonActive
-                ]}
-                onPress={() => handleResposta(false, 'BOOLEAN')}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.booleanIcon}>✗</Text>
-                <Text style={styles.booleanText}>NÃO</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* UNICA / MULTIPLA */}
-          {['UNICA', 'MULTIPLA'].includes(pergunta.tipo) && pergunta.opcoes && (
-            <View style={styles.opcoesContainer}>
-              {pergunta.opcoes.map((opcao: string) => (
-                <TouchableOpacity
-                  key={opcao}
-                  style={[
-                    styles.opcaoButton,
-                    respostas[pergunta.id]?.valor === opcao && styles.opcaoButtonActive
-                  ]}
-                  onPress={() => handleResposta(opcao, pergunta.tipo)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[
-                    styles.opcaoText,
-                    respostas[pergunta.id]?.valor === opcao && styles.opcaoTextActive
-                  ]}>
-                    {opcao}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+          <TouchableOpacity
+            style={[styles.navButton, styles.navButtonPrimary]}
+            onPress={handleProxima}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonTextPrimary}>
+              {currentIndex === perguntas.length - 1 ? '✓ ENVIAR' : 'PRÓXIMA →'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      {/* Navigation Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.navButton, styles.navButtonSecondary, currentIndex === 0 && styles.navButtonDisabled]}
-          onPress={handleAnterior}
-          disabled={currentIndex === 0}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.navButtonText, currentIndex === 0 && styles.navButtonTextDisabled]}>
-            ← ANTERIOR
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.navButton, styles.navButtonPrimary]}
-          onPress={handleProxima}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonTextPrimary}>
-            {currentIndex === perguntas.length - 1 ? '✓ ENVIAR' : 'PRÓXIMA →'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
