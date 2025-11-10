@@ -52,20 +52,20 @@ export default function RelatorioPage() {
         </div>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 break-words">
         {relatorio.questionario.titulo}
       </h1>
-      <p className="text-gray-600 mb-6">
+      <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
         {relatorio.totalRespondentes} respondentes
       </p>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {relatorio.relatorio.map((item: any, idx: number) => (
           <div key={item.pergunta.id} className="card">
-            <h3 className="font-bold text-lg mb-4">
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 break-words">
               {idx + 1}. {item.pergunta.enunciado}
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
               {item.totalRespostas} respostas
             </p>
 
@@ -91,7 +91,7 @@ export default function RelatorioPage() {
             )}
 
             {item.agregacao.media !== undefined && (
-              <div>
+              <div className="text-sm sm:text-base">
                 <p><strong>Média:</strong> {item.agregacao.media.toFixed(2)}</p>
                 <p><strong>Mín:</strong> {item.agregacao.min} | <strong>Máx:</strong> {item.agregacao.max}</p>
               </div>
@@ -100,12 +100,12 @@ export default function RelatorioPage() {
             {item.agregacao.sim !== undefined && (
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
                 <div>
-                  <p className="text-sm text-gray-600">Sim</p>
-                  <p className="text-2xl font-bold text-green-600">{item.agregacao.sim}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Sim</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600">{item.agregacao.sim}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Não</p>
-                  <p className="text-2xl font-bold text-red-600">{item.agregacao.nao}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Não</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-600">{item.agregacao.nao}</p>
                 </div>
               </div>
             )}
@@ -113,9 +113,9 @@ export default function RelatorioPage() {
             {item.agregacao.respostas && (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {item.agregacao.respostas.map((r: any, i: number) => (
-                  <div key={i} className="p-3 bg-gray-50 rounded">
-                    <p className="text-sm font-medium">{r.aluno}</p>
-                    <p className="text-sm text-gray-700">{r.texto}</p>
+                  <div key={i} className="p-2 sm:p-3 bg-gray-50 rounded">
+                    <p className="text-xs sm:text-sm font-medium break-words">{r.aluno}</p>
+                    <p className="text-xs sm:text-sm text-gray-700 break-words">{r.texto}</p>
                   </div>
                 ))}
               </div>

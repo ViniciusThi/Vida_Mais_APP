@@ -32,13 +32,13 @@ export default function CriarQuestionarioPage() {
 
   return (
     <div>
-      <button onClick={() => navigate(-1)} className="btn-secondary mb-6">
+      <button onClick={() => navigate(-1)} className="btn-secondary mb-4 sm:mb-6">
         <ArrowLeft size={20} className="inline mr-2" />
         Voltar
       </button>
 
       <div className="max-w-2xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Novo Questionário</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Novo Questionário</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="card space-y-4">
           <div>

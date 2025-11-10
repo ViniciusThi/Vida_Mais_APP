@@ -52,21 +52,21 @@ export default function DashboardLayout({ children }: Props) {
               >
                 {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
-              <h1 className="ml-4 lg:ml-0 text-xl font-bold text-primary-600">
+              <h1 className="ml-2 sm:ml-4 lg:ml-0 text-lg sm:text-xl font-bold text-primary-600 truncate">
                 Vida Mais
               </h1>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.nome}</p>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{user?.nome}</p>
                 <p className="text-xs text-gray-500">
                   {user?.role === 'ADMIN' ? 'Administrador' : 'Professor'}
                 </p>
               </div>
               <button
                 onClick={logout}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg flex-shrink-0"
                 title="Sair"
               >
                 <LogOut size={20} />

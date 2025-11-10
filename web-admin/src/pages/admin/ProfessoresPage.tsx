@@ -37,7 +37,7 @@ export default function ProfessoresPage() {
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Professores</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Professores</h1>
         <button onClick={() => setShowModal(true)} className="btn-primary">
           <Plus size={20} className="inline mr-2" />
           Novo Professor
@@ -101,11 +101,11 @@ export default function ProfessoresPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Novo Professor</h2>
-              <button onClick={() => setShowModal(false)}>
+              <h2 className="text-lg sm:text-xl font-bold">Novo Professor</h2>
+              <button onClick={() => setShowModal(false)} className="flex-shrink-0">
                 <X size={24} />
               </button>
             </div>

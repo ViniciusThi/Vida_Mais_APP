@@ -14,26 +14,26 @@ export default function QuestionariosPage() {
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Questionários</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Questionários</h1>
         <Link to="/questionarios/novo" className="btn-primary">
           <Plus size={20} className="inline mr-2" />
           Novo Questionário
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {questionarios?.map((q: any) => (
           <div key={q.id} className="card">
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-lg font-bold">{q.titulo}</h3>
-              <span className={`px-2 py-1 rounded text-xs ${
+            <div className="flex justify-between items-start gap-3 mb-3">
+              <h3 className="text-base sm:text-lg font-bold break-words flex-1 min-w-0">{q.titulo}</h3>
+              <span className={`px-2 py-1 rounded text-xs flex-shrink-0 ${
                 q.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
               }`}>
                 {q.ativo ? 'Ativo' : 'Inativo'}
               </span>
             </div>
             
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-xs sm:text-sm text-gray-600 mb-4 break-words">
               {q.turma?.nome || 'Global'} · {q._count.perguntas} perguntas · {q._count.respostas} respostas
             </p>
             

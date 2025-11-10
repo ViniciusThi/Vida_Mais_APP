@@ -55,16 +55,16 @@ export default function EditarQuestionarioPage() {
 
   return (
     <div>
-      <button onClick={() => navigate('/questionarios')} className="btn-secondary mb-6">
+      <button onClick={() => navigate('/questionarios')} className="btn-secondary mb-4 sm:mb-6">
         <ArrowLeft size={20} className="inline mr-2" />
         Voltar
       </button>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">{questionario.titulo}</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 break-words">{questionario.titulo}</h1>
 
       <div className="card mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-          <h2 className="text-xl font-bold">Perguntas</h2>
+          <h2 className="text-lg sm:text-xl font-bold">Perguntas</h2>
           <button onClick={() => setShowPerguntaModal(true)} className="btn-primary">
             <Plus size={20} className="inline mr-2" />
             Adicionar Pergunta
@@ -74,18 +74,18 @@ export default function EditarQuestionarioPage() {
         {questionario.perguntas?.length > 0 ? (
           <div className="space-y-3">
             {questionario.perguntas.map((p: any, idx: number) => (
-              <div key={p.id} className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">
+              <div key={p.id} className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm sm:text-base text-gray-900 break-words">
                     {idx + 1}. {p.enunciado}
                   </p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
                     Tipo: {p.tipo} {p.obrigatoria && '· Obrigatória'}
                   </p>
                 </div>
                 <button
                   onClick={() => deletePerguntaMutation.mutate(p.id)}
-                  className="text-red-600 hover:text-red-700 self-start sm:self-auto"
+                  className="text-red-600 hover:text-red-700 self-start flex-shrink-0"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -99,9 +99,9 @@ export default function EditarQuestionarioPage() {
 
       {/* Modal Adicionar Pergunta */}
       {showPerguntaModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-            <h2 className="text-xl font-bold mb-4">Nova Pergunta</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">Nova Pergunta</h2>
             
             <form onSubmit={handleSubmit(onSubmitPergunta)} className="space-y-4">
               <div>
