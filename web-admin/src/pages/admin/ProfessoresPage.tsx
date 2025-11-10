@@ -36,7 +36,7 @@ export default function ProfessoresPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Professores</h1>
         <button onClick={() => setShowModal(true)} className="btn-primary">
           <Plus size={20} className="inline mr-2" />
@@ -44,33 +44,35 @@ export default function ProfessoresPage() {
         </button>
       </div>
 
-      <div className="card">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-3">Nome</th>
-              <th className="text-left py-3">Email</th>
-              <th className="text-left py-3">Turmas</th>
-              <th className="text-left py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {professores?.map((prof: any) => (
-              <tr key={prof.id} className="border-b last:border-0">
-                <td className="py-3">{prof.nome}</td>
-                <td className="py-3">{prof.email}</td>
-                <td className="py-3">{prof._count.turmasProfessor}</td>
-                <td className="py-3">
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    prof.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {prof.ativo ? 'Ativo' : 'Inativo'}
-                  </span>
-                </td>
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm sm:text-base">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3">Nome</th>
+                <th className="text-left py-3">Email</th>
+                <th className="text-left py-3">Turmas</th>
+                <th className="text-left py-3">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {professores?.map((prof: any) => (
+                <tr key={prof.id} className="border-b last:border-0">
+                  <td className="py-3 break-words">{prof.nome}</td>
+                  <td className="py-3 break-words">{prof.email}</td>
+                  <td className="py-3">{prof._count.turmasProfessor}</td>
+                  <td className="py-3">
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      prof.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {prof.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal */}

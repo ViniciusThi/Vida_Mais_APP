@@ -13,7 +13,7 @@ export default function QuestionariosPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Questionários</h1>
         <Link to="/questionarios/novo" className="btn-primary">
           <Plus size={20} className="inline mr-2" />

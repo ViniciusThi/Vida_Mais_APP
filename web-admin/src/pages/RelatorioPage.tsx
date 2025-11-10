@@ -35,17 +35,17 @@ export default function RelatorioPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <button onClick={() => navigate('/questionarios')} className="btn-secondary">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <button onClick={() => navigate('/questionarios')} className="btn-secondary w-full sm:w-auto justify-center">
           <ArrowLeft size={20} className="inline mr-2" />
           Voltar
         </button>
-        <div className="flex gap-2">
-          <button onClick={() => handleExport('xlsx')} className="btn-primary">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button onClick={() => handleExport('xlsx')} className="btn-primary justify-center">
             <Download size={18} className="inline mr-2" />
             Excel
           </button>
-          <button onClick={() => handleExport('csv')} className="btn-secondary">
+          <button onClick={() => handleExport('csv')} className="btn-secondary justify-center">
             <Download size={18} className="inline mr-2" />
             CSV
           </button>
@@ -98,7 +98,7 @@ export default function RelatorioPage() {
             )}
 
             {item.agregacao.sim !== undefined && (
-              <div className="flex gap-8">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
                 <div>
                   <p className="text-sm text-gray-600">Sim</p>
                   <p className="text-2xl font-bold text-green-600">{item.agregacao.sim}</p>

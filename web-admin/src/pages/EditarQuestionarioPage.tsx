@@ -63,7 +63,7 @@ export default function EditarQuestionarioPage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">{questionario.titulo}</h1>
 
       <div className="card mb-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
           <h2 className="text-xl font-bold">Perguntas</h2>
           <button onClick={() => setShowPerguntaModal(true)} className="btn-primary">
             <Plus size={20} className="inline mr-2" />
@@ -74,7 +74,7 @@ export default function EditarQuestionarioPage() {
         {questionario.perguntas?.length > 0 ? (
           <div className="space-y-3">
             {questionario.perguntas.map((p: any, idx: number) => (
-              <div key={p.id} className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+              <div key={p.id} className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex-1">
                   <p className="font-medium text-gray-900">
                     {idx + 1}. {p.enunciado}
@@ -85,7 +85,7 @@ export default function EditarQuestionarioPage() {
                 </div>
                 <button
                   onClick={() => deletePerguntaMutation.mutate(p.id)}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-red-600 hover:text-red-700 self-start sm:self-auto"
                 >
                   <Trash2 size={18} />
                 </button>
