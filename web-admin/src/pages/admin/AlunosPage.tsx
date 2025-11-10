@@ -44,8 +44,8 @@ export default function AlunosPage() {
         </button>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="card">
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm sm:text-base">
             <thead>
               <tr className="border-b">
@@ -74,6 +74,30 @@ export default function AlunosPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="sm:hidden space-y-4">
+          {alunos?.map((aluno: any) => (
+            <div key={aluno.id} className="rounded-xl border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-base font-semibold text-gray-900 break-words">{aluno.nome}</p>
+                  <p className="text-sm text-gray-600 break-words">{aluno.email}</p>
+                </div>
+                <span className={`px-2 py-1 rounded text-xs ${
+                  aluno.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {aluno.ativo ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
+              <div className="mt-3">
+                <p className="text-xs font-medium uppercase text-gray-500">Turmas</p>
+                <p className="text-sm text-gray-700 mt-1">
+                  {aluno.alunoTurmas.map((at: any) => at.turma.nome).join(', ') || '-'}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
