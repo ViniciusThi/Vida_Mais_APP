@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,27 @@ export default function QuestionarioScreen() {
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [respostas, setRespostas] = useState<Record<string, any>>({});
+  const [vozPtBr, setVozPtBr] = useState<string | null>(null);
+  useEffect(() => {
+    const carregarVozes = async () => {
+      try {
+        const vozes = await Speech.getAvailableVoicesAsync();
+        const voz = vozes.find((item) => {
+          const idioma = item.language?.toLowerCase();
+          return idioma?.startsWith('pt-br') || idioma?.startsWith('pt');
+        });
+
+        if (voz) {
+          setVozPtBr(voz.identifier);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar vozes disponíveis:', error);
+      }
+    };
+
+    carregarVozes();
+  }, []);
+
 
   const { data: questionario, isLoading } = useQuery({
     queryKey: ['questionario', id],
@@ -106,12 +127,17 @@ export default function QuestionarioScreen() {
         textoParaLer += '. Opções: ' + pergunta.opcoes.join('. ');
       }
       
-      Speech.speak(textoParaLer, { 
-        language: 'pt-BR', 
+      Speech.stop();
+
+      const opcoesDeVoz: Speech.SpeechOptions = {
+        language: vozPtBr ? 'pt-BR' : undefined,
+        voice: vozPtBr ?? undefined,
         rate: 0.7, // Mais lento para idosos
         pitch: 1.0,
         volume: 1.0
-      });
+      };
+
+      Speech.speak(textoParaLer, opcoesDeVoz);
     } catch (error) {
       console.error('Erro ao reproduzir áudio:', error);
       Alert.alert('Erro', 'Não foi possível reproduzir o áudio. Verifique as configurações do dispositivo.');
