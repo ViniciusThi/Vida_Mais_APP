@@ -33,10 +33,8 @@ export default function QuestionarioScreen() {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           playsInSilentModeIOS: true,
-          playsInSilentLockedModeIOS: true,
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DUCK_OTHERS,
-          shouldDuckAndroid: true,
           staysActiveInBackground: false,
+          shouldDuckAndroid: true,
           playThroughEarpieceAndroid: false
         });
       } catch (error) {
