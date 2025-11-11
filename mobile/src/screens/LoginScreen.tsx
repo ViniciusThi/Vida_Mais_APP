@@ -150,7 +150,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     fontWeight: '600',
-    letterSpacing: 0.5
+    letterSpacing: 0.5,
+    flexShrink: 1,
+    alignSelf: 'center'
   },
   formContainer: {
     width: '100%',
@@ -171,7 +173,8 @@ const styles = StyleSheet.create({
     fontSize: Math.min(width * 0.055, 24),
     fontWeight: '700',
     marginBottom: 10,
-    color: '#1F2937'
+    color: '#1F2937',
+    flexShrink: 1
   },
   input: {
     fontSize: Math.min(width * 0.05, 22),
@@ -205,7 +208,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: Math.min(width * 0.06, 26),
     fontWeight: 'bold',
-    letterSpacing: 1
+    letterSpacing: 1,
+    textAlign: 'center',
+    flexShrink: 1
   },
   hint: {
     backgroundColor: '#E6F3FA', // Azul claro

@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './src/stores/authStore';
 import { useEffect, useState } from 'react';
+import { Text, TextInput } from 'react-native';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -27,6 +28,19 @@ import MinhasTurmasScreen from './src/screens/professor/MinhasTurmasScreen';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
+
+// Configuração global para evitar quebra de layout com fontes muito grandes
+Text.defaultProps = {
+  ...(Text.defaultProps || {}),
+  allowFontScaling: true,
+  maxFontSizeMultiplier: 1.3
+};
+
+TextInput.defaultProps = {
+  ...(TextInput.defaultProps || {}),
+  allowFontScaling: true,
+  maxFontSizeMultiplier: 1.3
+};
 
 export default function App() {
   const { token, loadToken } = useAuthStore();

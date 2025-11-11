@@ -377,6 +377,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     backgroundColor: '#FFE5CC', // Laranja claro
     paddingVertical: 14,
     paddingHorizontal: 22,
@@ -393,14 +394,17 @@ const styles = StyleSheet.create({
   speakerText: {
     fontSize: Math.min(width * 0.055, 24),
     fontWeight: '700',
-    color: '#CC6500'
+    color: '#CC6500',
+    flexShrink: 1
   },
   question: {
     fontSize: Math.min(width * 0.08, 36),
     fontWeight: 'bold',
     color: '#1F2937',
     marginBottom: 14,
-    lineHeight: 44
+    lineHeight: 44,
+    flexShrink: 1,
+    flexWrap: 'wrap'
   },
   required: {
     fontSize: Math.min(width * 0.052, 22),
@@ -549,7 +553,9 @@ const styles = StyleSheet.create({
   navButtonText: {
     fontSize: Math.min(width * 0.058, 24),
     fontWeight: 'bold',
-    color: '#1F2937'
+    color: '#1F2937',
+    textAlign: 'center',
+    flexShrink: 1
   },
   navButtonTextDisabled: {
     color: '#9CA3AF'
@@ -557,6 +563,8 @@ const styles = StyleSheet.create({
   navButtonTextPrimary: {
     fontSize: Math.min(width * 0.058, 24),
     fontWeight: 'bold',
-    color: '#FFFFFF'
+    color: '#FFFFFF',
+    textAlign: 'center',
+    flexShrink: 1
   }
 });
