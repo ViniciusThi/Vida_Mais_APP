@@ -2,7 +2,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, D
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
+import { useFontSize } from '../contexts/FontSizeContext';
 import { alunoService } from '../services/api';
+import FontSizeControl from '../components/FontSizeControl';
 import { useState } from 'react';
 
 const { width, height } = Dimensions.get('window');
@@ -11,6 +13,7 @@ const isTablet = width >= 768;
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { user, logout } = useAuthStore();
+  const { fontScale } = useFontSize();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleLogout = async () => {
@@ -24,24 +27,28 @@ export default function HomeScreen() {
 
   const renderMenu = () => {
     if (user?.role === 'ADMIN') {
-      return <AdminMenu navigation={navigation} />;
+      return <AdminMenu navigation={navigation} fontScale={fontScale} />;
     } else if (user?.role === 'PROF') {
-      return <ProfessorMenu navigation={navigation} />;
+      return <ProfessorMenu navigation={navigation} fontScale={fontScale} />;
     } else {
-      return <AlunoMenu navigation={navigation} />;
+      return <AlunoMenu navigation={navigation} fontScale={fontScale} />;
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Olá, {user?.nome}!</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.greeting, { fontSize: Math.min(width * 0.08, 32) * fontScale }]}>
+          Olá, {user?.nome}!
+        </Text>
+        <Text style={[styles.subtitle, { fontSize: Math.min(width * 0.055, 22) * fontScale }]}>
           {user?.role === 'ADMIN' ? '👨‍💼 Administrador' : 
            user?.role === 'PROF' ? '👨‍🏫 Professor' : '👤 Aluno'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>SAIR</Text>
+          <Text style={[styles.logoutText, { fontSize: Math.min(width * 0.045, 18) * fontScale }]}>
+            SAIR
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -51,13 +58,16 @@ export default function HomeScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {renderMenu()}
+        <View style={styles.menuContainer}>
+          <FontSizeControl />
+          {renderMenu()}
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-function AdminMenu({ navigation }: any) {
+function AdminMenu({ navigation, fontScale }: any) {
   const menuItems = [
     { title: 'Professores', subtitle: 'Gerenciar professores', screen: 'Professores', icon: '👨‍🏫', color: '#075D94' },
     { title: 'Alunos', subtitle: 'Gerenciar alunos', screen: 'Alunos', icon: '👥', color: '#FF7E00' },
@@ -66,7 +76,7 @@ function AdminMenu({ navigation }: any) {
   ];
 
   return (
-    <View style={styles.menuContainer}>
+    <>
       {menuItems.map((item) => (
         <TouchableOpacity
           key={item.screen}
@@ -76,17 +86,21 @@ function AdminMenu({ navigation }: any) {
         >
           <Text style={styles.menuIcon}>{item.icon}</Text>
           <View style={styles.menuTextContainer}>
-            <Text style={styles.menuTitle}>{item.title}</Text>
-            <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+            <Text style={[styles.menuTitle, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
+              {item.title}
+            </Text>
+            <Text style={[styles.menuSubtitle, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
+              {item.subtitle}
+            </Text>
           </View>
           <Text style={[styles.menuArrow, { color: item.color }]}>›</Text>
         </TouchableOpacity>
       ))}
-    </View>
+    </>
   );
 }
 
-function ProfessorMenu({ navigation }: any) {
+function ProfessorMenu({ navigation, fontScale }: any) {
   const menuItems = [
     { title: 'Meus Questionários', subtitle: 'Ver questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
     { title: 'Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕', color: '#FF7E00' },
@@ -94,7 +108,7 @@ function ProfessorMenu({ navigation }: any) {
   ];
 
   return (
-    <View style={styles.menuContainer}>
+    <>
       {menuItems.map((item) => (
         <TouchableOpacity
           key={item.screen}
@@ -104,17 +118,21 @@ function ProfessorMenu({ navigation }: any) {
         >
           <Text style={styles.menuIcon}>{item.icon}</Text>
           <View style={styles.menuTextContainer}>
-            <Text style={styles.menuTitle}>{item.title}</Text>
-            <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+            <Text style={[styles.menuTitle, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
+              {item.title}
+            </Text>
+            <Text style={[styles.menuSubtitle, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
+              {item.subtitle}
+            </Text>
           </View>
           <Text style={[styles.menuArrow, { color: item.color }]}>›</Text>
         </TouchableOpacity>
       ))}
-    </View>
+    </>
   );
 }
 
-function AlunoMenu({ navigation }: any) {
+function AlunoMenu({ navigation, fontScale }: any) {
   const { data: turmas } = useQuery({
     queryKey: ['minhas-turmas'],
     queryFn: alunoService.getMinhasTurmas
@@ -129,20 +147,26 @@ function AlunoMenu({ navigation }: any) {
   const respondidos = questionarios?.filter((q: any) => q.respondido) || [];
 
   return (
-    <View style={styles.menuContainer}>
+    <>
       {turmas && turmas.length > 0 && (
         <View style={styles.infoCard}>
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, { fontSize: Math.min(width * 0.045, 20) * fontScale }]}>
             🎓 {turmas.map((t: any) => t.nome).join(', ')}
           </Text>
         </View>
       )}
 
-      {isLoading && <Text style={styles.loadingText}>Carregando...</Text>}
+      {isLoading && (
+        <Text style={[styles.loadingText, { fontSize: Math.min(width * 0.05, 22) * fontScale }]}>
+          Carregando...
+        </Text>
+      )}
 
       {pendentes.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>📋 Questionários Disponíveis</Text>
+          <Text style={[styles.sectionTitle, { fontSize: Math.min(width * 0.065, 26) * fontScale }]}>
+            📋 Questionários Disponíveis
+          </Text>
           {pendentes.map((item: any) => (
             <TouchableOpacity
               key={item.id}
@@ -150,16 +174,22 @@ function AlunoMenu({ navigation }: any) {
               onPress={() => navigation.navigate('Questionario', { id: item.id, turmaId: turmas?.[0]?.id })}
               activeOpacity={0.7}
             >
-              <Text style={styles.questionTitle}>{item.titulo}</Text>
+              <Text style={[styles.questionTitle, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
+                {item.titulo}
+              </Text>
               {item.descricao && (
-                <Text style={styles.questionDescription}>{item.descricao}</Text>
+                <Text style={[styles.questionDescription, { fontSize: Math.min(width * 0.042, 18) * fontScale }]}>
+                  {item.descricao}
+                </Text>
               )}
               <View style={styles.questionFooter}>
-                <Text style={styles.questionMeta}>
+                <Text style={[styles.questionMeta, { fontSize: Math.min(width * 0.038, 16) * fontScale }]}>
                   {item._count?.perguntas || 0} perguntas
                 </Text>
                 <View style={styles.answerButton}>
-                  <Text style={styles.answerButtonText}>RESPONDER ›</Text>
+                  <Text style={[styles.answerButtonText, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
+                    RESPONDER ›
+                  </Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -170,7 +200,7 @@ function AlunoMenu({ navigation }: any) {
       {pendentes.length === 0 && !isLoading && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>✓</Text>
-          <Text style={styles.emptyText}>
+          <Text style={[styles.emptyText, { fontSize: Math.min(width * 0.05, 22) * fontScale }]}>
             Nenhum questionário pendente no momento
           </Text>
         </View>
@@ -178,16 +208,22 @@ function AlunoMenu({ navigation }: any) {
 
       {respondidos.length > 0 && (
         <>
-          <Text style={[styles.sectionTitle, { marginTop: 32 }]}>✅ Já Respondidos</Text>
+          <Text style={[styles.sectionTitle, { marginTop: 32, fontSize: Math.min(width * 0.065, 26) * fontScale }]}>
+            ✅ Já Respondidos
+          </Text>
           {respondidos.map((item: any) => (
             <View key={item.id} style={styles.doneCard}>
-              <Text style={styles.doneTitle}>{item.titulo}</Text>
-              <Text style={styles.doneText}>Obrigado pela participação!</Text>
+              <Text style={[styles.doneTitle, { fontSize: Math.min(width * 0.05, 22) * fontScale }]}>
+                {item.titulo}
+              </Text>
+              <Text style={[styles.doneText, { fontSize: Math.min(width * 0.042, 18) * fontScale }]}>
+                Obrigado pela participação!
+              </Text>
             </View>
           ))}
         </>
       )}
-    </View>
+    </>
   );
 }
 

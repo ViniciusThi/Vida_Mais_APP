@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './src/stores/authStore';
+import { FontSizeProvider } from './src/contexts/FontSizeContext';
 import { useEffect, useState } from 'react';
 import { Text, TextInput } from 'react-native';
 
@@ -55,100 +56,102 @@ export default function App() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: '#075D94' }, // Azul Vida Mais
-            headerTintColor: '#fff',
-            headerTitleStyle: { fontWeight: 'bold', fontSize: 22 }
-          }}
-        >
-          {!token ? (
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen} 
-              options={{ headerShown: false }}
-            />
-          ) : (
-            <>
+    <FontSizeProvider>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: { backgroundColor: '#075D94' }, // Azul Vida Mais
+              headerTintColor: '#fff',
+              headerTitleStyle: { fontWeight: 'bold', fontSize: 22 }
+            }}
+          >
+            {!token ? (
               <Stack.Screen 
-                name="Home" 
-                component={HomeScreen} 
-                options={{ title: 'Vida Mais' }}
-              />
-              
-              {/* Telas de Aluno */}
-              <Stack.Screen 
-                name="Questionario" 
-                component={QuestionarioScreen} 
-                options={{ title: 'Responder Questionário' }}
-              />
-              <Stack.Screen 
-                name="Success" 
-                component={SuccessScreen} 
+                name="Login" 
+                component={LoginScreen} 
                 options={{ headerShown: false }}
               />
-              
-              {/* Telas de Admin */}
-              <Stack.Screen 
-                name="Professores" 
-                component={ProfessoresScreen} 
-                options={{ title: 'Gerenciar Professores' }}
-              />
-              <Stack.Screen 
-                name="Alunos" 
-                component={AlunosScreen} 
-                options={{ title: 'Gerenciar Alunos' }}
-              />
-              <Stack.Screen 
-                name="Turmas" 
-                component={TurmasScreen} 
-                options={{ title: 'Gerenciar Turmas' }}
-              />
-              <Stack.Screen 
-                name="EditarTurma" 
-                component={EditarTurmaScreen} 
-                options={{ title: 'Editar Turma' }}
-              />
-              <Stack.Screen 
-                name="EditarProfessor" 
-                component={EditarProfessorScreen} 
-                options={{ title: 'Editar Professor' }}
-              />
-              <Stack.Screen 
-                name="EditarAluno" 
-                component={EditarAlunoScreen} 
-                options={{ title: 'Editar Aluno' }}
-              />
-              
-              {/* Telas de Professor */}
-              <Stack.Screen 
-                name="MeusQuestionarios" 
-                component={MeusQuestionariosScreen} 
-                options={{ title: 'Meus Questionários' }}
-              />
-              <Stack.Screen 
-                name="CriarQuestionario" 
-                component={CriarQuestionarioScreen} 
-                options={{ title: 'Criar Questionário' }}
-              />
-              <Stack.Screen 
-                name="Relatorio" 
-                component={RelatorioScreen} 
-                options={{ title: 'Relatório' }}
-              />
-              <Stack.Screen 
-                name="MinhasTurmas" 
-                component={MinhasTurmasScreen} 
-                options={{ title: 'Minhas Turmas' }}
-              />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </QueryClientProvider>
+            ) : (
+              <>
+                <Stack.Screen 
+                  name="Home" 
+                  component={HomeScreen} 
+                  options={{ title: 'Vida Mais' }}
+                />
+                
+                {/* Telas de Aluno */}
+                <Stack.Screen 
+                  name="Questionario" 
+                  component={QuestionarioScreen} 
+                  options={{ title: 'Responder Questionário' }}
+                />
+                <Stack.Screen 
+                  name="Success" 
+                  component={SuccessScreen} 
+                  options={{ headerShown: false }}
+                />
+                
+                {/* Telas de Admin */}
+                <Stack.Screen 
+                  name="Professores" 
+                  component={ProfessoresScreen} 
+                  options={{ title: 'Gerenciar Professores' }}
+                />
+                <Stack.Screen 
+                  name="Alunos" 
+                  component={AlunosScreen} 
+                  options={{ title: 'Gerenciar Alunos' }}
+                />
+                <Stack.Screen 
+                  name="Turmas" 
+                  component={TurmasScreen} 
+                  options={{ title: 'Gerenciar Turmas' }}
+                />
+                <Stack.Screen 
+                  name="EditarTurma" 
+                  component={EditarTurmaScreen} 
+                  options={{ title: 'Editar Turma' }}
+                />
+                <Stack.Screen 
+                  name="EditarProfessor" 
+                  component={EditarProfessorScreen} 
+                  options={{ title: 'Editar Professor' }}
+                />
+                <Stack.Screen 
+                  name="EditarAluno" 
+                  component={EditarAlunoScreen} 
+                  options={{ title: 'Editar Aluno' }}
+                />
+                
+                {/* Telas de Professor */}
+                <Stack.Screen 
+                  name="MeusQuestionarios" 
+                  component={MeusQuestionariosScreen} 
+                  options={{ title: 'Meus Questionários' }}
+                />
+                <Stack.Screen 
+                  name="CriarQuestionario" 
+                  component={CriarQuestionarioScreen} 
+                  options={{ title: 'Criar Questionário' }}
+                />
+                <Stack.Screen 
+                  name="Relatorio" 
+                  component={RelatorioScreen} 
+                  options={{ title: 'Relatório' }}
+                />
+                <Stack.Screen 
+                  name="MinhasTurmas" 
+                  component={MinhasTurmasScreen} 
+                  options={{ title: 'Minhas Turmas' }}
+                />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </QueryClientProvider>
+    </FontSizeProvider>
   );
 }
 
