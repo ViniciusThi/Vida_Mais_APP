@@ -18,12 +18,13 @@ const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleLogin = async () => {
-    if (!email) {
-      Alert.alert('Atenção', 'Por favor, digite seu email', [
+    if (!email || !senha) {
+      Alert.alert('Atenção', 'Por favor, preencha todos os campos', [
         { text: 'OK', style: 'default' }
       ]);
       return;
@@ -31,13 +32,13 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await authService.login(email, '');
+      const response = await authService.login(email, senha);
       setAuthToken(response.token);
       await setAuth(response.token, response.user);
     } catch (error: any) {
       Alert.alert(
         'Não foi possível entrar',
-        error.response?.data?.error || 'Verifique seu email',
+        error.response?.data?.error || 'Verifique seu email e senha',
         [{ text: 'Tentar novamente', style: 'default' }]
       );
     } finally {
@@ -76,6 +77,16 @@ export default function LoginScreen() {
             autoCorrect={false}
           />
 
+          <Text style={styles.label}>Senha</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite sua senha"
+            placeholderTextColor="#9CA3AF"
+            value={senha}
+            onChangeText={setSenha}
+            secureTextEntry
+          />
+
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
@@ -86,13 +97,6 @@ export default function LoginScreen() {
               {loading ? 'ENTRANDO...' : '✓ ENTRAR'}
             </Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.hint}>
-          <Text style={styles.hintTitle}>💡 Para Testar</Text>
-          <Text style={styles.hintText}>Aluno: aluno1@vidamais.com</Text>
-          <Text style={styles.hintText}>Professor: prof1@vidamais.com</Text>
-          <Text style={styles.hintText}>Admin: admin@vidamais.com</Text>
         </View>
       </View>
     </ScrollView>
@@ -199,34 +203,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textAlign: 'center',
     flexShrink: 1
-  },
-  hint: {
-    backgroundColor: '#E6F3FA', // Azul claro
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: '#075D94'
-  },
-  hintTitle: {
-    fontSize: Math.min(width * 0.048, 20),
-    fontWeight: '700',
-    color: '#075D94',
-    marginBottom: 12,
-    textAlign: 'center'
-  },
-  hintText: {
-    fontSize: Math.min(width * 0.042, 18),
-    color: '#054A75',
-    textAlign: 'center',
-    marginBottom: 6,
-    lineHeight: 24
-  },
-  hintTextSmall: {
-    fontSize: Math.min(width * 0.038, 16),
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 8,
-    fontStyle: 'italic'
   }
 });
 

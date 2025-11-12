@@ -7,6 +7,7 @@ import { LogIn } from 'lucide-react';
 
 interface LoginForm {
   email: string;
+  senha: string;
 }
 
 export default function LoginPage() {
@@ -17,7 +18,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     try {
-      const response = await authService.login({ email: data.email, senha: '' });
+      const response = await authService.login(data);
       setAuth(response.token, response.user);
       toast.success(`Bem-vindo, ${response.user.nome}!`);
     } catch (error: any) {
@@ -54,10 +55,30 @@ export default function LoginPage() {
               type="email"
               className="input"
               placeholder="seu@email.com"
-              autoFocus
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Senha
+            </label>
+            <input
+              {...register('senha', { 
+                required: 'Senha é obrigatória',
+                minLength: {
+                  value: 6,
+                  message: 'Senha deve ter no mínimo 6 caracteres'
+                }
+              })}
+              type="password"
+              className="input"
+              placeholder="••••••"
+            />
+            {errors.senha && (
+              <p className="mt-1 text-sm text-red-600">{errors.senha.message}</p>
             )}
           </div>
 
@@ -69,16 +90,6 @@ export default function LoginPage() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
-
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-600 mb-2">Emails de teste:</p>
-          <p className="text-xs text-gray-800">
-            <strong>Admin:</strong> admin@vidamais.com
-          </p>
-          <p className="text-xs text-gray-800">
-            <strong>Prof:</strong> prof1@vidamais.com
-          </p>
-        </div>
       </div>
     </div>
   );

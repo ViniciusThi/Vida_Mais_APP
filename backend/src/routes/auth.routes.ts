@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 // Schema de validação
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
-  senha: z.string().optional() // Senha opcional
+  senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres')
 });
 
 // POST /auth/login
@@ -32,19 +32,17 @@ router.post('/login', async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Email inválido' });
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
 
     if (!user.ativo) {
       return res.status(401).json({ error: 'Usuário inativo' });
     }
 
-    // Verificar senha apenas se foi fornecida
-    if (senha && senha.length > 0) {
-      const senhaValida = await bcrypt.compare(senha, user.senhaHash);
-      if (!senhaValida) {
-        return res.status(401).json({ error: 'Email ou senha inválidos' });
-      }
+    // Verificar senha
+    const senhaValida = await bcrypt.compare(senha, user.senhaHash);
+    if (!senhaValida) {
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
 
     // Gerar token
