@@ -38,15 +38,15 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.greeting, { fontSize: Math.min(width * 0.08, 32) * fontScale }]}>
+        <Text style={[styles.greeting, { fontSize: Math.min(width * 0.06, 24) * fontScale }]}>
           Olá, {user?.nome}!
         </Text>
-        <Text style={[styles.subtitle, { fontSize: Math.min(width * 0.055, 22) * fontScale }]}>
+        <Text style={[styles.subtitle, { fontSize: Math.min(width * 0.045, 18) * fontScale }]}>
           {user?.role === 'ADMIN' ? '👨‍💼 Administrador' : 
            user?.role === 'PROF' ? '👨‍🏫 Professor' : '👤 Aluno'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={[styles.logoutText, { fontSize: Math.min(width * 0.045, 18) * fontScale }]}>
+          <Text style={[styles.logoutText, { fontSize: Math.min(width * 0.04, 16) * fontScale }]}>
             SAIR
           </Text>
         </TouchableOpacity>
@@ -235,34 +235,34 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#075D94', // Azul Vida Mais
     paddingHorizontal: width * 0.05,
-    paddingTop: Platform.OS === 'ios' ? 60 : 20,
-    paddingBottom: 24,
-    borderBottomWidth: 4,
+    paddingTop: Platform.OS === 'ios' ? 50 : 16,
+    paddingBottom: 16,
+    borderBottomWidth: 3,
     borderBottomColor: '#FF7E00' // Laranja Vida Mais
   },
   greeting: {
-    fontSize: Math.min(width * 0.08, 32),
+    fontSize: Math.min(width * 0.06, 24),
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 8
+    marginBottom: 6
   },
   subtitle: {
-    fontSize: Math.min(width * 0.055, 22),
+    fontSize: Math.min(width * 0.045, 18),
     color: '#FFFFFF',
     opacity: 0.95,
-    marginBottom: 16
+    marginBottom: 12
   },
   logoutButton: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
     alignSelf: 'flex-start',
     borderWidth: 2,
     borderColor: '#FF7E00'
   },
   logoutText: {
-    fontSize: Math.min(width * 0.045, 18),
+    fontSize: Math.min(width * 0.04, 16),
     color: '#DC2626',
     fontWeight: '700'
   },

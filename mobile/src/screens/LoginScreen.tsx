@@ -18,13 +18,12 @@ const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Atenção', 'Por favor, preencha todos os campos', [
+    if (!email) {
+      Alert.alert('Atenção', 'Por favor, digite seu email', [
         { text: 'OK', style: 'default' }
       ]);
       return;
@@ -32,13 +31,13 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await authService.login(email, senha);
+      const response = await authService.login(email, '');
       setAuthToken(response.token);
       await setAuth(response.token, response.user);
     } catch (error: any) {
       Alert.alert(
         'Não foi possível entrar',
-        error.response?.data?.error || 'Verifique seu email e senha',
+        error.response?.data?.error || 'Verifique seu email',
         [{ text: 'Tentar novamente', style: 'default' }]
       );
     } finally {
@@ -77,16 +76,6 @@ export default function LoginScreen() {
             autoCorrect={false}
           />
 
-          <Text style={styles.label}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite sua senha"
-            placeholderTextColor="#9CA3AF"
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry
-          />
-
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
@@ -104,7 +93,6 @@ export default function LoginScreen() {
           <Text style={styles.hintText}>Aluno: aluno1@vidamais.com</Text>
           <Text style={styles.hintText}>Professor: prof1@vidamais.com</Text>
           <Text style={styles.hintText}>Admin: admin@vidamais.com</Text>
-          <Text style={styles.hintTextSmall}>Senha: aluno123 / prof123 / admin123</Text>
         </View>
       </View>
     </ScrollView>
