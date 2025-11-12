@@ -3,16 +3,19 @@ import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
   TouchableOpacity,
   TextInput,
   Alert,
   Dimensions,
   Keyboard,
-  TouchableWithoutFeedback
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
+import { useFontSize } from '../contexts/FontSizeContext';
 import * as Speech from 'expo-speech';
 import { Audio } from 'expo-av';
 
@@ -23,6 +26,7 @@ export default function QuestionarioScreen() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const { id, turmaId } = route.params;
+  const { fontScale } = useFontSize();
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [respostas, setRespostas] = useState<Record<string, any>>({});
@@ -166,11 +170,14 @@ export default function QuestionarioScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
       <View style={styles.container}>
         {/* Progress Bar */}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, { fontSize: Math.min(width * 0.06, 26) * fontScale }]}>
             Pergunta {currentIndex + 1} de {perguntas.length}
           </Text>
           <View style={styles.progressBar}>
@@ -180,24 +187,35 @@ export default function QuestionarioScreen() {
           </View>
         </View>
 
-        {/* Question Card */}
-        <View style={styles.scrollContainer}>
+        {/* Question Card with ScrollView */}
+        <ScrollView 
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.questionCard}>
             {/* Speaker Button */}
             <TouchableOpacity onPress={falar} style={styles.speakerButton} activeOpacity={0.7}>
               <Text style={styles.speakerIcon}>🔊</Text>
-              <Text style={styles.speakerText}>Ouvir</Text>
+              <Text style={[styles.speakerText, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
+                Ouvir
+              </Text>
             </TouchableOpacity>
             
-            <Text style={styles.question}>{pergunta.enunciado}</Text>
+            <Text style={[styles.question, { fontSize: Math.min(width * 0.08, 36) * fontScale }]}>
+              {pergunta.enunciado}
+            </Text>
             {pergunta.obrigatoria && (
-              <Text style={styles.required}>* Pergunta obrigatória</Text>
+              <Text style={[styles.required, { fontSize: Math.min(width * 0.052, 22) * fontScale }]}>
+                * Pergunta obrigatória
+              </Text>
             )}
 
             {/* TEXTO */}
             {pergunta.tipo === 'TEXTO' && (
               <TextInput
-                style={styles.textInput}
+                style={[styles.textInput, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}
                 multiline
                 numberOfLines={4}
                 placeholder="Digite sua resposta aqui..."
@@ -223,6 +241,7 @@ export default function QuestionarioScreen() {
                   >
                     <Text style={[
                       styles.escalaText,
+                      { fontSize: Math.min(width * 0.09, 36) * fontScale },
                       respostas[pergunta.id]?.valor === num && styles.escalaTextActive
                     ]}>
                       {num}
@@ -243,8 +262,12 @@ export default function QuestionarioScreen() {
                   onPress={() => handleResposta(true, 'BOOLEAN')}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.booleanIcon}>✓</Text>
-                  <Text style={styles.booleanText}>SIM</Text>
+                  <Text style={[styles.booleanIcon, { fontSize: Math.min(width * 0.08, 32) * fontScale }]}>
+                    ✓
+                  </Text>
+                  <Text style={[styles.booleanText, { fontSize: Math.min(width * 0.075, 32) * fontScale }]}>
+                    SIM
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
@@ -254,8 +277,12 @@ export default function QuestionarioScreen() {
                   onPress={() => handleResposta(false, 'BOOLEAN')}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.booleanIcon}>✗</Text>
-                  <Text style={styles.booleanText}>NÃO</Text>
+                  <Text style={[styles.booleanIcon, { fontSize: Math.min(width * 0.08, 32) * fontScale }]}>
+                    ✗
+                  </Text>
+                  <Text style={[styles.booleanText, { fontSize: Math.min(width * 0.075, 32) * fontScale }]}>
+                    NÃO
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -275,6 +302,7 @@ export default function QuestionarioScreen() {
                   >
                     <Text style={[
                       styles.opcaoText,
+                      { fontSize: Math.min(width * 0.06, 26) * fontScale },
                       respostas[pergunta.id]?.valor === opcao && styles.opcaoTextActive
                     ]}>
                       {opcao}
@@ -284,7 +312,7 @@ export default function QuestionarioScreen() {
               </View>
             )}
           </View>
-        </View>
+        </ScrollView>
 
         {/* Navigation Footer */}
         <View style={styles.footer}>
@@ -294,7 +322,11 @@ export default function QuestionarioScreen() {
             disabled={currentIndex === 0}
             activeOpacity={0.7}
           >
-            <Text style={[styles.navButtonText, currentIndex === 0 && styles.navButtonTextDisabled]}>
+            <Text style={[
+              styles.navButtonText,
+              { fontSize: Math.min(width * 0.058, 24) * fontScale },
+              currentIndex === 0 && styles.navButtonTextDisabled
+            ]}>
               ← ANTERIOR
             </Text>
           </TouchableOpacity>
@@ -304,13 +336,13 @@ export default function QuestionarioScreen() {
             onPress={handleProxima}
             activeOpacity={0.7}
           >
-            <Text style={styles.navButtonTextPrimary}>
+            <Text style={[styles.navButtonTextPrimary, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}>
               {currentIndex === perguntas.length - 1 ? '✓ ENVIAR' : 'PRÓXIMA →'}
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -330,9 +362,11 @@ const styles = StyleSheet.create({
     color: '#6B7280'
   },
   scrollContainer: {
-    flex: 1,
+    flex: 1
+  },
+  scrollContent: {
     padding: width * 0.04,
-    justifyContent: 'flex-start'
+    paddingBottom: 20
   },
   progressContainer: {
     backgroundColor: '#FFFFFF',
@@ -369,9 +403,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    elevation: 5,
-    flexShrink: 1,
-    maxHeight: '100%'
+    elevation: 5
   },
   speakerButton: {
     alignSelf: 'flex-end',
