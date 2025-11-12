@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { FontSizeProvider } from './contexts/FontSizeContext';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
@@ -16,32 +17,36 @@ function App() {
 
   if (!token) {
     return (
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+      <FontSizeProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </FontSizeProvider>
     );
   }
 
   return (
-    <DashboardLayout>
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        
-        {/* Admin routes */}
-        <Route path="/admin/professores" element={<ProfessoresPage />} />
-        <Route path="/admin/alunos" element={<AlunosPage />} />
-        <Route path="/admin/turmas" element={<TurmasPage />} />
-        
-        {/* Questionários (Prof + Admin) */}
-        <Route path="/questionarios" element={<QuestionariosPage />} />
-        <Route path="/questionarios/novo" element={<CriarQuestionarioPage />} />
-        <Route path="/questionarios/:id/editar" element={<EditarQuestionarioPage />} />
-        <Route path="/questionarios/:id/relatorio" element={<RelatorioPage />} />
-        
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </DashboardLayout>
+    <FontSizeProvider>
+      <DashboardLayout>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          
+          {/* Admin routes */}
+          <Route path="/admin/professores" element={<ProfessoresPage />} />
+          <Route path="/admin/alunos" element={<AlunosPage />} />
+          <Route path="/admin/turmas" element={<TurmasPage />} />
+          
+          {/* Questionários (Prof + Admin) */}
+          <Route path="/questionarios" element={<QuestionariosPage />} />
+          <Route path="/questionarios/novo" element={<CriarQuestionarioPage />} />
+          <Route path="/questionarios/:id/editar" element={<EditarQuestionarioPage />} />
+          <Route path="/questionarios/:id/relatorio" element={<RelatorioPage />} />
+          
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </DashboardLayout>
+    </FontSizeProvider>
   );
 }
 

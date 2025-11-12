@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import FontSizeControl from '../components/FontSizeControl';
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,7 +12,6 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { useState } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -58,6 +58,9 @@ export default function DashboardLayout({ children }: Props) {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden md:block">
+                <FontSizeControl />
+              </div>
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{user?.nome}</p>
                 <p className="text-xs text-gray-500">
@@ -86,6 +89,11 @@ export default function DashboardLayout({ children }: Props) {
           `}
         >
           <nav className="p-4 space-y-2 mt-16 lg:mt-4">
+            {/* Controle de fonte para mobile */}
+            <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
+              <FontSizeControl />
+            </div>
+            
             {links.map((link) => {
               const Icon = link.icon;
               const active = link.path === '/' 

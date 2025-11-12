@@ -6,6 +6,35 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  
+  /* Sistema de tamanhos de fonte escaláveis */
+  --font-size-base: 16px;
+  --font-scale-small: 0.875;
+  --font-scale-normal: 1;
+  --font-scale-large: 1.125;
+  --font-scale-xlarge: 1.25;
+}
+
+/* Tamanhos de fonte personalizados pelo usuário */
+:root[data-font-size="small"] {
+  --font-scale: var(--font-scale-small);
+}
+
+:root[data-font-size="normal"] {
+  --font-scale: var(--font-scale-normal);
+}
+
+:root[data-font-size="large"] {
+  --font-scale: var(--font-scale-large);
+}
+
+:root[data-font-size="xlarge"] {
+  --font-scale: var(--font-scale-xlarge);
+}
+
+:root {
+  --font-scale: var(--font-scale-normal);
+  font-size: calc(var(--font-size-base) * var(--font-scale));
 }
 
 body {
@@ -25,10 +54,45 @@ body {
   max-width: 100%;
 }
 
+/* Media queries customizadas para responsividade */
+@media (max-width: 360px) {
+  :root {
+    --font-size-base: 14px;
+  }
+}
+
+@media (min-width: 361px) and (max-width: 640px) {
+  :root {
+    --font-size-base: 15px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  :root {
+    --font-size-base: 16px;
+  }
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --font-size-base: 16px;
+  }
+}
+
+/* Respeita preferências de acessibilidade do sistema */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center px-3 py-2 text-sm sm:px-4 sm:text-base rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
-    min-height: 40px;
+    @apply inline-flex items-center justify-center px-3 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    min-height: max(40px, 2.5rem);
+    font-size: clamp(0.875rem, 1rem, 1.125rem);
   }
 
   .btn-primary {
@@ -44,8 +108,9 @@ body {
   }
 
   .input {
-    @apply w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
-    min-height: 40px;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    min-height: max(40px, 2.5rem);
+    font-size: clamp(0.875rem, 1rem, 1.125rem);
   }
 
   .card {
