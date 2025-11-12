@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import { useFontSize } from '../contexts/FontSizeContext';
@@ -25,6 +25,7 @@ const isTablet = width >= 768;
 export default function QuestionarioScreen() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+  const queryClient = useQueryClient();
   const { id, turmaId } = route.params;
   const { fontScale } = useFontSize();
   
@@ -75,6 +76,9 @@ export default function QuestionarioScreen() {
   const enviarMutation = useMutation({
     mutationFn: alunoService.enviarRespostas,
     onSuccess: () => {
+      // Invalida o cache para atualizar a lista de questionários na Home
+      queryClient.invalidateQueries({ queryKey: ['questionarios-ativos'] });
+      queryClient.invalidateQueries({ queryKey: ['minhas-turmas'] });
       navigation.replace('Success');
     },
     onError: (error: any) => {
