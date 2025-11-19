@@ -26,12 +26,23 @@ router.get('/questionarios-ativos', async (req: AuthRequest, res, next) => {
     const turmaIds = minhasTurmas.map(t => t.turmaId);
 
     // Filtrar por turmaId se fornecido
+    const orConditions: any[] = [
+      { visibilidade: 'GLOBAL' } // Sempre incluir questionários globais
+    ];
+
+    // Se o aluno tem turmas, incluir questionários dessas turmas
+    if (turmaIds.length > 0) {
+      orConditions.push({
+        AND: [
+          { visibilidade: 'TURMA' },
+          { turmaId: { in: turmaId ? [turmaId] : turmaIds } }
+        ]
+      });
+    }
+
     const where: any = {
       ativo: true,
-      OR: [
-        { visibilidade: 'GLOBAL' },
-        { turmaId: { in: turmaId ? [turmaId] : turmaIds } }
-      ]
+      OR: orConditions
     };
 
     // Verificar período

@@ -111,6 +111,7 @@ router.post('/questionarios', async (req: AuthRequest, res, next) => {
         criadoPor: req.user!.id,
         visibilidade: data.visibilidade,
         turmaId: data.turmaId,
+        ativo: true, // Questionário ativo por padrão
         periodoInicio: data.periodoInicio ? new Date(data.periodoInicio) : null,
         periodoFim: data.periodoFim ? new Date(data.periodoFim) : null
       },
@@ -906,7 +907,7 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
         criadoPor: req.user!.id,
         padrao: isPadrao,
         ano: isPadrao ? ano : null,
-        ativo: false,
+        ativo: true, // Questionário ativo por padrão
         visibilidade: visibilidade ? Visibilidade[visibilidade] : Visibilidade.GLOBAL,
         turmaId: visibilidade === 'TURMA' ? turmaId : null,
         perguntas: {

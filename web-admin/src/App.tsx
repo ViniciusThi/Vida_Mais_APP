@@ -13,6 +13,7 @@ import CriarQuestionarioPage from './pages/CriarQuestionarioPage';
 import EditarQuestionarioPage from './pages/EditarQuestionarioPage';
 import RelatorioPage from './pages/RelatorioPage';
 import ResponderQuestionarioPage from './pages/ResponderQuestionarioPage';
+import MeusQuestionariosAlunoPage from './pages/MeusQuestionariosAlunoPage';
 
 function App() {
   const { token, user } = useAuthStore();
@@ -57,7 +58,8 @@ function App() {
           {/* Rotas de Aluno */}
           {user?.role === 'ALUNO' && (
             <>
-              <Route path="/questionarios/:id/responder" element={<ResponderQuestionarioPage />} />
+              <Route path="/meus-questionarios" element={<MeusQuestionariosAlunoPage />} />
+              <Route path="/responder-questionario/:id" element={<ResponderQuestionarioPage />} />
             </>
           )}
           

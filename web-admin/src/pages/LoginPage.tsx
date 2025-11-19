@@ -36,11 +36,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-            <LogIn className="text-primary-600" size={32} />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full mb-4 shadow-lg">
+            <span className="text-4xl font-bold text-white">V+</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Vida Mais</h1>
-          <p className="text-gray-600 mt-2">Painel Administrativo</p>
+          <p className="text-gray-600 mt-2">Centro do Idoso</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

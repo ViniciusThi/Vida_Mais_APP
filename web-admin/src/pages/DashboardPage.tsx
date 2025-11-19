@@ -110,9 +110,18 @@ function AlunoDashboard({ navigate, questionarios }: any) {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Bem-vindo!</h1>
-        <p className="text-gray-600 mt-2">Questionários disponíveis para você</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Bem-vindo!</h1>
+          <p className="text-gray-600 mt-2">Questionários disponíveis para você</p>
+        </div>
+        <button
+          onClick={() => navigate('/meus-questionarios')}
+          className="btn-primary flex items-center gap-2"
+        >
+          <ClipboardList size={20} />
+          Ver Todos
+        </button>
       </div>
 
       {pendentes.length > 0 && (
@@ -132,7 +141,7 @@ function AlunoDashboard({ navigate, questionarios }: any) {
                     </p>
                   </div>
                   <button
-                    onClick={() => navigate(`/questionarios/${q.id}/responder`)}
+                    onClick={() => navigate(`/responder-questionario/${q.id}`)}
                     className="btn-primary ml-4"
                   >
                     Responder
