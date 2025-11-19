@@ -14,6 +14,7 @@ import EditarQuestionarioPage from './pages/EditarQuestionarioPage';
 import RelatorioPage from './pages/RelatorioPage';
 import ResponderQuestionarioPage from './pages/ResponderQuestionarioPage';
 import MeusQuestionariosAlunoPage from './pages/MeusQuestionariosAlunoPage';
+import EditarTurmaPage from './pages/admin/EditarTurmaPage';
 
 function App() {
   const { token, user } = useAuthStore();
@@ -42,6 +43,7 @@ function App() {
               <Route path="/admin/professores" element={<ProfessoresPage />} />
               <Route path="/admin/alunos" element={<AlunosPage />} />
               <Route path="/admin/turmas" element={<TurmasPage />} />
+              <Route path="/admin/turmas/:id/editar" element={<EditarTurmaPage />} />
             </>
           )}
           

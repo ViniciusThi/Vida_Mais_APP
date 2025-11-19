@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
-import { Plus, X, Edit, Trash2 } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Users } from 'lucide-react';
 
 export default function TurmasPage() {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editando, setEditando] = useState<any>(null);
   const queryClient = useQueryClient();
@@ -101,35 +103,49 @@ export default function TurmasPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {turmas?.map((turma: any) => (
-          <div key={turma.id} className="card">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-base sm:text-lg font-bold break-words flex-1">{turma.nome}</h3>
-              <div className="flex gap-2 ml-2">
+          <div key={turma.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all border border-gray-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white">
+              <h3 className="text-lg font-bold">{turma.nome}</h3>
+              <p className="text-blue-100 text-sm">Ano {turma.ano}</p>
+            </div>
+            
+            <div className="p-4">
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span className="font-semibold">👨‍🏫</span>
+                  <span>{turma.professor.nome}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Users size={16} className="text-blue-600" />
+                  <span className="font-semibold text-gray-900">{turma._count.alunos} alunos</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/admin/turmas/${turma.id}/editar`)}
+                  className="flex-1 py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                  title="Gerenciar Alunos"
+                >
+                  <Users size={16} />
+                  <span className="text-sm">Gerenciar</span>
+                </button>
                 <button
                   onClick={() => handleEditar(turma)}
-                  className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                  className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg transition-colors"
                   title="Editar"
                 >
                   <Edit size={18} />
                 </button>
                 <button
                   onClick={() => handleExcluir(turma.id)}
-                  className="p-1 text-red-600 hover:bg-red-50 rounded"
+                  className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                   title="Excluir"
                 >
                   <Trash2 size={18} />
                 </button>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 mb-1 break-words">
-              <strong>Professor:</strong> {turma.professor.nome}
-            </p>
-            <p className="text-xs sm:text-sm text-gray-600 mb-1">
-              <strong>Ano:</strong> {turma.ano}
-            </p>
-            <p className="text-xs sm:text-sm text-gray-600">
-              <strong>Alunos:</strong> {turma._count.alunos}
-            </p>
           </div>
         ))}
       </div>

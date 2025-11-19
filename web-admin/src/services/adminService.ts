@@ -52,6 +52,11 @@ export const adminService = {
     return data;
   },
 
+  async getTurma(id: string) {
+    const { data } = await api.get(`/admin/turmas/${id}`);
+    return data;
+  },
+
   async createTurma(turma: { nome: string; ano: number; professorId: string }) {
     const { data } = await api.post('/admin/turmas', turma);
     return data;
