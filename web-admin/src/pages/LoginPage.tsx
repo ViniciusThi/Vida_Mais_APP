@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
 import { LogIn } from 'lucide-react';
-import logoVidaMais from '../assets/Logo_VidaMais.png';
+import logoVidaMais from '../../assets/Logo_VidaMais.png';
 
 interface LoginForm {
   emailOuTelefone: string;
