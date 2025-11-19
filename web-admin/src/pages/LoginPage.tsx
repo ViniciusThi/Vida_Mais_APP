@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
@@ -89,6 +90,15 @@ export default function LoginPage() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">
+            Novo associado?{' '}
+            <Link to="/cadastro" className="text-primary-600 hover:text-primary-700 font-medium">
+              Cadastre-se aqui
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

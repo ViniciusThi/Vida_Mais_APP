@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { FontSizeProvider } from './contexts/FontSizeContext';
 import LoginPage from './pages/LoginPage';
+import CadastroPage from './pages/CadastroPage';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import ProfessoresPage from './pages/admin/ProfessoresPage';
@@ -11,15 +12,17 @@ import QuestionariosPage from './pages/QuestionariosPage';
 import CriarQuestionarioPage from './pages/CriarQuestionarioPage';
 import EditarQuestionarioPage from './pages/EditarQuestionarioPage';
 import RelatorioPage from './pages/RelatorioPage';
+import ResponderQuestionarioPage from './pages/ResponderQuestionarioPage';
 
 function App() {
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
 
   if (!token) {
     return (
       <FontSizeProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/cadastro" element={<CadastroPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </FontSizeProvider>
@@ -32,16 +35,31 @@ function App() {
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           
-          {/* Admin routes */}
-          <Route path="/admin/professores" element={<ProfessoresPage />} />
-          <Route path="/admin/alunos" element={<AlunosPage />} />
-          <Route path="/admin/turmas" element={<TurmasPage />} />
+          {/* Rotas de Admin */}
+          {user?.role === 'ADMIN' && (
+            <>
+              <Route path="/admin/professores" element={<ProfessoresPage />} />
+              <Route path="/admin/alunos" element={<AlunosPage />} />
+              <Route path="/admin/turmas" element={<TurmasPage />} />
+            </>
+          )}
           
-          {/* Questionários (Prof + Admin) */}
-          <Route path="/questionarios" element={<QuestionariosPage />} />
-          <Route path="/questionarios/novo" element={<CriarQuestionarioPage />} />
-          <Route path="/questionarios/:id/editar" element={<EditarQuestionarioPage />} />
-          <Route path="/questionarios/:id/relatorio" element={<RelatorioPage />} />
+          {/* Rotas de Questionários (Prof + Admin) */}
+          {(user?.role === 'ADMIN' || user?.role === 'PROF') && (
+            <>
+              <Route path="/questionarios" element={<QuestionariosPage />} />
+              <Route path="/questionarios/novo" element={<CriarQuestionarioPage />} />
+              <Route path="/questionarios/:id/editar" element={<EditarQuestionarioPage />} />
+              <Route path="/questionarios/:id/relatorio" element={<RelatorioPage />} />
+            </>
+          )}
+          
+          {/* Rotas de Aluno */}
+          {user?.role === 'ALUNO' && (
+            <>
+              <Route path="/questionarios/:id/responder" element={<ResponderQuestionarioPage />} />
+            </>
+          )}
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -51,4 +69,3 @@ function App() {
 }
 
 export default App;
-

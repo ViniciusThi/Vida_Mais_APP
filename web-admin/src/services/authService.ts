@@ -19,6 +19,18 @@ export const authService = {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     const { data } = await api.post('/auth/login', credentials);
     return data;
+  },
+
+  async cadastro(dados: {
+    nome: string;
+    idade: number;
+    email: string;
+    telefone: string;
+    deficiencia?: string;
+    senha: string;
+  }) {
+    const { data } = await api.post('/auth/cadastro', dados);
+    return data;
   }
 };
 
