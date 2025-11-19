@@ -59,6 +59,24 @@ export const questionarioService = {
       responseType: 'blob'
     });
     return response.data;
+  },
+
+  // Templates
+  async getTemplates() {
+    const { data } = await api.get('/prof/templates');
+    return data;
+  },
+
+  async criarDeTemplate(dados: {
+    templateId: string;
+    titulo: string;
+    descricao?: string;
+    ano: number;
+    visibilidade?: 'GLOBAL' | 'TURMA';
+    turmaId?: string;
+  }) {
+    const { data } = await api.post('/prof/questionarios/criar-de-template', dados);
+    return data;
   }
 };
 
