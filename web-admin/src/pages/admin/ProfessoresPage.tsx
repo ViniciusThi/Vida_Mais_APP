@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Edit, Trash2 } from 'lucide-react';
 
 export default function ProfessoresPage() {
   const [showModal, setShowModal] = useState(false);
+  const [editando, setEditando] = useState<any>(null);
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm();
 
   const { data: professores, isLoading } = useQuery({
     queryKey: ['professores'],
@@ -28,8 +29,56 @@ export default function ProfessoresPage() {
     }
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: any) => adminService.updateProfessor(id, data),
+    onSuccess: () => {
+      toast.success('Professor atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['professores'] });
+      setShowModal(false);
+      setEditando(null);
+      reset();
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || 'Erro ao atualizar professor');
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: adminService.deleteProfessor,
+    onSuccess: () => {
+      toast.success('Professor excluído com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['professores'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || 'Erro ao excluir professor');
+    }
+  });
+
+  const handleEditar = (professor: any) => {
+    setEditando(professor);
+    setValue('nome', professor.nome);
+    setValue('email', professor.email);
+    setShowModal(true);
+  };
+
+  const handleFecharModal = () => {
+    setShowModal(false);
+    setEditando(null);
+    reset();
+  };
+
+  const handleExcluir = (id: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este professor?')) {
+      deleteMutation.mutate(id);
+    }
+  };
+
   const onSubmit = (data: any) => {
-    createMutation.mutate(data);
+    if (editando) {
+      updateMutation.mutate({ id: editando.id, ...data });
+    } else {
+      createMutation.mutate(data);
+    }
   };
 
   if (isLoading) return <div>Carregando...</div>;
@@ -53,6 +102,7 @@ export default function ProfessoresPage() {
                 <th className="text-left py-3">Email</th>
                 <th className="text-left py-3">Turmas</th>
                 <th className="text-left py-3">Status</th>
+                <th className="text-right py-3">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -68,6 +118,24 @@ export default function ProfessoresPage() {
                       {prof.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
+                  <td className="py-3 text-right">
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => handleEditar(prof)}
+                        className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                        title="Editar"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleExcluir(prof.id)}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded"
+                        title="Excluir"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -78,7 +146,7 @@ export default function ProfessoresPage() {
           {professores?.map((prof: any) => (
             <div key={prof.id} className="rounded-xl border border-gray-200 p-4 shadow-sm">
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="flex-1">
                   <p className="text-base font-semibold text-gray-900 break-words">{prof.nome}</p>
                   <p className="text-sm text-gray-600 break-words">{prof.email}</p>
                 </div>
@@ -94,6 +162,20 @@ export default function ProfessoresPage() {
                   {prof._count.turmasProfessor}
                 </p>
               </div>
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={() => handleEditar(prof)}
+                  className="flex-1 py-2 px-3 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg font-medium"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleExcluir(prof.id)}
+                  className="flex-1 py-2 px-3 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-lg font-medium"
+                >
+                  Excluir
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -104,8 +186,8 @@ export default function ProfessoresPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg sm:text-xl font-bold">Novo Professor</h2>
-              <button onClick={() => setShowModal(false)} className="flex-shrink-0">
+              <h2 className="text-lg sm:text-xl font-bold">{editando ? 'Editar Professor' : 'Novo Professor'}</h2>
+              <button onClick={handleFecharModal} className="flex-shrink-0">
                 <X size={24} />
               </button>
             </div>
@@ -130,7 +212,7 @@ export default function ProfessoresPage() {
               </div>
               
               <button type="submit" className="btn-primary w-full">
-                Criar Professor
+                {editando ? 'Atualizar Professor' : 'Criar Professor'}
               </button>
             </form>
           </div>
