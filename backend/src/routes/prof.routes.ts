@@ -818,6 +818,92 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
 
 // ========== QUESTIONÁRIOS PADRÃO ==========
 
+// GET /prof/templates - Buscar templates de questionários disponíveis
+router.get('/templates', async (req: AuthRequest, res, next) => {
+  try {
+    const { QUESTIONARIO_PADRAO_2025 } = await import('../data/questionario-padrao');
+    
+    res.json({
+      templates: [
+        {
+          id: 'pesquisa-satisfacao',
+          nome: 'Pesquisa de Satisfação dos Usuários',
+          descricao: 'Questionário anual com 38 perguntas sobre satisfação e bem-estar dos associados',
+          totalPerguntas: QUESTIONARIO_PADRAO_2025.length,
+          perguntas: QUESTIONARIO_PADRAO_2025
+        }
+      ]
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios/criar-de-template - Criar questionário a partir de template
+router.post('/questionarios/criar-de-template', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+  try {
+    const { templateId, titulo, descricao, ano } = z.object({
+      templateId: z.string(),
+      titulo: z.string().min(3),
+      descricao: z.string().optional(),
+      ano: z.number().int().min(2020).max(2100)
+    }).parse(req.body);
+
+    if (templateId !== 'pesquisa-satisfacao') {
+      return res.status(404).json({ error: 'Template não encontrado' });
+    }
+
+    // Verificar se já existe um questionário padrão para este ano
+    const existente = await prisma.questionario.findFirst({
+      where: { padrao: true, ano }
+    });
+
+    if (existente) {
+      return res.status(409).json({ 
+        error: `Já existe um questionário padrão para o ano ${ano}`,
+        questionarioId: existente.id
+      });
+    }
+
+    // Importar perguntas do template
+    const { QUESTIONARIO_PADRAO_2025 } = await import('../data/questionario-padrao');
+    const { TipoPergunta } = await import('@prisma/client');
+
+    // Criar questionário
+    const questionario = await prisma.questionario.create({
+      data: {
+        titulo,
+        descricao: descricao || `Pesquisa com os Beneficiados do Vida Mais no ano de ${ano}`,
+        criadoPor: req.user!.id,
+        padrao: true,
+        ano: ano,
+        ativo: false,
+        perguntas: {
+          create: QUESTIONARIO_PADRAO_2025.map(p => ({
+            enunciado: p.enunciado,
+            tipo: TipoPergunta[p.tipo],
+            opcoesJson: p.opcoes ? JSON.stringify(p.opcoes) : null,
+            ordem: p.ordem,
+            obrigatoria: p.obrigatoria
+          }))
+        }
+      },
+      include: {
+        perguntas: {
+          orderBy: { ordem: 'asc' }
+        }
+      }
+    });
+
+    res.status(201).json({
+      message: 'Questionário criado com sucesso a partir do template',
+      questionario
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /prof/questionarios-padrao - Listar todos os questionários padrão
 router.get('/questionarios-padrao', async (req: AuthRequest, res, next) => {
   try {
@@ -870,35 +956,6 @@ router.get('/questionarios-padrao/:id', async (req: AuthRequest, res, next) => {
   }
 });
 
-// POST /prof/questionarios-padrao/criar - Criar novo questionário padrão para um ano
-// (Apenas ADMIN pode criar)
-router.post('/questionarios-padrao/criar', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
-  try {
-    const { ano } = z.object({
-      ano: z.number().int().min(2020).max(2100)
-    }).parse(req.body);
-
-    // Verificar se já existe para este ano
-    const existente = await prisma.questionario.findFirst({
-      where: { padrao: true, ano }
-    });
-
-    if (existente) {
-      return res.status(409).json({ 
-        error: `Já existe um questionário padrão para o ano ${ano}`,
-        questionarioId: existente.id
-      });
-    }
-
-    // Importar e usar a função de criação
-    const { criarQuestionarioPadrao } = await import('../scripts/criar-questionario-padrao');
-    const questionario = await criarQuestionarioPadrao(ano);
-
-    res.status(201).json(questionario);
-  } catch (error) {
-    next(error);
-  }
-});
 
 // POST /prof/questionarios-padrao/:id/lancar - Ativar/Lançar um questionário padrão
 // (Apenas ADMIN pode lançar)

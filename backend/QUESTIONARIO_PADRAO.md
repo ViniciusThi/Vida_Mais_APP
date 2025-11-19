@@ -2,11 +2,12 @@
 
 ## Visão Geral
 
-O sistema suporta um **questionário padrão anual** com 38 questões fixas que avaliam a satisfação dos associados com o programa Vida Mais. Este questionário pode ser lançado pelo administrador uma vez por ano e todos os associados podem responder.
+O sistema possui **templates de questionários pré-configurados** com 38 questões fixas que avaliam a satisfação dos associados com o programa Vida Mais. O admin pode criar novos questionários a partir desses templates, personalizando o título e ano, mas mantendo as mesmas perguntas.
 
 ## Características
 
-- ✅ **38 questões predefinidas** (perguntas abertas, múltipla escolha e avaliações de 0-10)
+- ✅ **Templates pré-configurados** com 38 questões
+- ✅ **Criação rápida** - escolha template, defina título e ano
 - ✅ **Questionário anual** (um por ano)
 - ✅ **Lançamento controlado** (admin decide quando ativar)
 - ✅ **Respostas anônimas** (nos relatórios)
@@ -15,26 +16,39 @@ O sistema suporta um **questionário padrão anual** com 38 questões fixas que 
 
 ## Como Funciona
 
-### 1. Criação do Questionário Padrão
-
-#### Via Script (Recomendado)
+### 1. Ver Templates Disponíveis
 
 ```bash
-# Criar questionário padrão para o ano atual
-npm run questionario:criar
-
-# Criar para um ano específico
-npm run questionario:criar 2025
+GET /prof/templates
+Authorization: Bearer {token_admin_ou_prof}
 ```
 
-#### Via API
+**Resposta:**
+```json
+{
+  "templates": [
+    {
+      "id": "pesquisa-satisfacao",
+      "nome": "Pesquisa de Satisfação dos Usuários",
+      "descricao": "Questionário anual com 38 perguntas sobre satisfação e bem-estar dos associados",
+      "totalPerguntas": 39,
+      "perguntas": [...38 perguntas...]
+    }
+  ]
+}
+```
+
+### 2. Criar Questionário a partir de Template
 
 ```bash
-POST /prof/questionarios-padrao/criar
+POST /prof/questionarios/criar-de-template
 Authorization: Bearer {token_admin}
 Content-Type: application/json
 
 {
+  "templateId": "pesquisa-satisfacao",
+  "titulo": "Pesquisa de Satisfação 2025",
+  "descricao": "Avaliação anual dos serviços - 2025",
   "ano": 2025
 }
 ```
@@ -42,16 +56,19 @@ Content-Type: application/json
 **Resposta:**
 ```json
 {
-  "id": "uuid",
-  "titulo": "Pesquisa de Satisfação dos Usuários - 2025",
-  "padrao": true,
-  "ano": 2025,
-  "ativo": false,
-  "perguntas": [...38 perguntas...]
+  "message": "Questionário criado com sucesso a partir do template",
+  "questionario": {
+    "id": "uuid",
+    "titulo": "Pesquisa de Satisfação 2025",
+    "padrao": true,
+    "ano": 2025,
+    "ativo": false,
+    "perguntas": [...39 perguntas...]
+  }
 }
 ```
 
-### 2. Lançar o Questionário (Ativar)
+### 3. Lançar o Questionário (Ativar)
 
 Quando o admin estiver pronto para que os associados respondam:
 
@@ -66,14 +83,14 @@ Authorization: Bearer {token_admin}
   "message": "Questionário padrão lançado com sucesso",
   "questionario": {
     "id": "uuid",
-    "titulo": "Pesquisa de Satisfação dos Usuários - 2025",
+    "titulo": "Pesquisa de Satisfação 2025",
     "ativo": true,
     "periodoInicio": "2025-01-15T10:00:00.000Z"
   }
 }
 ```
 
-### 3. Listar Questionários Padrão
+### 4. Listar Questionários Padrão Criados
 
 ```bash
 GET /prof/questionarios-padrao
@@ -97,14 +114,14 @@ Authorization: Bearer {token_admin_ou_prof}
 ]
 ```
 
-### 4. Ver Detalhes do Questionário
+### 5. Ver Detalhes do Questionário
 
 ```bash
 GET /prof/questionarios-padrao/{id}
 Authorization: Bearer {token_admin_ou_prof}
 ```
 
-### 5. Encerrar o Questionário
+### 6. Encerrar o Questionário
 
 Quando o período de respostas terminar:
 
@@ -113,7 +130,7 @@ POST /prof/questionarios-padrao/{id}/encerrar
 Authorization: Bearer {token_admin}
 ```
 
-### 6. Duplicar para Novo Ano
+### 7. Duplicar para Novo Ano
 
 Para criar o questionário do próximo ano baseado no anterior:
 
@@ -250,38 +267,51 @@ Authorization: Bearer {token_admin_ou_prof}
 
 ## Fluxo Anual Recomendado
 
-1. **Janeiro:** Admin cria questionário padrão do ano
-2. **Quando pronto:** Admin lança o questionário
-3. **Durante o ano:** Associados respondem
-4. **Quando encerrar:** Admin encerra o questionário
-5. **Análise:** Admin e professores analisam relatórios
-6. **Próximo ano:** Admin duplica questionário para novo ano e repete
+1. **Janeiro:** Admin acessa templates disponíveis
+2. **Criação:** Admin cria questionário usando template, define título/ano
+3. **Quando pronto:** Admin lança o questionário
+4. **Durante o ano:** Associados respondem
+5. **Quando encerrar:** Admin encerra o questionário
+6. **Análise:** Admin e professores analisam relatórios
+7. **Próximo ano:** Admin duplica ou cria novo do template
 
 ## Exemplo de Uso Completo
 
 ```bash
-# 1. Criar questionário padrão 2025
-npm run questionario:criar 2025
+# 1. Ver templates disponíveis
+curl http://localhost:3000/prof/templates \
+  -H "Authorization: Bearer {token_admin}"
 
-# 2. Admin lança o questionário
+# 2. Criar questionário a partir do template
+curl -X POST http://localhost:3000/prof/questionarios/criar-de-template \
+  -H "Authorization: Bearer {token_admin}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "pesquisa-satisfacao",
+    "titulo": "Pesquisa de Satisfação 2025",
+    "descricao": "Avaliação anual dos serviços",
+    "ano": 2025
+  }'
+
+# 3. Admin lança o questionário
 curl -X POST http://localhost:3000/prof/questionarios-padrao/{id}/lancar \
   -H "Authorization: Bearer {token_admin}"
 
-# 3. Associados respondem via app mobile
+# 4. Associados respondem via app mobile
 
-# 4. Admin vê relatório
+# 5. Admin vê relatório
 curl http://localhost:3000/prof/relatorios/{id} \
   -H "Authorization: Bearer {token_admin}"
 
-# 5. Admin vê quem respondeu
+# 6. Admin vê quem respondeu
 curl http://localhost:3000/prof/relatorios/{id}/respondentes \
   -H "Authorization: Bearer {token_admin}"
 
-# 6. Admin encerra
+# 7. Admin encerra
 curl -X POST http://localhost:3000/prof/questionarios-padrao/{id}/encerrar \
   -H "Authorization: Bearer {token_admin}"
 
-# 7. No próximo ano, duplica
+# 8. No próximo ano, pode duplicar ou criar novo do template
 curl -X POST http://localhost:3000/prof/questionarios-padrao/{id}/duplicar \
   -H "Authorization: Bearer {token_admin}" \
   -H "Content-Type: application/json" \
