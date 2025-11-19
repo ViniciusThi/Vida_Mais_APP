@@ -5,7 +5,7 @@
 
 export interface PerguntaPadrao {
   enunciado: string;
-  tipo: 'MULTIPLA_ESCOLHA' | 'TEXTO' | 'ESCALA';
+  tipo: 'MULTIPLA' | 'TEXTO' | 'ESCALA';
   opcoes?: string[];
   ordem: number;
   obrigatoria: boolean;
@@ -27,7 +27,7 @@ export const QUESTIONARIO_PADRAO_2025: PerguntaPadrao[] = [
   {
     ordem: 3,
     enunciado: 'Hoje você se sente melhor do que há um ano atrás?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: false
   },
@@ -46,98 +46,98 @@ export const QUESTIONARIO_PADRAO_2025: PerguntaPadrao[] = [
   {
     ordem: 6,
     enunciado: 'Você se sente uma pessoa mais bem-humorada?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 7,
     enunciado: 'Você se sente uma pessoa mais alegre?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 8,
     enunciado: 'Você sente que tem mais equilíbrio corporal?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 9,
     enunciado: 'Você sente que tem conseguido dormir melhor?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 10,
     enunciado: 'Você sente que tem feito novas amizades?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 11,
     enunciado: 'Você sente que tem melhorado sua qualidade de vida?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 12,
     enunciado: 'Você sente que tem melhorado seu relacionamento com a sua família?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 13,
     enunciado: 'Você sente que tem deixado de tomar remédios (por indicação médica)?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 14,
     enunciado: 'Você sente que tem diminuído a quantidade de remédios (por indicação médica)?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 15,
     enunciado: 'Você sente que tem uma melhor saúde física?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 16,
     enunciado: 'Você sente que tem uma melhor saúde mental?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 17,
     enunciado: 'Como você se imagina nos próximos anos?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Bem', 'Mal', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 18,
     enunciado: 'Você pretende sair do Vida Mais nos próximos anos?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 19,
     enunciado: 'Você indicaria o Vida Mais para alguém próximo?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
@@ -246,14 +246,14 @@ export const QUESTIONARIO_PADRAO_2025: PerguntaPadrao[] = [
   {
     ordem: 37,
     enunciado: 'Você faz Aulas de Hidroginástica?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não'],
     obrigatoria: true
   },
   {
     ordem: 38,
     enunciado: 'Você Falta em Dias Nublados/Chuvosos/Frios?',
-    tipo: 'MULTIPLA_ESCOLHA',
+    tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não'],
     obrigatoria: false
   },

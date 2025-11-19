@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TipoPergunta } from '@prisma/client';
 import { QUESTIONARIO_PADRAO_2025 } from '../data/questionario-padrao';
 
 const prisma = new PrismaClient();
@@ -43,7 +43,7 @@ async function criarQuestionarioPadrao(ano: number) {
         perguntas: {
           create: QUESTIONARIO_PADRAO_2025.map(p => ({
             enunciado: p.enunciado,
-            tipo: p.tipo as any,
+            tipo: TipoPergunta[p.tipo],
             opcoesJson: p.opcoes ? JSON.stringify(p.opcoes) : null,
             ordem: p.ordem,
             obrigatoria: p.obrigatoria
