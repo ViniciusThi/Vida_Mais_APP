@@ -89,19 +89,63 @@ fi
 # PASSO 5: Configurar MySQL
 echo ""
 echo "🔧 PASSO 5: Configurando MySQL..."
-sudo mysql << 'MYSQL_SCRIPT' > /dev/null 2>&1
+print_info "Tentando configurar MySQL..."
+
+# Tentar acesso direto primeiro (sem senha)
+if sudo mysql -e "SELECT 1;" 2>/dev/null; then
+    print_info "Acesso direto funcionou, configurando..."
+    sudo mysql << 'MYSQL_SCRIPT'
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'vidamais2025';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
-
-sudo mysql -u root -pvidamais2025 << 'MYSQL_SCRIPT' > /dev/null 2>&1
+    
+    # Aguardar um pouco
+    sleep 2
+    
+    # Criar banco e usuário
+    if sudo mysql -u root -pvidamais2025 << 'MYSQL_SCRIPT' 2>/dev/null; then
+        CREATE DATABASE IF NOT EXISTS vida_mais CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        CREATE USER IF NOT EXISTS 'vidamais'@'localhost' IDENTIFIED BY 'vidamais2025';
+        GRANT ALL PRIVILEGES ON vida_mais.* TO 'vidamais'@'localhost';
+        FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+        print_success "Banco criado com sucesso!"
+    else
+        print_warning "Tentando novamente sem senha..."
+        sudo mysql << 'MYSQL_SCRIPT'
 CREATE DATABASE IF NOT EXISTS vida_mais CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'vidamais'@'localhost' IDENTIFIED BY 'vidamais2025';
 GRANT ALL PRIVILEGES ON vida_mais.* TO 'vidamais'@'localhost';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
-
-print_success "MySQL configurado! Banco 'vida_mais' criado."
+    fi
+    
+    # Verificar se banco foi criado
+    if sudo mysql -u vidamais -pvidamais2025 -e "USE vida_mais;" 2>/dev/null || sudo mysql -e "USE vida_mais;" 2>/dev/null; then
+        print_success "MySQL configurado! Banco 'vida_mais' criado."
+    else
+        print_error "Erro ao criar banco. Tentando criar manualmente..."
+        sudo mysql << 'MYSQL_SCRIPT'
+CREATE DATABASE IF NOT EXISTS vida_mais CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'vidamais'@'localhost' IDENTIFIED BY 'vidamais2025';
+GRANT ALL PRIVILEGES ON vida_mais.* TO 'vidamais'@'localhost';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+        print_success "MySQL configurado manualmente!"
+    fi
+else
+    print_warning "Acesso direto falhou, tentando com reset de senha..."
+    # Se não funcionar, continuar mesmo assim - pode ser que já esteja configurado
+    sudo mysql << 'MYSQL_SCRIPT' 2>/dev/null || true
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'vidamais2025';
+FLUSH PRIVILEGES;
+CREATE DATABASE IF NOT EXISTS vida_mais CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'vidamais'@'localhost' IDENTIFIED BY 'vidamais2025';
+GRANT ALL PRIVILEGES ON vida_mais.* TO 'vidamais'@'localhost';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+    print_warning "Tentativa de configuração concluída (pode precisar verificar manualmente)"
+fi
 
 # PASSO 6: Instalar PM2
 echo ""
@@ -133,12 +177,12 @@ print_success "Projeto clonado/atualizado!"
 echo ""
 echo "⚙️  PASSO 9: Configurando Backend..."
 print_info "Verificando diretório backend..."
-if [ ! -d "~/Vida_Mais_APP/backend" ]; then
+if [ ! -d "$HOME/Vida_Mais_APP/backend" ]; then
     print_error "Diretório backend não encontrado!"
     exit 1
 fi
 
-cd ~/Vida_Mais_APP/backend || {
+cd "$HOME/Vida_Mais_APP/backend" || {
     print_error "Não foi possível entrar no diretório backend!"
     exit 1
 }
