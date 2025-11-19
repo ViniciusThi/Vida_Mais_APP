@@ -15,12 +15,29 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(helmet());
+
+// CORS - Permitir todas as origens (desenvolvimento e produção)
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || true, // true permite qualquer origem
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*', // Permite qualquer origem
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: false // Desabilitar credentials para permitir origin: '*'
 }));
+
+// Headers adicionais para garantir CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  
+  // Responder imediatamente a requisições OPTIONS (preflight)
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
