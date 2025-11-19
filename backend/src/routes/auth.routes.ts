@@ -52,17 +52,14 @@ router.post('/login', async (req, res, next) => {
     }
 
     // Gerar token
-    const secret: string = process.env.JWT_SECRET || '';
+    const secret = process.env.JWT_SECRET;
     if (!secret) {
       throw new Error('JWT_SECRET não configurado');
     }
 
-    const expiresIn: string = process.env.JWT_EXPIRES_IN || '7d';
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      secret,
-      { expiresIn }
-    );
+    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const token = jwt.sign(payload, secret, { expiresIn: expiresIn as string });
 
     res.json({
       token,
