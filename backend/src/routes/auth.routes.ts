@@ -59,7 +59,7 @@ router.post('/login', async (req, res, next) => {
 
     const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
     const payload = { id: user.id, email: user.email, role: user.role };
-    const token = jwt.sign(payload, secret, { expiresIn: expiresIn as string });
+    const token = jwt.sign(payload, secret, { expiresIn });
 
     res.json({
       token,
