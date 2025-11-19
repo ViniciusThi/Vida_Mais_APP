@@ -50,6 +50,75 @@ router.post('/professores', async (req: AuthRequest, res, next) => {
   }
 });
 
+// PUT /admin/professores/:id - Atualizar professor
+router.put('/professores/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, senha } = z.object({
+      nome: z.string().optional(),
+      email: z.string().email().optional(),
+      senha: z.string().min(6).optional()
+    }).parse(req.body);
+
+    // Verifica se o professor existe
+    const professorExistente = await prisma.user.findFirst({
+      where: { id, role: Role.PROF }
+    });
+
+    if (!professorExistente) {
+      return res.status(404).json({ error: 'Professor não encontrado' });
+    }
+
+    // Prepara os dados para atualização
+    const updateData: any = {};
+    if (nome) updateData.nome = nome;
+    if (email) updateData.email = email;
+    if (senha) updateData.senhaHash = await bcrypt.hash(senha, 10);
+
+    // Atualiza o professor
+    const professor = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        role: true,
+        ativo: true
+      }
+    });
+
+    res.json(professor);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /admin/professores/:id - Deletar professor
+router.delete('/professores/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se o professor existe
+    const professor = await prisma.user.findFirst({
+      where: { id, role: Role.PROF }
+    });
+
+    if (!professor) {
+      return res.status(404).json({ error: 'Professor não encontrado' });
+    }
+
+    // Deleta o professor
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /admin/professores - Listar professores
 router.get('/professores', async (req, res, next) => {
   try {
@@ -171,6 +240,84 @@ router.post('/alunos', async (req: AuthRequest, res, next) => {
     });
 
     res.status(201).json(aluno);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /admin/alunos/:id - Atualizar aluno
+router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, senha, telefone, idade, deficiencia } = z.object({
+      nome: z.string().optional(),
+      email: z.string().email().optional(),
+      senha: z.string().min(6).optional(),
+      telefone: z.string().optional(),
+      idade: z.number().int().optional(),
+      deficiencia: z.string().optional()
+    }).parse(req.body);
+
+    // Verifica se o aluno existe
+    const alunoExistente = await prisma.user.findFirst({
+      where: { id, role: Role.ALUNO }
+    });
+
+    if (!alunoExistente) {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    // Prepara os dados para atualização
+    const updateData: any = {};
+    if (nome) updateData.nome = nome;
+    if (email) updateData.email = email;
+    if (senha) updateData.senhaHash = await bcrypt.hash(senha, 10);
+    if (telefone !== undefined) updateData.telefone = telefone;
+    if (idade !== undefined) updateData.idade = idade;
+    if (deficiencia !== undefined) updateData.deficiencia = deficiencia;
+
+    // Atualiza o aluno
+    const aluno = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true,
+        idade: true,
+        deficiencia: true,
+        role: true,
+        ativo: true
+      }
+    });
+
+    res.json(aluno);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /admin/alunos/:id - Deletar aluno
+router.delete('/alunos/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se o aluno existe
+    const aluno = await prisma.user.findFirst({
+      where: { id, role: Role.ALUNO }
+    });
+
+    if (!aluno) {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    // Deleta o aluno
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
@@ -357,6 +504,55 @@ router.post('/turmas', async (req: AuthRequest, res, next) => {
     });
 
     res.status(201).json(turma);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /admin/turmas/:id - Atualizar turma
+router.put('/turmas/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { nome, ano, professorId } = z.object({
+      nome: z.string().optional(),
+      ano: z.number().int().optional(),
+      professorId: z.string().uuid().optional()
+    }).parse(req.body);
+
+    // Verifica se a turma existe
+    const turmaExistente = await prisma.turma.findUnique({
+      where: { id }
+    });
+
+    if (!turmaExistente) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    // Atualiza a turma
+    const turma = await prisma.turma.update({
+      where: { id },
+      data: {
+        ...(nome && { nome }),
+        ...(ano && { ano }),
+        ...(professorId && { professorId })
+      },
+      include: {
+        professor: {
+          select: {
+            id: true,
+            nome: true,
+            email: true
+          }
+        },
+        _count: {
+          select: {
+            alunos: true
+          }
+        }
+      }
+    });
+
+    res.json(turma);
   } catch (error) {
     next(error);
   }
