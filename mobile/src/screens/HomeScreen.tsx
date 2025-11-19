@@ -72,7 +72,7 @@ function AdminMenu({ navigation, fontScale }: any) {
     { title: 'Professores', subtitle: 'Gerenciar professores', screen: 'Professores', icon: '👨‍🏫', color: '#075D94' },
     { title: 'Alunos', subtitle: 'Gerenciar alunos', screen: 'Alunos', icon: '👥', color: '#FF7E00' },
     { title: 'Turmas', subtitle: 'Gerenciar turmas', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
-    { title: 'Templates', subtitle: 'Criar questionário padrão', screen: 'Templates', icon: '📝', color: '#9333EA' },
+    { title: 'Criar Questionário', subtitle: 'Templates ou manual', screen: 'CriarQuestionario', icon: '📝', color: '#9333EA' },
     { title: 'Questionários', subtitle: 'Gerenciar questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
   ];
 

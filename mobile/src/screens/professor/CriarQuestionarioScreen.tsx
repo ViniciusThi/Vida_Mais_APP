@@ -1,32 +1,62 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Dimensions, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { professorService } from '../../services/api';
 import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
+import { useFontSize } from '../../contexts/FontSizeContext';
+
+const { width } = Dimensions.get('window');
 
 export default function CriarQuestionarioScreen() {
   const navigation = useNavigation<any>();
   const queryClient = useQueryClient();
+  const { fontScale } = useFontSize();
+  
+  // Modo: 'TEMPLATE' ou 'MANUAL'
+  const [modo, setModo] = useState<'TEMPLATE' | 'MANUAL'>('TEMPLATE');
+  const [templateSelecionado, setTemplateSelecionado] = useState<any>(null);
   
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [visibilidade, setVisibilidade] = useState('TURMA');
+  const [ano, setAno] = useState(new Date().getFullYear().toString());
+  const [visibilidade, setVisibilidade] = useState('GLOBAL');
   const [turmaId, setTurmaId] = useState('');
   const [perguntas, setPerguntas] = useState<any[]>([]);
   const [showPerguntaForm, setShowPerguntaForm] = useState(false);
   
-  // Form de pergunta
+  // Form de pergunta manual
   const [enunciado, setEnunciado] = useState('');
   const [tipo, setTipo] = useState('TEXTO');
   const [opcoes, setOpcoes] = useState('');
+
+  const { data: templates, isLoading: loadingTemplates } = useQuery({
+    queryKey: ['templates'],
+    queryFn: professorService.getTemplates
+  });
 
   const { data: turmas } = useQuery({
     queryKey: ['minhas-turmas'],
     queryFn: professorService.getMinhasTurmas
   });
 
-  const createMutation = useMutation({
+  // Criar do template (questionário padrão)
+  const criarDeTemplateMutation = useMutation({
+    mutationFn: (dados: any) => professorService.criarDeTemplate(dados),
+    onSuccess: () => {
+      Alert.alert('Sucesso!', 'Questionário criado com sucesso!', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+      queryClient.invalidateQueries({ queryKey: ['meus-questionarios'] });
+      queryClient.invalidateQueries({ queryKey: ['questionarios-padrao'] });
+    },
+    onError: (error: any) => {
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar questionário');
+    }
+  });
+
+  // Criar manual (modo tradicional)
+  const criarManualMutation = useMutation({
     mutationFn: professorService.createQuestionario,
     onSuccess: async (data) => {
       // Criar perguntas
@@ -46,6 +76,12 @@ export default function CriarQuestionarioScreen() {
       Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar questionário');
     }
   });
+
+  const handleSelecionarTemplate = (template: any) => {
+    setTemplateSelecionado(template);
+    setTitulo(`${template.nome} ${new Date().getFullYear()}`);
+    setDescricao(template.descricao);
+  };
 
   const handleAddPergunta = () => {
     if (!enunciado) {
@@ -86,166 +122,310 @@ export default function CriarQuestionarioScreen() {
       return;
     }
 
-    if (perguntas.length === 0) {
-      Alert.alert('Atenção', 'Adicione pelo menos uma pergunta');
-      return;
-    }
+    if (modo === 'TEMPLATE') {
+      if (!templateSelecionado) {
+        Alert.alert('Atenção', 'Selecione um template');
+        return;
+      }
 
-    createMutation.mutate({
-      titulo,
-      descricao,
-      visibilidade,
-      turmaId: visibilidade === 'TURMA' ? turmaId : undefined
-    });
+      if (!ano || isNaN(Number(ano))) {
+        Alert.alert('Atenção', 'Informe um ano válido');
+        return;
+      }
+
+      criarDeTemplateMutation.mutate({
+        templateId: templateSelecionado.id,
+        titulo: titulo.trim(),
+        descricao: descricao.trim() || undefined,
+        ano: Number(ano)
+      });
+    } else {
+      // Modo manual
+      if (perguntas.length === 0) {
+        Alert.alert('Atenção', 'Adicione pelo menos uma pergunta');
+        return;
+      }
+
+      criarManualMutation.mutate({
+        titulo,
+        descricao,
+        visibilidade,
+        turmaId: visibilidade === 'TURMA' ? turmaId : undefined
+      });
+    }
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Informações do Questionário</Text>
-
-        <Text style={styles.label}>Título *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Pesquisa de Satisfação 2025"
-          value={titulo}
-          onChangeText={setTitulo}
-        />
-
-        <Text style={styles.label}>Descrição</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Descreva o objetivo..."
-          value={descricao}
-          onChangeText={setDescricao}
-          multiline
-          numberOfLines={3}
-        />
-
-        <Text style={styles.label}>Visibilidade *</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={visibilidade}
-            onValueChange={setVisibilidade}
-          >
-            <Picker.Item label="Turma Específica" value="TURMA" />
-            <Picker.Item label="Global (todas)" value="GLOBAL" />
-          </Picker>
-        </View>
-
-        {visibilidade === 'TURMA' && (
-          <>
-            <Text style={styles.label}>Turma *</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={turmaId}
-                onValueChange={setTurmaId}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+          <View style={styles.content}>
+            {/* Seletor de Modo */}
+            <View style={styles.modoContainer}>
+              <TouchableOpacity
+                style={[styles.modoButton, modo === 'TEMPLATE' && styles.modoButtonActive]}
+                onPress={() => {
+                  setModo('TEMPLATE');
+                  setPerguntas([]);
+                }}
               >
-                <Picker.Item label="Selecione uma turma..." value="" />
-                {turmas?.map((turma: any) => (
-                  <Picker.Item key={turma.id} label={turma.nome} value={turma.id} />
-                ))}
-              </Picker>
+                <Text style={[styles.modoButtonText, modo === 'TEMPLATE' && styles.modoButtonTextActive]}>
+                  📝 Usar Template
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modoButton, modo === 'MANUAL' && styles.modoButtonActive]}
+                onPress={() => {
+                  setModo('MANUAL');
+                  setTemplateSelecionado(null);
+                }}
+              >
+                <Text style={[styles.modoButtonText, modo === 'MANUAL' && styles.modoButtonTextActive]}>
+                  ✏️ Criar do Zero
+                </Text>
+              </TouchableOpacity>
             </View>
-          </>
-        )}
 
-        <View style={styles.divider} />
+            {/* Templates */}
+            {modo === 'TEMPLATE' && (
+              <>
+                <Text style={styles.sectionTitle}>Escolha um Template</Text>
+                {loadingTemplates ? (
+                  <Text style={styles.loadingText}>Carregando templates...</Text>
+                ) : (
+                  templates?.templates?.map((template: any) => (
+                    <TouchableOpacity
+                      key={template.id}
+                      style={[
+                        styles.templateCard,
+                        templateSelecionado?.id === template.id && styles.templateCardSelected
+                      ]}
+                      onPress={() => handleSelecionarTemplate(template)}
+                    >
+                      <View style={styles.templateIcon}>
+                        <Text style={styles.templateIconText}>📝</Text>
+                      </View>
+                      <View style={styles.templateContent}>
+                        <Text style={styles.templateTitle}>{template.nome}</Text>
+                        <Text style={styles.templateDescription}>{template.descricao}</Text>
+                        <Text style={styles.templateMeta}>
+                          {template.totalPerguntas} perguntas pré-configuradas
+                        </Text>
+                      </View>
+                      {templateSelecionado?.id === template.id && (
+                        <Text style={styles.checkMark}>✓</Text>
+                      )}
+                    </TouchableOpacity>
+                  ))
+                )}
+              </>
+            )}
 
-        <View style={styles.perguntasHeader}>
-          <Text style={styles.sectionTitle}>
-            Perguntas ({perguntas.length})
-          </Text>
-          <TouchableOpacity
-            style={styles.addPerguntaButton}
-            onPress={() => setShowPerguntaForm(!showPerguntaForm)}
-          >
-            <Text style={styles.addPerguntaText}>
-              {showPerguntaForm ? '✕' : '➕'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.divider} />
 
-        {showPerguntaForm && (
-          <View style={styles.perguntaForm}>
-            <Text style={styles.label}>Enunciado *</Text>
+            <Text style={styles.sectionTitle}>Informações do Questionário</Text>
+
+            <Text style={styles.label}>Título *</Text>
             <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Digite a pergunta..."
-              value={enunciado}
-              onChangeText={setEnunciado}
-              multiline
-              numberOfLines={2}
+              style={styles.input}
+              placeholder="Ex: Pesquisa de Satisfação 2025"
+              value={titulo}
+              onChangeText={setTitulo}
+              returnKeyType="next"
             />
 
-            <Text style={styles.label}>Tipo *</Text>
-            <View style={styles.pickerContainer}>
-              <Picker selectedValue={tipo} onValueChange={setTipo}>
-                <Picker.Item label="Texto livre" value="TEXTO" />
-                <Picker.Item label="Escolha única" value="UNICA" />
-                <Picker.Item label="Múltipla escolha" value="MULTIPLA" />
-                <Picker.Item label="Escala (1-5)" value="ESCALA" />
-                <Picker.Item label="Sim/Não" value="BOOLEAN" />
-              </Picker>
-            </View>
+            <Text style={styles.label}>Descrição</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Descreva o objetivo..."
+              value={descricao}
+              onChangeText={setDescricao}
+              multiline
+              numberOfLines={3}
+              returnKeyType="next"
+            />
 
-            {['UNICA', 'MULTIPLA'].includes(tipo) && (
+            {modo === 'TEMPLATE' && (
               <>
-                <Text style={styles.label}>Opções (separadas por vírgula) *</Text>
+                <Text style={styles.label}>Ano *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Ótimo, Bom, Regular, Ruim"
-                  value={opcoes}
-                  onChangeText={setOpcoes}
+                  placeholder="2025"
+                  value={ano}
+                  onChangeText={setAno}
+                  keyboardType="numeric"
+                  maxLength={4}
+                  returnKeyType="next"
                 />
               </>
             )}
 
-            <TouchableOpacity
-              style={styles.submitPerguntaButton}
-              onPress={handleAddPergunta}
-            >
-              <Text style={styles.submitButtonText}>Adicionar Pergunta</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+            <Text style={styles.label}>Visibilidade *</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={visibilidade}
+                onValueChange={setVisibilidade}
+              >
+                <Picker.Item label="🌍 Global (todos os associados)" value="GLOBAL" />
+                <Picker.Item label="🎓 Turma Específica" value="TURMA" />
+              </Picker>
+            </View>
 
-        {perguntas.map((p, index) => (
-          <View key={index} style={styles.perguntaCard}>
-            <Text style={styles.perguntaNumero}>Pergunta {index + 1}</Text>
-            <Text style={styles.perguntaEnunciado}>{p.enunciado}</Text>
-            <Text style={styles.perguntaTipo}>Tipo: {p.tipo}</Text>
-            <TouchableOpacity
-              onPress={() => setPerguntas(perguntas.filter((_, i) => i !== index))}
-              style={styles.removeButton}
-            >
-              <Text style={styles.removeButtonText}>🗑️ Remover</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+            {visibilidade === 'TURMA' && (
+              <>
+                <Text style={styles.label}>Turma *</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={turmaId}
+                    onValueChange={setTurmaId}
+                  >
+                    <Picker.Item label="Selecione uma turma..." value="" />
+                    {turmas?.map((turma: any) => (
+                      <Picker.Item key={turma.id} label={turma.nome} value={turma.id} />
+                    ))}
+                  </Picker>
+                </View>
+              </>
+            )}
 
-        {perguntas.length > 0 && (
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={handleSubmit}
-          >
-            <Text style={styles.createButtonText}>
-              ✓ Criar Questionário
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </ScrollView>
+            {/* Modo Manual - Perguntas */}
+            {modo === 'MANUAL' && (
+              <>
+                <View style={styles.divider} />
+
+                <View style={styles.perguntasHeader}>
+                  <Text style={styles.sectionTitle}>
+                    Perguntas ({perguntas.length})
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.addPerguntaButton}
+                    onPress={() => setShowPerguntaForm(!showPerguntaForm)}
+                  >
+                    <Text style={styles.addPerguntaText}>
+                      {showPerguntaForm ? '✕' : '➕'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {showPerguntaForm && (
+                  <View style={styles.perguntaForm}>
+                    <Text style={styles.label}>Enunciado *</Text>
+                    <TextInput
+                      style={[styles.input, styles.textArea]}
+                      placeholder="Digite a pergunta..."
+                      value={enunciado}
+                      onChangeText={setEnunciado}
+                      multiline
+                      numberOfLines={2}
+                    />
+
+                    <Text style={styles.label}>Tipo *</Text>
+                    <View style={styles.pickerContainer}>
+                      <Picker selectedValue={tipo} onValueChange={setTipo}>
+                        <Picker.Item label="Texto livre" value="TEXTO" />
+                        <Picker.Item label="Escolha única" value="UNICA" />
+                        <Picker.Item label="Múltipla escolha" value="MULTIPLA" />
+                        <Picker.Item label="Escala (1-10)" value="ESCALA" />
+                        <Picker.Item label="Sim/Não" value="BOOLEAN" />
+                      </Picker>
+                    </View>
+
+                    {['UNICA', 'MULTIPLA'].includes(tipo) && (
+                      <>
+                        <Text style={styles.label}>Opções (separadas por vírgula) *</Text>
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Ótimo, Bom, Regular, Ruim"
+                          value={opcoes}
+                          onChangeText={setOpcoes}
+                        />
+                      </>
+                    )}
+
+                    <TouchableOpacity
+                      style={styles.submitPerguntaButton}
+                      onPress={handleAddPergunta}
+                    >
+                      <Text style={styles.submitButtonText}>Adicionar Pergunta</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {perguntas.map((p, index) => (
+                  <View key={index} style={styles.perguntaCard}>
+                    <Text style={styles.perguntaNumero}>Pergunta {index + 1}</Text>
+                    <Text style={styles.perguntaEnunciado}>{p.enunciado}</Text>
+                    <Text style={styles.perguntaTipo}>Tipo: {p.tipo}</Text>
+                    <TouchableOpacity
+                      onPress={() => setPerguntas(perguntas.filter((_, i) => i !== index))}
+                      style={styles.removeButton}
+                    >
+                      <Text style={styles.removeButtonText}>🗑️ Remover</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </>
+            )}
+
+            {/* Botão Criar */}
+            {((modo === 'TEMPLATE' && templateSelecionado) || (modo === 'MANUAL' && perguntas.length > 0)) && (
+              <TouchableOpacity
+                style={styles.createButton}
+                onPress={handleSubmit}
+                disabled={criarDeTemplateMutation.isPending || criarManualMutation.isPending}
+              >
+                <Text style={styles.createButtonText}>
+                  {criarDeTemplateMutation.isPending || criarManualMutation.isPending 
+                    ? '⏳ Criando...' 
+                    : '✓ Criar Questionário'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb'
+    backgroundColor: '#F9FAFB'
   },
   content: {
-    padding: 20
+    padding: 20,
+    paddingBottom: 40
+  },
+  modoContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24
+  },
+  modoButton: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center'
+  },
+  modoButtonActive: {
+    borderColor: '#075D94',
+    backgroundColor: '#EBF5FF'
+  },
+  modoButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6B7280'
+  },
+  modoButtonTextActive: {
+    color: '#075D94'
   },
   sectionTitle: {
     fontSize: 22,
@@ -253,20 +433,74 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 16
   },
+  templateCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#E5E7EB'
+  },
+  templateCardSelected: {
+    borderColor: '#075D94',
+    backgroundColor: '#EBF5FF'
+  },
+  templateIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#F3E8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12
+  },
+  templateIconText: {
+    fontSize: 24
+  },
+  templateContent: {
+    flex: 1
+  },
+  templateTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 4
+  },
+  templateDescription: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 4
+  },
+  templateMeta: {
+    fontSize: 12,
+    color: '#9CA3AF'
+  },
+  checkMark: {
+    fontSize: 28,
+    color: '#075D94',
+    fontWeight: 'bold'
+  },
+  divider: {
+    height: 2,
+    backgroundColor: '#E5E7EB',
+    marginVertical: 24
+  },
   label: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
     color: '#374151'
   },
   input: {
-    fontSize: 18,
+    fontSize: 16,
     borderWidth: 2,
-    borderColor: '#e5e7eb',
+    borderColor: '#E5E7EB',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     marginBottom: 16,
-    backgroundColor: '#fff'
+    backgroundColor: '#FFFFFF'
   },
   textArea: {
     minHeight: 80,
@@ -274,15 +508,10 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 2,
-    borderColor: '#e5e7eb',
+    borderColor: '#E5E7EB',
     borderRadius: 12,
     marginBottom: 16,
-    backgroundColor: '#fff'
-  },
-  divider: {
-    height: 2,
-    backgroundColor: '#e5e7eb',
-    marginVertical: 24
+    backgroundColor: '#FFFFFF'
   },
   perguntasHeader: {
     flexDirection: 'row',
@@ -294,57 +523,58 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#0284c7',
+    backgroundColor: '#075D94',
     justifyContent: 'center',
     alignItems: 'center'
   },
   addPerguntaText: {
-    fontSize: 28,
-    color: '#fff',
+    fontSize: 24,
+    color: '#FFFFFF',
     fontWeight: 'bold'
   },
   perguntaForm: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: '#0284c7'
+    borderColor: '#075D94'
   },
   submitPerguntaButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#10B981',
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 12
   },
   submitButtonText: {
-    color: '#fff',
-    fontSize: 18,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: 'bold'
   },
   perguntaCard: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#0284c7'
+    borderLeftColor: '#075D94'
   },
   perguntaNumero: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#0284c7',
+    color: '#075D94',
     marginBottom: 8
   },
   perguntaEnunciado: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 8
   },
   perguntaTipo: {
-    fontSize: 14,
-    color: '#6b7280',
+    fontSize: 13,
+    color: '#6B7280',
     marginBottom: 12
   },
   removeButton: {
@@ -353,52 +583,25 @@ const styles = StyleSheet.create({
   },
   removeButtonText: {
     fontSize: 14,
-    color: '#ef4444'
-  },
-  addButton: {
-    backgroundColor: '#0284c7',
-    padding: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold'
+    color: '#EF4444',
+    fontWeight: '600'
   },
   createButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#10B981',
     padding: 20,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 24
   },
   createButtonText: {
-    color: '#fff',
-    fontSize: 22,
+    color: '#FFFFFF',
+    fontSize: 20,
     fontWeight: 'bold'
   },
-  emptyContainer: {
-    alignItems: 'center',
-    marginTop: 60
-  },
-  emptyText: {
-    fontSize: 18,
-    color: '#9ca3af',
+  loadingText: {
+    fontSize: 16,
+    color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 24
-  },
-  emptyButton: {
-    backgroundColor: '#0284c7',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 12
-  },
-  emptyButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold'
+    marginVertical: 20
   }
 });
-
