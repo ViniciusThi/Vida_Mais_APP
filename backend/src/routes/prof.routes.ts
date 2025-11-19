@@ -840,34 +840,63 @@ router.get('/templates', async (req: AuthRequest, res, next) => {
 });
 
 // POST /prof/questionarios/criar-de-template - Criar questionário a partir de template
-router.post('/questionarios/criar-de-template', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+// Admin e Professor podem usar, mas apenas Admin cria "questionários padrão"
+router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, next) => {
   try {
-    const { templateId, titulo, descricao, ano } = z.object({
+    const { templateId, titulo, descricao, ano, visibilidade, turmaId } = z.object({
       templateId: z.string(),
       titulo: z.string().min(3),
       descricao: z.string().optional(),
-      ano: z.number().int().min(2020).max(2100)
+      ano: z.number().int().min(2020).max(2100),
+      visibilidade: z.enum(['GLOBAL', 'TURMA']).optional(),
+      turmaId: z.string().uuid().optional()
     }).parse(req.body);
 
     if (templateId !== 'pesquisa-satisfacao') {
       return res.status(404).json({ error: 'Template não encontrado' });
     }
 
-    // Verificar se já existe um questionário padrão para este ano
-    const existente = await prisma.questionario.findFirst({
-      where: { padrao: true, ano }
-    });
+    const isAdmin = req.user!.role === 'ADMIN';
+    
+    // Se for Admin e visibilidade GLOBAL, criar como questionário padrão
+    const isPadrao = isAdmin && (!visibilidade || visibilidade === 'GLOBAL');
 
-    if (existente) {
-      return res.status(409).json({ 
-        error: `Já existe um questionário padrão para o ano ${ano}`,
-        questionarioId: existente.id
+    // Se for questionário padrão, verificar se já existe para o ano
+    if (isPadrao) {
+      const existente = await prisma.questionario.findFirst({
+        where: { padrao: true, ano }
       });
+
+      if (existente) {
+        return res.status(409).json({ 
+          error: `Já existe um questionário padrão para o ano ${ano}`,
+          questionarioId: existente.id
+        });
+      }
+    }
+
+    // Se visibilidade é TURMA, validar turmaId
+    if (visibilidade === 'TURMA' && !turmaId) {
+      return res.status(400).json({ error: 'turmaId é obrigatório para questionários de turma' });
+    }
+
+    // Se Professor, verificar se é dono da turma
+    if (req.user!.role === 'PROF' && turmaId) {
+      const turma = await prisma.turma.findFirst({
+        where: {
+          id: turmaId,
+          professorId: req.user!.id
+        }
+      });
+
+      if (!turma) {
+        return res.status(403).json({ error: 'Você não tem permissão para criar questionários nesta turma' });
+      }
     }
 
     // Importar perguntas do template
     const { QUESTIONARIO_PADRAO_2025 } = await import('../data/questionario-padrao');
-    const { TipoPergunta } = await import('@prisma/client');
+    const { TipoPergunta, Visibilidade } = await import('@prisma/client');
 
     // Criar questionário
     const questionario = await prisma.questionario.create({
@@ -875,9 +904,11 @@ router.post('/questionarios/criar-de-template', authorize(Role.ADMIN), async (re
         titulo,
         descricao: descricao || `Pesquisa com os Beneficiados do Vida Mais no ano de ${ano}`,
         criadoPor: req.user!.id,
-        padrao: true,
-        ano: ano,
+        padrao: isPadrao,
+        ano: isPadrao ? ano : null,
         ativo: false,
+        visibilidade: visibilidade ? Visibilidade[visibilidade] : Visibilidade.GLOBAL,
+        turmaId: visibilidade === 'TURMA' ? turmaId : null,
         perguntas: {
           create: QUESTIONARIO_PADRAO_2025.map(p => ({
             enunciado: p.enunciado,
@@ -891,6 +922,9 @@ router.post('/questionarios/criar-de-template', authorize(Role.ADMIN), async (re
       include: {
         perguntas: {
           orderBy: { ordem: 'asc' }
+        },
+        _count: {
+          select: { perguntas: true }
         }
       }
     });

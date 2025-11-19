@@ -137,7 +137,9 @@ export default function CriarQuestionarioScreen() {
         templateId: templateSelecionado.id,
         titulo: titulo.trim(),
         descricao: descricao.trim() || undefined,
-        ano: Number(ano)
+        ano: Number(ano),
+        visibilidade: visibilidade as 'GLOBAL' | 'TURMA',
+        turmaId: visibilidade === 'TURMA' ? turmaId : undefined
       });
     } else {
       // Modo manual

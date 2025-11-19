@@ -163,6 +163,8 @@ export const professorService = {
     titulo: string;
     descricao?: string;
     ano: number;
+    visibilidade?: 'GLOBAL' | 'TURMA';
+    turmaId?: string;
   }) {
     const { data } = await api.post('/prof/questionarios/criar-de-template', dados);
     return data;
