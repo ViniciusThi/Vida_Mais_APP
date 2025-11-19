@@ -1019,19 +1019,17 @@ router.post('/questionarios-padrao/:id/duplicar', authorize(Role.ADMIN), async (
       data: {
         titulo: `Pesquisa de Satisfação dos Usuários - ${novoAno}`,
         descricao: `Pesquisa com os Beneficiados do Vida Mais no ano de ${novoAno}`,
-        professorId: req.user!.id,
+        criadoPor: req.user!.id,
         padrao: true,
         ano: novoAno,
         ativo: false,
         perguntas: {
           create: original.perguntas.map(p => ({
-            texto: p.texto,
+            enunciado: p.enunciado,
             tipo: p.tipo,
-            opcoes: p.opcoes,
+            opcoesJson: p.opcoesJson,
             ordem: p.ordem,
-            obrigatoria: p.obrigatoria,
-            escalaMin: p.escalaMin,
-            escalaMax: p.escalaMax
+            obrigatoria: p.obrigatoria
           }))
         }
       },

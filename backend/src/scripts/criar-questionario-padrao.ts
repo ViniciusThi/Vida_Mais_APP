@@ -22,24 +22,31 @@ async function criarQuestionarioPadrao(ano: number) {
       return existente;
     }
 
+    // Buscar o primeiro admin
+    const admin = await prisma.user.findFirst({
+      where: { role: 'ADMIN' }
+    });
+
+    if (!admin) {
+      throw new Error('Nenhum administrador encontrado no sistema');
+    }
+
     // Criar o questionário padrão
     const questionario = await prisma.questionario.create({
       data: {
         titulo: `Pesquisa de Satisfação dos Usuários - ${ano}`,
         descricao: `Pesquisa com os Beneficiados do Vida Mais no ano de ${ano}`,
-        professorId: 1, // Admin principal
+        criadoPor: admin.id, // Admin principal
         padrao: true,
         ano: ano,
         ativo: false, // Começa inativo até o admin lançar
         perguntas: {
           create: QUESTIONARIO_PADRAO_2025.map(p => ({
-            texto: p.texto,
+            enunciado: p.enunciado,
             tipo: p.tipo as any,
-            opcoes: p.opcoes || [],
+            opcoesJson: p.opcoes ? JSON.stringify(p.opcoes) : null,
             ordem: p.ordem,
-            obrigatoria: p.obrigatoria,
-            escalaMin: p.escalaMin,
-            escalaMax: p.escalaMax
+            obrigatoria: p.obrigatoria
           }))
         }
       },
