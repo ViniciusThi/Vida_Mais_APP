@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
 
@@ -52,14 +52,13 @@ router.post('/login', async (req, res, next) => {
     }
 
     // Gerar token
-    const secret = process.env.JWT_SECRET;
+    const secret: Secret = process.env.JWT_SECRET || '';
     if (!secret) {
       throw new Error('JWT_SECRET não configurado');
     }
 
-    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
     const payload = { id: user.id, email: user.email, role: user.role };
-    const token = jwt.sign(payload, secret, { expiresIn });
+    const token = jwt.sign(payload, secret, { expiresIn: '7d' });
 
     res.json({
       token,
