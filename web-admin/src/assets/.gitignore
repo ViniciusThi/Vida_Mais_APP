@@ -1,0 +1,9 @@
+# Ignora arquivos de imagem muito grandes (opcional)
+# Descomente se sua logo for muito grande
+# *.png
+# *.jpg
+
+# Mantém o README
+!README.md
+!.gitkeep
+

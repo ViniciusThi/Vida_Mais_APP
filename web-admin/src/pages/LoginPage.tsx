@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
 import { LogIn } from 'lucide-react';
+import logoVidaMais from '../assets/Logo_VidaMais.png';
 
 interface LoginForm {
   emailOuTelefone: string;
@@ -36,8 +37,21 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full mb-4 shadow-lg">
-            <span className="text-4xl font-bold text-white">V+</span>
+          <div className="flex justify-center mb-6">
+            <img 
+              src={logoVidaMais} 
+              alt="Logo Vida Mais" 
+              className="h-24 w-auto object-contain"
+              onError={(e) => {
+                // Fallback se a logo não carregar
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling;
+                if (fallback) fallback.classList.remove('hidden');
+              }}
+            />
+            <div className="hidden inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full shadow-lg">
+              <span className="text-4xl font-bold text-white">V+</span>
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Vida Mais</h1>
           <p className="text-gray-600 mt-2">Centro do Idoso</p>
