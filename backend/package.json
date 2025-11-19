@@ -12,6 +12,7 @@
     "db:seed": "tsx src/prisma/seed.ts",
     "db:setup": "tsx src/scripts/setup-db.ts",
     "db:studio": "prisma studio",
+    "questionario:criar": "tsx src/scripts/criar-questionario-padrao.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest"
   },

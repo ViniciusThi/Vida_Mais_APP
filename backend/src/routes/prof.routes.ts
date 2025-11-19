@@ -816,5 +816,238 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
   }
 });
 
+// ========== QUESTIONÁRIOS PADRÃO ==========
+
+// GET /prof/questionarios-padrao - Listar todos os questionários padrão
+router.get('/questionarios-padrao', async (req: AuthRequest, res, next) => {
+  try {
+    const questionariosPadrao = await prisma.questionario.findMany({
+      where: { padrao: true },
+      include: {
+        _count: {
+          select: {
+            perguntas: true,
+            respostas: true
+          }
+        }
+      },
+      orderBy: { ano: 'desc' }
+    });
+
+    res.json(questionariosPadrao);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /prof/questionarios-padrao/:id - Detalhes de um questionário padrão
+router.get('/questionarios-padrao/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const questionario = await prisma.questionario.findFirst({
+      where: {
+        id,
+        padrao: true
+      },
+      include: {
+        perguntas: {
+          orderBy: { ordem: 'asc' }
+        },
+        _count: {
+          select: { respostas: true }
+        }
+      }
+    });
+
+    if (!questionario) {
+      return res.status(404).json({ error: 'Questionário padrão não encontrado' });
+    }
+
+    res.json(questionario);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios-padrao/criar - Criar novo questionário padrão para um ano
+// (Apenas ADMIN pode criar)
+router.post('/questionarios-padrao/criar', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+  try {
+    const { ano } = z.object({
+      ano: z.number().int().min(2020).max(2100)
+    }).parse(req.body);
+
+    // Verificar se já existe para este ano
+    const existente = await prisma.questionario.findFirst({
+      where: { padrao: true, ano }
+    });
+
+    if (existente) {
+      return res.status(409).json({ 
+        error: `Já existe um questionário padrão para o ano ${ano}`,
+        questionarioId: existente.id
+      });
+    }
+
+    // Importar e usar a função de criação
+    const { criarQuestionarioPadrao } = await import('../scripts/criar-questionario-padrao');
+    const questionario = await criarQuestionarioPadrao(ano);
+
+    res.status(201).json(questionario);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios-padrao/:id/lancar - Ativar/Lançar um questionário padrão
+// (Apenas ADMIN pode lançar)
+router.post('/questionarios-padrao/:id/lancar', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const questionario = await prisma.questionario.findFirst({
+      where: {
+        id,
+        padrao: true
+      }
+    });
+
+    if (!questionario) {
+      return res.status(404).json({ error: 'Questionário padrão não encontrado' });
+    }
+
+    // Ativar o questionário
+    const atualizado = await prisma.questionario.update({
+      where: { id },
+      data: { 
+        ativo: true,
+        periodoInicio: new Date(),
+        // Opcional: definir um período fim (ex: 30 dias)
+        // periodoFim: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      },
+      include: {
+        _count: {
+          select: { perguntas: true }
+        }
+      }
+    });
+
+    res.json({
+      message: 'Questionário padrão lançado com sucesso',
+      questionario: atualizado
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios-padrao/:id/encerrar - Encerrar um questionário padrão
+// (Apenas ADMIN pode encerrar)
+router.post('/questionarios-padrao/:id/encerrar', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const questionario = await prisma.questionario.findFirst({
+      where: {
+        id,
+        padrao: true
+      }
+    });
+
+    if (!questionario) {
+      return res.status(404).json({ error: 'Questionário padrão não encontrado' });
+    }
+
+    // Desativar o questionário
+    const atualizado = await prisma.questionario.update({
+      where: { id },
+      data: { 
+        ativo: false,
+        periodoFim: new Date()
+      }
+    });
+
+    res.json({
+      message: 'Questionário padrão encerrado com sucesso',
+      questionario: atualizado
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios-padrao/:id/duplicar - Duplicar questionário padrão para novo ano
+// (Apenas ADMIN pode duplicar)
+router.post('/questionarios-padrao/:id/duplicar', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { novoAno } = z.object({
+      novoAno: z.number().int().min(2020).max(2100)
+    }).parse(req.body);
+
+    // Buscar questionário original
+    const original = await prisma.questionario.findFirst({
+      where: {
+        id,
+        padrao: true
+      },
+      include: {
+        perguntas: {
+          orderBy: { ordem: 'asc' }
+        }
+      }
+    });
+
+    if (!original) {
+      return res.status(404).json({ error: 'Questionário padrão não encontrado' });
+    }
+
+    // Verificar se já existe para o novo ano
+    const existente = await prisma.questionario.findFirst({
+      where: { padrao: true, ano: novoAno }
+    });
+
+    if (existente) {
+      return res.status(409).json({ 
+        error: `Já existe um questionário padrão para o ano ${novoAno}` 
+      });
+    }
+
+    // Duplicar questionário
+    const duplicado = await prisma.questionario.create({
+      data: {
+        titulo: `Pesquisa de Satisfação dos Usuários - ${novoAno}`,
+        descricao: `Pesquisa com os Beneficiados do Vida Mais no ano de ${novoAno}`,
+        professorId: req.user!.id,
+        padrao: true,
+        ano: novoAno,
+        ativo: false,
+        perguntas: {
+          create: original.perguntas.map(p => ({
+            texto: p.texto,
+            tipo: p.tipo,
+            opcoes: p.opcoes,
+            ordem: p.ordem,
+            obrigatoria: p.obrigatoria,
+            escalaMin: p.escalaMin,
+            escalaMax: p.escalaMax
+          }))
+        }
+      },
+      include: {
+        perguntas: true
+      }
+    });
+
+    res.status(201).json({
+      message: 'Questionário duplicado com sucesso',
+      questionario: duplicado
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export { router as profRouter };
 
