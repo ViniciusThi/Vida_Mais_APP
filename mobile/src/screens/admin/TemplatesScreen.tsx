@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Dimensions, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { professorService } from '../../services/api';
@@ -210,70 +210,94 @@ export default function TemplatesScreen() {
         animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={[styles.modalTitle, { fontSize: 22 * fontScale }]}>
-              Criar Questionário
-            </Text>
-            
-            <Text style={[styles.label, { fontSize: 16 * fontScale }]}>
-              Título *
-            </Text>
-            <TextInput
-              style={[styles.input, { fontSize: 16 * fontScale }]}
-              value={titulo}
-              onChangeText={setTitulo}
-              placeholder="Ex: Pesquisa de Satisfação 2025"
-              placeholderTextColor="#9CA3AF"
-            />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.modalOverlay}>
+              <TouchableWithoutFeedback>
+                <ScrollView 
+                  contentContainerStyle={styles.modalScrollContent}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <View style={styles.modalContent}>
+                    <Text style={[styles.modalTitle, { fontSize: 22 * fontScale }]}>
+                      Criar Questionário
+                    </Text>
+                    
+                    <Text style={[styles.label, { fontSize: 16 * fontScale }]}>
+                      Título *
+                    </Text>
+                    <TextInput
+                      style={[styles.input, { fontSize: 16 * fontScale }]}
+                      value={titulo}
+                      onChangeText={setTitulo}
+                      placeholder="Ex: Pesquisa de Satisfação 2025"
+                      placeholderTextColor="#9CA3AF"
+                      returnKeyType="next"
+                    />
 
-            <Text style={[styles.label, { fontSize: 16 * fontScale }]}>
-              Descrição (opcional)
-            </Text>
-            <TextInput
-              style={[styles.input, styles.textArea, { fontSize: 16 * fontScale }]}
-              value={descricao}
-              onChangeText={setDescricao}
-              placeholder="Descrição do questionário"
-              placeholderTextColor="#9CA3AF"
-              multiline
-              numberOfLines={3}
-            />
+                    <Text style={[styles.label, { fontSize: 16 * fontScale }]}>
+                      Descrição (opcional)
+                    </Text>
+                    <TextInput
+                      style={[styles.input, styles.textArea, { fontSize: 16 * fontScale }]}
+                      value={descricao}
+                      onChangeText={setDescricao}
+                      placeholder="Descrição do questionário"
+                      placeholderTextColor="#9CA3AF"
+                      multiline
+                      numberOfLines={3}
+                      returnKeyType="next"
+                    />
 
-            <Text style={[styles.label, { fontSize: 16 * fontScale }]}>
-              Ano *
-            </Text>
-            <TextInput
-              style={[styles.input, { fontSize: 16 * fontScale }]}
-              value={ano}
-              onChangeText={setAno}
-              placeholder="2025"
-              keyboardType="numeric"
-              maxLength={4}
-              placeholderTextColor="#9CA3AF"
-            />
+                    <Text style={[styles.label, { fontSize: 16 * fontScale }]}>
+                      Ano *
+                    </Text>
+                    <TextInput
+                      style={[styles.input, { fontSize: 16 * fontScale }]}
+                      value={ano}
+                      onChangeText={setAno}
+                      placeholder="2025"
+                      keyboardType="numeric"
+                      maxLength={4}
+                      placeholderTextColor="#9CA3AF"
+                      returnKeyType="done"
+                      onSubmitEditing={Keyboard.dismiss}
+                    />
 
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonCancel]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={[styles.modalButtonText, { fontSize: 16 * fontScale }]}>
-                  Cancelar
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonConfirm]}
-                onPress={handleCriar}
-                disabled={criarMutation.isPending}
-              >
-                <Text style={[styles.modalButtonTextConfirm, { fontSize: 16 * fontScale }]}>
-                  {criarMutation.isPending ? 'Criando...' : 'Criar'}
-                </Text>
-              </TouchableOpacity>
+                    <View style={styles.modalActions}>
+                      <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonCancel]}
+                        onPress={() => {
+                          Keyboard.dismiss();
+                          setModalVisible(false);
+                        }}
+                      >
+                        <Text style={[styles.modalButtonText, { fontSize: 16 * fontScale }]}>
+                          Cancelar
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonConfirm]}
+                        onPress={() => {
+                          Keyboard.dismiss();
+                          handleCriar();
+                        }}
+                        disabled={criarMutation.isPending}
+                      >
+                        <Text style={[styles.modalButtonTextConfirm, { fontSize: 16 * fontScale }]}>
+                          {criarMutation.isPending ? 'Criando...' : 'Criar'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ScrollView>
+              </TouchableWithoutFeedback>
             </View>
-          </View>
-        </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -421,11 +445,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20
   },
+  modalScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40
+  },
   modalContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
-    width: '100%',
+    width: width * 0.9,
     maxWidth: 500
   },
   modalTitle: {
