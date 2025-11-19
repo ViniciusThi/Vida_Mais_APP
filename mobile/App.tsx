@@ -9,6 +9,7 @@ import { Text, TextInput } from 'react-native';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
+import CadastroScreen from './src/screens/CadastroScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import QuestionarioScreen from './src/screens/QuestionarioScreen';
 import SuccessScreen from './src/screens/SuccessScreen';
@@ -68,11 +69,22 @@ export default function App() {
             }}
           >
             {!token ? (
-              <Stack.Screen 
-                name="Login" 
-                component={LoginScreen} 
-                options={{ headerShown: false }}
-              />
+              <>
+                <Stack.Screen 
+                  name="Login" 
+                  component={LoginScreen} 
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                  name="Cadastro" 
+                  component={CadastroScreen} 
+                  options={{ 
+                    title: 'Cadastro de Associado',
+                    headerShown: true,
+                    headerBackTitle: 'Voltar'
+                  }}
+                />
+              </>
             ) : (
               <>
                 <Stack.Screen 

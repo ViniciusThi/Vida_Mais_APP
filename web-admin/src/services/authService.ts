@@ -1,7 +1,7 @@
 import api from '../lib/api';
 
 export interface LoginCredentials {
-  email: string;
+  emailOuTelefone: string;
   senha: string;
 }
 

@@ -31,13 +31,16 @@ enum TipoPergunta {
   BOOLEAN
 }
 
-// Tabela de usuários (Admin, Professores, Alunos)
+// Tabela de usuários (Admin, Professores, Associados)
 model User {
   id           String   @id @default(uuid())
   nome         String
   email        String   @unique
+  telefone     String?  @unique
   senhaHash    String   @map("senha_hash")
   role         Role     @default(ALUNO)
+  idade        Int?
+  deficiencia  String?  // Descrição da deficiência (auditiva, visual, etc)
   ativo        Boolean  @default(true)
   criadoEm     DateTime @default(now()) @map("criado_em")
   atualizadoEm DateTime @updatedAt @map("atualizado_em")
@@ -48,6 +51,7 @@ model User {
   questionarios   Questionario[]
   respostas       Resposta[]
 
+  @@index([telefone])
   @@map("users")
 }
 
@@ -98,6 +102,8 @@ model Questionario {
   visibilidade   Visibilidade  @default(TURMA)
   turmaId        String?       @map("turma_id")
   ativo          Boolean       @default(true)
+  padrao         Boolean       @default(false) @map("padrao") // Questionário padrão anual
+  ano            Int?          // Ano do questionário padrão
   periodoInicio  DateTime?     @map("periodo_inicio")
   periodoFim     DateTime?     @map("periodo_fim")
   criadoEm       DateTime      @default(now()) @map("criado_em")
@@ -112,6 +118,7 @@ model Questionario {
   @@index([criadoPor])
   @@index([turmaId])
   @@index([ativo])
+  @@index([padrao, ano])
   @@map("questionarios")
 }
 

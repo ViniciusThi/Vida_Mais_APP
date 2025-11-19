@@ -11,19 +11,21 @@ import {
   Dimensions,
   Image
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { authService, setAuthToken } from '../services/api';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  const navigation = useNavigation();
+  const [emailOuTelefone, setEmailOuTelefone] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleLogin = async () => {
-    if (!email || !senha) {
+    if (!emailOuTelefone || !senha) {
       Alert.alert('Atenção', 'Por favor, preencha todos os campos', [
         { text: 'OK', style: 'default' }
       ]);
@@ -32,13 +34,13 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await authService.login(email, senha);
+      const response = await authService.login(emailOuTelefone, senha);
       setAuthToken(response.token);
       await setAuth(response.token, response.user);
     } catch (error: any) {
       Alert.alert(
         'Não foi possível entrar',
-        error.response?.data?.error || 'Verifique seu email e senha',
+        error.response?.data?.error || 'Verifique seu email/telefone e senha',
         [{ text: 'Tentar novamente', style: 'default' }]
       );
     } finally {
@@ -65,16 +67,19 @@ export default function LoginScreen() {
 
       <View style={styles.formContainer}>
         <View style={styles.form}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>Login do Associado</Text>
+          <Text style={styles.hint}>Email ou Telefone</Text>
           <TextInput
             style={styles.input}
-            placeholder="Digite seu email"
+            placeholder="Digite seu email ou telefone"
             placeholderTextColor="#9CA3AF"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
+            value={emailOuTelefone}
+            onChangeText={setEmailOuTelefone}
+            keyboardType="default"
             autoCapitalize="none"
             autoCorrect={false}
+            accessibilityLabel="Campo de email ou telefone"
+            accessibilityHint="Digite seu email cadastrado ou número de telefone"
           />
 
           <Text style={styles.label}>Senha</Text>
@@ -85,6 +90,8 @@ export default function LoginScreen() {
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
+            accessibilityLabel="Campo de senha"
+            accessibilityHint="Digite sua senha de acesso"
           />
 
           <TouchableOpacity
@@ -92,10 +99,21 @@ export default function LoginScreen() {
             onPress={handleLogin}
             disabled={loading}
             activeOpacity={0.7}
+            accessibilityLabel="Botão de login"
+            accessibilityHint="Toque para fazer login"
           >
             <Text style={styles.buttonText}>
               {loading ? 'ENTRANDO...' : '✓ ENTRAR'}
             </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => navigation.navigate('Cadastro' as never)}
+            accessibilityLabel="Ir para cadastro"
+            accessibilityHint="Toque para criar uma nova conta"
+          >
+            <Text style={styles.linkText}>Não tem cadastro? Criar conta</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -168,6 +186,12 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     flexShrink: 1
   },
+  hint: {
+    fontSize: Math.min(width * 0.04, 18),
+    color: '#6B7280',
+    marginBottom: 8,
+    fontStyle: 'italic'
+  },
   input: {
     fontSize: Math.min(width * 0.05, 22),
     borderWidth: 2,
@@ -203,6 +227,17 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textAlign: 'center',
     flexShrink: 1
+  },
+  linkButton: {
+    marginTop: 16,
+    padding: 12,
+    alignItems: 'center'
+  },
+  linkText: {
+    fontSize: Math.min(width * 0.045, 20),
+    color: '#075D94',
+    fontWeight: '600',
+    textDecorationLine: 'underline'
   }
 });
 

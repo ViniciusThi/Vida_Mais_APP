@@ -368,6 +368,151 @@ router.delete('/perguntas/:id', async (req: AuthRequest, res, next) => {
   }
 });
 
+// ========== QUESTIONÁRIOS PADRÃO ==========
+
+// GET /prof/questionarios-padrao - Listar questionários padrão
+router.get('/questionarios-padrao', async (req: AuthRequest, res, next) => {
+  try {
+    const questionarios = await prisma.questionario.findMany({
+      where: {
+        padrao: true
+      },
+      include: {
+        _count: {
+          select: { perguntas: true, respostas: true }
+        }
+      },
+      orderBy: { ano: 'desc' }
+    });
+
+    res.json(questionarios);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios-padrao - Criar questionário padrão para um ano
+router.post('/questionarios-padrao', async (req: AuthRequest, res, next) => {
+  try {
+    const { ano, periodoInicio, periodoFim } = z.object({
+      ano: z.number().int().min(2020),
+      periodoInicio: z.string().datetime().optional(),
+      periodoFim: z.string().datetime().optional()
+    }).parse(req.body);
+
+    // Verificar se já existe questionário padrão para este ano
+    const existe = await prisma.questionario.findFirst({
+      where: {
+        padrao: true,
+        ano: ano
+      }
+    });
+
+    if (existe) {
+      return res.status(409).json({ error: `Já existe um questionário padrão para o ano ${ano}` });
+    }
+
+    // Criar questionário padrão
+    const questionario = await prisma.questionario.create({
+      data: {
+        titulo: `Pesquisa de Satisfação ${ano}`,
+        descricao: `Questionário padrão anual de satisfação do Vida Mais - ${ano}`,
+        criadoPor: req.user!.id,
+        visibilidade: Visibilidade.GLOBAL,
+        padrao: true,
+        ano: ano,
+        ativo: true,
+        periodoInicio: periodoInicio ? new Date(periodoInicio) : null,
+        periodoFim: periodoFim ? new Date(periodoFim) : null
+      }
+    });
+
+    res.status(201).json(questionario);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios-padrao/:id/duplicar - Duplicar questionário padrão de um ano para outro
+router.post('/questionarios-padrao/:id/duplicar', async (req: AuthRequest, res, next) => {
+  try {
+    const { ano } = z.object({
+      ano: z.number().int().min(2020)
+    }).parse(req.body);
+
+    const questionarioOriginal = await prisma.questionario.findUnique({
+      where: { id: req.params.id },
+      include: {
+        perguntas: {
+          orderBy: { ordem: 'asc' }
+        }
+      }
+    });
+
+    if (!questionarioOriginal) {
+      return res.status(404).json({ error: 'Questionário padrão não encontrado' });
+    }
+
+    if (!questionarioOriginal.padrao) {
+      return res.status(400).json({ error: 'Este não é um questionário padrão' });
+    }
+
+    // Verificar se já existe questionário padrão para o novo ano
+    const existe = await prisma.questionario.findFirst({
+      where: {
+        padrao: true,
+        ano: ano
+      }
+    });
+
+    if (existe) {
+      return res.status(409).json({ error: `Já existe um questionário padrão para o ano ${ano}` });
+    }
+
+    // Criar novo questionário padrão
+    const novoQuestionario = await prisma.questionario.create({
+      data: {
+        titulo: `Pesquisa de Satisfação ${ano}`,
+        descricao: `Questionário padrão anual de satisfação do Vida Mais - ${ano}`,
+        criadoPor: req.user!.id,
+        visibilidade: Visibilidade.GLOBAL,
+        padrao: true,
+        ano: ano,
+        ativo: true,
+        periodoInicio: questionarioOriginal.periodoInicio,
+        periodoFim: questionarioOriginal.periodoFim
+      }
+    });
+
+    // Duplicar perguntas
+    for (const pergunta of questionarioOriginal.perguntas) {
+      await prisma.pergunta.create({
+        data: {
+          questionarioId: novoQuestionario.id,
+          ordem: pergunta.ordem,
+          tipo: pergunta.tipo,
+          enunciado: pergunta.enunciado,
+          obrigatoria: pergunta.obrigatoria,
+          opcoesJson: pergunta.opcoesJson
+        }
+      });
+    }
+
+    const questionarioCompleto = await prisma.questionario.findUnique({
+      where: { id: novoQuestionario.id },
+      include: {
+        perguntas: {
+          orderBy: { ordem: 'asc' }
+        }
+      }
+    });
+
+    res.status(201).json(questionarioCompleto);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ========== RELATÓRIOS ==========
 
 // GET /prof/relatorios/:questionarioId
@@ -413,8 +558,9 @@ router.get('/relatorios/:questionarioId', async (req: AuthRequest, res, next) =>
       let agregacao: any = {};
 
       if (pergunta.tipo === TipoPergunta.TEXTO) {
-        agregacao.respostas = respostasPergunta.map(r => ({
-          aluno: r.aluno.nome,
+        // Respostas anônimas - sem nome do aluno
+        agregacao.respostas = respostasPergunta.map((r, index) => ({
+          id: index + 1, // ID anônimo sequencial
           texto: r.valorTexto
         }));
       } else if (pergunta.tipo === TipoPergunta.ESCALA) {
@@ -466,6 +612,74 @@ router.get('/relatorios/:questionarioId', async (req: AuthRequest, res, next) =>
       },
       totalRespondentes: new Set(respostas.map(r => r.alunoId)).size,
       relatorio
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /prof/relatorios/:questionarioId/respondentes - Lista de quem já respondeu
+router.get('/relatorios/:questionarioId/respondentes', async (req: AuthRequest, res, next) => {
+  try {
+    const questionario = await prisma.questionario.findUnique({
+      where: { id: req.params.questionarioId },
+      select: {
+        id: true,
+        criadoPor: true
+      }
+    });
+
+    if (!questionario) {
+      return res.status(404).json({ error: 'Questionário não encontrado' });
+    }
+
+    // Verificar permissão
+    if (req.user!.role === Role.PROF && questionario.criadoPor !== req.user!.id) {
+      return res.status(403).json({ error: 'Sem permissão' });
+    }
+
+    // Buscar alunos únicos que responderam
+    const respostas = await prisma.resposta.findMany({
+      where: { questionarioId: questionario.id },
+      select: {
+        alunoId: true,
+        criadoEm: true
+      },
+      distinct: ['alunoId']
+    });
+
+    // Buscar informações dos alunos
+    const alunoIds = respostas.map(r => r.alunoId);
+    const alunos = await prisma.user.findMany({
+      where: {
+        id: { in: alunoIds },
+        role: Role.ALUNO
+      },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true
+      }
+    });
+
+    // Combinar dados
+    const respondentes = alunos.map(aluno => {
+      const resposta = respostas.find(r => r.alunoId === aluno.id);
+      return {
+        id: aluno.id,
+        nome: aluno.nome,
+        email: aluno.email,
+        telefone: aluno.telefone,
+        respondidoEm: resposta?.criadoEm
+      };
+    });
+
+    res.json({
+      total: respondentes.length,
+      respondentes: respondentes.sort((a, b) => 
+        (a.respondidoEm?.getTime() || 0) - (b.respondidoEm?.getTime() || 0)
+      )
     });
   } catch (error) {
     next(error);

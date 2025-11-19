@@ -6,7 +6,7 @@ import { authService } from '../services/authService';
 import { LogIn } from 'lucide-react';
 
 interface LoginForm {
-  email: string;
+  emailOuTelefone: string;
   senha: string;
 }
 
@@ -18,7 +18,10 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     try {
-      const response = await authService.login(data);
+      const response = await authService.login({
+        emailOuTelefone: data.emailOuTelefone,
+        senha: data.senha
+      });
       setAuth(response.token, response.user);
       toast.success(`Bem-vindo, ${response.user.nome}!`);
     } catch (error: any) {
@@ -42,22 +45,18 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              Email ou Telefone
             </label>
             <input
-              {...register('email', { 
-                required: 'Email é obrigatório',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Email inválido'
-                }
+              {...register('emailOuTelefone', { 
+                required: 'Email ou telefone é obrigatório'
               })}
-              type="email"
+              type="text"
               className="input"
-              placeholder="seu@email.com"
+              placeholder="seu@email.com ou (11) 99999-9999"
             />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            {errors.emailOuTelefone && (
+              <p className="mt-1 text-sm text-red-600">{errors.emailOuTelefone.message}</p>
             )}
           </div>
 

@@ -13,8 +13,19 @@ export const setAuthToken = (token: string) => {
 };
 
 export const authService = {
-  async login(email: string, senha: string) {
-    const { data } = await api.post('/auth/login', { email, senha });
+  async login(emailOuTelefone: string, senha: string) {
+    const { data } = await api.post('/auth/login', { emailOuTelefone, senha });
+    return data;
+  },
+  async cadastro(dados: {
+    nome: string;
+    idade: number;
+    email: string;
+    telefone: string;
+    deficiencia?: string;
+    senha: string;
+  }) {
+    const { data } = await api.post('/auth/cadastro', dados);
     return data;
   }
 };
