@@ -150,6 +150,37 @@ export const professorService = {
   async getAlunosDaTurma(turmaId: string) {
     const { data } = await api.get(`/prof/turmas/${turmaId}/alunos`);
     return data;
+  },
+
+  // Templates e Questionários Padrão
+  async getTemplates() {
+    const { data } = await api.get('/prof/templates');
+    return data;
+  },
+
+  async criarDeTemplate(dados: {
+    templateId: string;
+    titulo: string;
+    descricao?: string;
+    ano: number;
+  }) {
+    const { data } = await api.post('/prof/questionarios/criar-de-template', dados);
+    return data;
+  },
+
+  async getQuestionariosPadrao() {
+    const { data } = await api.get('/prof/questionarios-padrao');
+    return data;
+  },
+
+  async lancarQuestionarioPadrao(id: string) {
+    const { data } = await api.post(`/prof/questionarios-padrao/${id}/lancar`);
+    return data;
+  },
+
+  async encerrarQuestionarioPadrao(id: string) {
+    const { data } = await api.post(`/prof/questionarios-padrao/${id}/encerrar`);
+    return data;
   }
 };
 

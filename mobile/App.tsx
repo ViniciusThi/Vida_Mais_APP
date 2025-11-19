@@ -18,6 +18,7 @@ import SuccessScreen from './src/screens/SuccessScreen';
 import ProfessoresScreen from './src/screens/admin/ProfessoresScreen';
 import AlunosScreen from './src/screens/admin/AlunosScreen';
 import TurmasScreen from './src/screens/admin/TurmasScreen';
+import TemplatesScreen from './src/screens/admin/TemplatesScreen';
 import EditarTurmaScreen from './src/screens/admin/EditarTurmaScreen';
 import EditarProfessorScreen from './src/screens/admin/EditarProfessorScreen';
 import EditarAlunoScreen from './src/screens/admin/EditarAlunoScreen';
@@ -120,6 +121,11 @@ export default function App() {
                   name="Turmas" 
                   component={TurmasScreen} 
                   options={{ title: 'Gerenciar Turmas' }}
+                />
+                <Stack.Screen 
+                  name="Templates" 
+                  component={TemplatesScreen} 
+                  options={{ title: 'Templates de Questionários' }}
                 />
                 <Stack.Screen 
                   name="EditarTurma" 
