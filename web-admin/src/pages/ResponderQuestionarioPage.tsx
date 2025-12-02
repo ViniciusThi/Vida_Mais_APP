@@ -121,19 +121,38 @@ export default function ResponderQuestionarioPage() {
           // Parse seguro das opções de múltipla escolha
           const opcoes = (() => {
             try {
-              if (!pergunta.opcoesJson) return [];
+              if (!pergunta.opcoesJson) {
+                console.log('⚠️ Pergunta sem opcoesJson:', { id: pergunta.id, tipo: pergunta.tipo });
+                return [];
+              }
               
               if (typeof pergunta.opcoesJson === 'string') {
                 const parsed = JSON.parse(pergunta.opcoesJson);
-                return Array.isArray(parsed) ? parsed : [];
+                const result = Array.isArray(parsed) ? parsed : [];
+                console.log('✅ Parse de opções (string):', { id: pergunta.id, opcoes: result });
+                return result;
               }
               
-              return Array.isArray(pergunta.opcoesJson) ? pergunta.opcoesJson : [];
+              const result = Array.isArray(pergunta.opcoesJson) ? pergunta.opcoesJson : [];
+              console.log('✅ Opções já em array:', { id: pergunta.id, opcoes: result });
+              return result;
             } catch (error) {
               console.error('❌ Erro ao fazer parse das opções:', error, pergunta.opcoesJson);
               return [];
             }
           })();
+          
+          // Debug adicional para múltipla escolha
+          if (pergunta.tipo === 'UNICA' || pergunta.tipo === 'MULTIPLA') {
+            console.log('🔍 Debug múltipla escolha:', {
+              perguntaId: pergunta.id,
+              tipo: pergunta.tipo,
+              opcoesJson: pergunta.opcoesJson,
+              opcoesParsed: opcoes,
+              temOpcoes: opcoes.length > 0,
+              condicaoRender: (pergunta.tipo === 'UNICA' || pergunta.tipo === 'MULTIPLA') && opcoes.length > 0
+            });
+          }
 
           return (
             <div key={pergunta.id} className="card">
