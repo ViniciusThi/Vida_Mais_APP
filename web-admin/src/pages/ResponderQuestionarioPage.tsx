@@ -118,11 +118,22 @@ export default function ResponderQuestionarioPage() {
 
       <div className="space-y-6">
         {questionario.perguntas?.map((pergunta: any, index: number) => {
-          const opcoes = pergunta.opcoesJson 
-            ? (typeof pergunta.opcoesJson === 'string' 
-                ? JSON.parse(pergunta.opcoesJson) 
-                : pergunta.opcoesJson)
-            : [];
+          // Parse seguro das opções de múltipla escolha
+          const opcoes = (() => {
+            try {
+              if (!pergunta.opcoesJson) return [];
+              
+              if (typeof pergunta.opcoesJson === 'string') {
+                const parsed = JSON.parse(pergunta.opcoesJson);
+                return Array.isArray(parsed) ? parsed : [];
+              }
+              
+              return Array.isArray(pergunta.opcoesJson) ? pergunta.opcoesJson : [];
+            } catch (error) {
+              console.error('❌ Erro ao fazer parse das opções:', error, pergunta.opcoesJson);
+              return [];
+            }
+          })();
 
           return (
             <div key={pergunta.id} className="card">

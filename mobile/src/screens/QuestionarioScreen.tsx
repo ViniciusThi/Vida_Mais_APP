@@ -50,13 +50,26 @@ export default function QuestionarioScreen() {
     const carregarVozes = async () => {
       try {
         const vozes = await Speech.getAvailableVoicesAsync();
-        const voz = vozes.find((item) => {
+        
+        // 🇧🇷 PRIORIDADE 1: Buscar especificamente por pt-BR (Brasil)
+        let voz = vozes.find((item) => {
           const idioma = item.language?.toLowerCase();
-          return idioma?.startsWith('pt-br') || idioma?.startsWith('pt');
+          return idioma?.startsWith('pt-br') || idioma?.includes('br');
         });
+
+        // 🇵🇹 FALLBACK: Se não encontrar pt-BR, usa pt (Portugal)
+        if (!voz) {
+          voz = vozes.find((item) => {
+            const idioma = item.language?.toLowerCase();
+            return idioma?.startsWith('pt');
+          });
+        }
 
         if (voz) {
           setVozPtBr(voz.identifier);
+          console.log('✅ Voz selecionada:', voz.identifier, voz.language);
+        } else {
+          console.warn('⚠️ Nenhuma voz em português encontrada');
         }
       } catch (error) {
         console.error('Erro ao carregar vozes disponíveis:', error);
@@ -227,6 +240,8 @@ export default function QuestionarioScreen() {
                 value={respostas[pergunta.id]?.valor || ''}
                 onChangeText={(text) => handleResposta(text, 'TEXTO')}
                 onBlur={() => Keyboard.dismiss()}
+                autoCorrect={true}
+                autoCapitalize="sentences"
               />
             )}
 
