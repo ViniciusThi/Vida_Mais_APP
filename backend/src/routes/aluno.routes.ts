@@ -157,11 +157,11 @@ router.get('/questionarios/:id', async (req: AuthRequest, res, next) => {
       }
     }
 
-    // Retornar com opções parseadas
+    // Retornar com opções parseadas (mantém ambos opcoes e opcoesJson para compatibilidade)
     const perguntas = questionario.perguntas.map(p => ({
       ...p,
-      opcoes: p.opcoesJson ? JSON.parse(p.opcoesJson) : null,
-      opcoesJson: undefined
+      opcoes: p.opcoesJson ? JSON.parse(p.opcoesJson) : null
+      // opcoesJson permanece no objeto original
     }));
 
     res.json({
