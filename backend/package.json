@@ -13,6 +13,7 @@
     "db:setup": "tsx src/scripts/setup-db.ts",
     "db:studio": "prisma studio",
     "questionario:criar": "tsx src/scripts/criar-questionario-padrao.ts",
+    "questionario:recriar": "tsx src/scripts/recriar-questionario-padrao.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest"
   },
