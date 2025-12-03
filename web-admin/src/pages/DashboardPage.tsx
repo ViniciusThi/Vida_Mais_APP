@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { alunoService } from '../services/alunoService';
-import { Users, GraduationCap, ClipboardList, FileQuestion, Plus, BarChart3 } from 'lucide-react';
+import { Users, GraduationCap, ClipboardList, FileQuestion, Plus, BarChart3, Brain } from 'lucide-react';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ function AdminDashboard({ navigate }: any) {
     { title: 'Turmas', subtitle: 'Gerenciar turmas', path: '/admin/turmas', icon: ClipboardList, color: 'green' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, color: 'purple' },
     { title: 'Questionários', subtitle: 'Gerenciar questionários', path: '/questionarios', icon: FileQuestion, color: 'blue' },
+    { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, color: 'purple' },
   ];
 
   return (
@@ -72,6 +73,7 @@ function ProfessorDashboard({ navigate }: any) {
   const menuItems = [
     { title: 'Meus Questionários', subtitle: 'Ver questionários criados', path: '/questionarios', icon: FileQuestion, color: 'blue' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, color: 'purple' },
+    { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, color: 'purple' },
   ];
 
   return (

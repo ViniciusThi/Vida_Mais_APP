@@ -15,6 +15,7 @@ import RelatorioPage from './pages/RelatorioPage';
 import ResponderQuestionarioPage from './pages/ResponderQuestionarioPage';
 import MeusQuestionariosAlunoPage from './pages/MeusQuestionariosAlunoPage';
 import EditarTurmaPage from './pages/admin/EditarTurmaPage';
+import MLDashboardPage from './pages/MLDashboardPage';
 
 function App() {
   const { token, user } = useAuthStore();
@@ -54,6 +55,7 @@ function App() {
               <Route path="/questionarios/novo" element={<CriarQuestionarioPage />} />
               <Route path="/questionarios/:id/editar" element={<EditarQuestionarioPage />} />
               <Route path="/questionarios/:id/relatorio" element={<RelatorioPage />} />
+              <Route path="/ml-insights" element={<MLDashboardPage />} />
             </>
           )}
           
