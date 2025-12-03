@@ -74,6 +74,7 @@ function AdminMenu({ navigation, fontScale }: any) {
     { title: 'Turmas', subtitle: 'Gerenciar turmas', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', screen: 'CriarQuestionario', icon: '📝', color: '#9333EA' },
     { title: 'Questionários', subtitle: 'Gerenciar questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
+    { title: 'Insights Preditivos', subtitle: 'Machine Learning', screen: 'MLInsights', icon: '🤖', color: '#9333EA' },
   ];
 
   return (
@@ -106,6 +107,7 @@ function ProfessorMenu({ navigation, fontScale }: any) {
     { title: 'Meus Questionários', subtitle: 'Ver questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
     { title: 'Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕', color: '#FF7E00' },
     { title: 'Minhas Turmas', subtitle: 'Ver alunos', screen: 'MinhasTurmas', icon: '📚', color: '#7ABA43' },
+    { title: 'Insights Preditivos', subtitle: 'Machine Learning', screen: 'MLInsights', icon: '🤖', color: '#9333EA' },
   ];
 
   return (

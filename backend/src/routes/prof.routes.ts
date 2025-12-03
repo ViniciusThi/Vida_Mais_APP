@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { PrismaClient, Role, Visibilidade, TipoPergunta } from '@prisma/client';
 import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middleware';
 import ExcelJS from 'exceljs';
+import { ExcelExportService } from '../services/excel-export.service';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -731,47 +732,8 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
     });
 
     if (formato === 'xlsx') {
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Respostas');
-
-      // Cabeçalhos
-      const headers = ['Aluno', 'Email', ...questionario.perguntas.map(p => p.enunciado)];
-      worksheet.addRow(headers);
-
-      // Agrupar por aluno
-      const alunosUnicos = [...new Set(respostas.map(r => r.alunoId))];
-
-      alunosUnicos.forEach(alunoId => {
-        const respostasAluno = respostas.filter(r => r.alunoId === alunoId);
-        const aluno = respostasAluno[0]?.aluno;
-        
-        const row = [
-          aluno?.nome || '',
-          aluno?.email || ''
-        ];
-
-        questionario.perguntas.forEach(pergunta => {
-          const resposta = respostasAluno.find(r => r.perguntaId === pergunta.id);
-          let valor = '';
-
-          if (resposta) {
-            if (resposta.valorTexto) valor = resposta.valorTexto;
-            else if (resposta.valorNum !== null) valor = String(resposta.valorNum);
-            else if (resposta.valorBool !== null) valor = resposta.valorBool ? 'Sim' : 'Não';
-            else if (resposta.valorOpcao) valor = resposta.valorOpcao;
-          }
-
-          row.push(valor);
-        });
-
-        worksheet.addRow(row);
-      });
-
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=questionario-${questionario.id}.xlsx`);
-
-      await workbook.xlsx.write(res);
-      res.end();
+      // Usar serviço de exportação avançado com formatação, estatísticas e múltiplas sheets
+      await ExcelExportService.exportQuestionario(questionario as any, respostas as any, res);
     } else {
       // CSV
       res.setHeader('Content-Type', 'text/csv');

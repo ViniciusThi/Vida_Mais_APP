@@ -27,6 +27,7 @@ import MeusQuestionariosScreen from './src/screens/professor/MeusQuestionariosSc
 import CriarQuestionarioScreen from './src/screens/professor/CriarQuestionarioScreen';
 import RelatorioScreen from './src/screens/professor/RelatorioScreen';
 import MinhasTurmasScreen from './src/screens/professor/MinhasTurmasScreen';
+import MLInsightsScreen from './src/screens/professor/MLInsightsScreen';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -157,6 +158,11 @@ export default function App() {
                   name="MinhasTurmas" 
                   component={MinhasTurmasScreen} 
                   options={{ title: 'Minhas Turmas' }}
+                />
+                <Stack.Screen 
+                  name="MLInsights" 
+                  component={MLInsightsScreen} 
+                  options={{ title: 'Insights Preditivos 🤖' }}
                 />
               </>
             )}
