@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
-import { Plus, X, Edit, Trash2 } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Users } from 'lucide-react';
 
 export default function ProfessoresPage() {
   const [showModal, setShowModal] = useState(false);
