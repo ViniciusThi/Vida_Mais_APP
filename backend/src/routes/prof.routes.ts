@@ -522,11 +522,26 @@ router.get('/relatorios/:questionarioId', async (req: AuthRequest, res, next) =>
   try {
     const questionario = await prisma.questionario.findUnique({
       where: { id: req.params.questionarioId },
-      include: {
+      select: {
+        id: true,
+        titulo: true,
+        criadoPor: true,
         perguntas: {
-          orderBy: { ordem: 'asc' }
+          orderBy: { ordem: 'asc' },
+          select: {
+            id: true,
+            ordem: true,
+            enunciado: true,
+            tipo: true,
+            opcoesJson: true
+          }
         },
-        turma: true
+        turma: {
+          select: {
+            id: true,
+            nome: true
+          }
+        }
       }
     });
 
@@ -539,17 +554,30 @@ router.get('/relatorios/:questionarioId', async (req: AuthRequest, res, next) =>
       return res.status(403).json({ error: 'Sem permissão' });
     }
 
-    // Buscar todas as respostas
+    // Buscar todas as respostas (otimizado: apenas campos necessários)
     const respostas = await prisma.resposta.findMany({
       where: { questionarioId: questionario.id },
-      include: {
+      select: {
+        id: true,
+        alunoId: true,
+        perguntaId: true,
+        valorTexto: true,
+        valorNum: true,
+        valorBool: true,
+        valorOpcao: true,
         aluno: {
           select: {
             id: true,
             nome: true
           }
         },
-        pergunta: true
+        pergunta: {
+          select: {
+            id: true,
+            tipo: true,
+            opcoesJson: true
+          }
+        }
       }
     });
 
@@ -695,11 +723,27 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
 
     const questionario = await prisma.questionario.findUnique({
       where: { id: req.params.questionarioId },
-      include: {
+      select: {
+        id: true,
+        titulo: true,
+        descricao: true,
+        criadoPor: true,
         perguntas: {
-          orderBy: { ordem: 'asc' }
+          orderBy: { ordem: 'asc' },
+          select: {
+            id: true,
+            ordem: true,
+            enunciado: true,
+            tipo: true,
+            opcoesJson: true
+          }
         },
-        turma: true
+        turma: {
+          select: {
+            id: true,
+            nome: true
+          }
+        }
       }
     });
 
@@ -712,10 +756,16 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
       return res.status(403).json({ error: 'Sem permissão' });
     }
 
-    // Buscar respostas
+    // Buscar respostas (otimizado: apenas campos necessários)
     const respostas = await prisma.resposta.findMany({
       where: { questionarioId: questionario.id },
-      include: {
+      select: {
+        alunoId: true,
+        perguntaId: true,
+        valorTexto: true,
+        valorNum: true,
+        valorBool: true,
+        valorOpcao: true,
         aluno: {
           select: {
             id: true,
@@ -723,7 +773,12 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
             email: true
           }
         },
-        pergunta: true
+        pergunta: {
+          select: {
+            id: true,
+            ordem: true
+          }
+        }
       },
       orderBy: [
         { alunoId: 'asc' },

@@ -54,3 +54,6 @@ temp/
 
 nginx-vida-mais.conf
 mobile/assets/
+
+# Documentation (moved to doc/)
+doc/

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { professorService } from '../../services/api';
 import axios from 'axios';
@@ -44,12 +44,12 @@ export default function MLInsightsScreen() {
     retry: false
   });
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     refetchOverview();
     if (selectedTurmaId) refetchEvasao();
-  };
+  }, [selectedTurmaId, refetchOverview, refetchEvasao]);
 
-  const isRefreshing = loadingOverview || loadingEvasao;
+  const isRefreshing = useMemo(() => loadingOverview || loadingEvasao, [loadingOverview, loadingEvasao]);
 
   if (loadingTurmas) {
     return (
