@@ -1,4 +1,4 @@
-// Vida Mais - Prisma Schema
+// Forms Tech - Prisma Schema
 
 generator client {
   provider = "prisma-client-js"
