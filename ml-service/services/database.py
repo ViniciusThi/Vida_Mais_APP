@@ -33,27 +33,28 @@ class DatabaseService:
             connection.close()
     
     def get_alunos_data(self, turma_id: str = None) -> List[Dict]:
-        """Obter dados dos alunos"""
+        """Obter dados dos alunos (users com role ALUNO)"""
         query = """
             SELECT 
-                a.id, a.nome, a.email, a.criado_em,
+                u.id, u.nome, u.email, u.criado_em,
                 COUNT(DISTINCT at.turma_id) as total_turmas,
                 COUNT(DISTINCT r.questionario_id) as questionarios_respondidos,
                 AVG(CASE WHEN r.valor_num IS NOT NULL THEN r.valor_num END) as media_notas
-            FROM alunos a
-            LEFT JOIN aluno_turma at ON a.id = at.aluno_id
-            LEFT JOIN respostas r ON a.id = r.aluno_id
+            FROM users u
+            LEFT JOIN alunos_turmas at ON u.id = at.aluno_id
+            LEFT JOIN respostas r ON u.id = r.aluno_id
+            WHERE u.role = 'ALUNO' AND u.ativo = 1
         """
         
         if turma_id:
-            query += " WHERE at.turma_id = %s"
+            query += " AND at.turma_id = %s"
             params = (turma_id,)
         else:
             params = None
         
         query += """
-            GROUP BY a.id, a.nome, a.email, a.criado_em
-            ORDER BY a.criado_em DESC
+            GROUP BY u.id, u.nome, u.email, u.criado_em
+            ORDER BY u.criado_em DESC
         """
         
         return self.execute_query(query, params)
@@ -95,27 +96,28 @@ class DatabaseService:
         return self.execute_query(query)
     
     def get_engagement_data(self, turma_id: str = None) -> List[Dict]:
-        """Obter dados de engajamento"""
+        """Obter dados de engajamento (users com role ALUNO)"""
         query = """
             SELECT 
-                a.id as aluno_id,
-                a.nome as aluno_nome,
+                u.id as aluno_id,
+                u.nome as aluno_nome,
                 COUNT(DISTINCT r.questionario_id) as questionarios_respondidos,
                 COUNT(r.id) as total_respostas,
                 MIN(r.criado_em) as primeira_resposta,
                 MAX(r.criado_em) as ultima_resposta,
                 DATEDIFF(MAX(r.criado_em), MIN(r.criado_em)) as dias_ativo
-            FROM alunos a
-            LEFT JOIN respostas r ON a.id = r.aluno_id
+            FROM users u
+            LEFT JOIN respostas r ON u.id = r.aluno_id
+            WHERE u.role = 'ALUNO' AND u.ativo = 1
         """
         
         if turma_id:
-            query += " JOIN aluno_turma at ON a.id = at.aluno_id WHERE at.turma_id = %s"
+            query += " AND EXISTS (SELECT 1 FROM alunos_turmas at WHERE at.aluno_id = u.id AND at.turma_id = %s)"
             params = (turma_id,)
         else:
             params = None
         
-        query += " GROUP BY a.id, a.nome"
+        query += " GROUP BY u.id, u.nome"
         
         return self.execute_query(query, params)
 
