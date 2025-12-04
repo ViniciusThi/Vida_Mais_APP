@@ -170,53 +170,104 @@ class MLPredictor:
     
     def _heuristic_evasao_prediction(self, turma_id: str) -> Dict[str, Any]:
         """Predição heurística simples (quando não há modelo)"""
-        engagement = self.db.get_engagement_data(turma_id)
-        predictions = []
-        
-        for aluno in engagement:
-            # Heurística simples baseada em dias sem resposta
-            dias_sem_resposta = 0
-            if aluno.get('ultima_resposta'):
-                ultima = aluno['ultima_resposta']
-                if isinstance(ultima, str):
-                    ultima = datetime.fromisoformat(ultima.replace('Z', '+00:00'))
-                dias_sem_resposta = (datetime.now() - ultima).days
-            else:
-                dias_sem_resposta = 999
+        try:
+            engagement = self.db.get_engagement_data(turma_id)
+            predictions = []
             
-            # Calcular risco baseado em heurística
-            if dias_sem_resposta > 30:
-                risco = 80
-                nivel = 'alto'
-            elif dias_sem_resposta > 14:
-                risco = 50
-                nivel = 'medio'
+            if not engagement:
+                # Se não há dados de engajamento, buscar alunos da turma diretamente
+                alunos = self.db.get_alunos_data(turma_id)
+                for aluno in alunos:
+                    predictions.append({
+                        'alunoId': aluno['id'],
+                        'alunoNome': aluno.get('nome', 'Aluno sem nome'),
+                        'riscoEvasao': 50,  # Risco médio por padrão
+                        'nivelRisco': 'medio',
+                        'fatores': ['Sem dados de engajamento disponíveis']
+                    })
             else:
-                risco = 20
-                nivel = 'baixo'
+                for aluno in engagement:
+                    # Verificar se tem os campos necessários
+                    aluno_id = aluno.get('aluno_id')
+                    aluno_nome = aluno.get('aluno_nome', 'Aluno sem nome')
+                    
+                    if not aluno_id:
+                        continue
+                    
+                    # Heurística simples baseada em dias sem resposta
+                    dias_sem_resposta = 0
+                    ultima_resposta = aluno.get('ultima_resposta')
+                    
+                    if ultima_resposta:
+                        try:
+                            if isinstance(ultima_resposta, str):
+                                # Tentar diferentes formatos de data
+                                if 'T' in ultima_resposta:
+                                    ultima = datetime.fromisoformat(ultima_resposta.replace('Z', '+00:00'))
+                                else:
+                                    ultima = datetime.strptime(ultima_resposta, '%Y-%m-%d %H:%M:%S')
+                            else:
+                                ultima = ultima_resposta
+                            dias_sem_resposta = (datetime.now() - ultima.replace(tzinfo=None)).days
+                        except Exception as e:
+                            print(f"Erro ao processar data: {e}, valor: {ultima_resposta}")
+                            dias_sem_resposta = 999
+                    else:
+                        dias_sem_resposta = 999
+                    
+                    # Calcular risco baseado em heurística
+                    if dias_sem_resposta > 30:
+                        risco = 80
+                        nivel = 'alto'
+                    elif dias_sem_resposta > 14:
+                        risco = 50
+                        nivel = 'medio'
+                    else:
+                        risco = 20
+                        nivel = 'baixo'
+                    
+                    fatores = []
+                    if dias_sem_resposta < 999:
+                        fatores.append(f"{dias_sem_resposta} dias sem responder")
+                    else:
+                        fatores.append("Nunca respondeu")
+                    
+                    fatores.append(f"{aluno.get('questionarios_respondidos', 0)} questionários respondidos")
+                    
+                    predictions.append({
+                        'alunoId': aluno_id,
+                        'alunoNome': aluno_nome,
+                        'riscoEvasao': risco,
+                        'nivelRisco': nivel,
+                        'fatores': fatores
+                    })
             
-            predictions.append({
-                'alunoId': aluno['aluno_id'],
-                'alunoNome': aluno['aluno_nome'],
-                'riscoEvasao': risco,
-                'nivelRisco': nivel,
-                'fatores': [
-                    f"{dias_sem_resposta} dias sem responder" if dias_sem_resposta < 999 else "Nunca respondeu",
-                    f"{aluno.get('questionarios_respondidos', 0)} questionários respondidos"
-                ]
-            })
-        
-        predictions.sort(key=lambda x: x['riscoEvasao'], reverse=True)
-        
-        return {
-            'turmaId': turma_id,
-            'totalAlunos': len(predictions),
-            'alunosRiscoAlto': sum(1 for p in predictions if p['nivelRisco'] == 'alto'),
-            'alunosRiscoMedio': sum(1 for p in predictions if p['nivelRisco'] == 'medio'),
-            'alunosRiscoBaixo': sum(1 for p in predictions if p['nivelRisco'] == 'baixo'),
-            'predictions': predictions,
-            'metodo': 'heuristica'  # Indica que está usando heurística
-        }
+            predictions.sort(key=lambda x: x['riscoEvasao'], reverse=True)
+            
+            return {
+                'turmaId': turma_id,
+                'totalAlunos': len(predictions),
+                'alunosRiscoAlto': sum(1 for p in predictions if p['nivelRisco'] == 'alto'),
+                'alunosRiscoMedio': sum(1 for p in predictions if p['nivelRisco'] == 'medio'),
+                'alunosRiscoBaixo': sum(1 for p in predictions if p['nivelRisco'] == 'baixo'),
+                'predictions': predictions,
+                'metodo': 'heuristica'  # Indica que está usando heurística
+            }
+        except Exception as e:
+            print(f"Erro na predição heurística: {e}")
+            import traceback
+            traceback.print_exc()
+            # Retornar resposta vazia em caso de erro
+            return {
+                'turmaId': turma_id,
+                'totalAlunos': 0,
+                'alunosRiscoAlto': 0,
+                'alunosRiscoMedio': 0,
+                'alunosRiscoBaixo': 0,
+                'predictions': [],
+                'metodo': 'heuristica',
+                'erro': str(e)
+            }
     
     def _get_evasao_factors(self, aluno_data: Dict) -> List[str]:
         """Identificar fatores que contribuem para o risco de evasão"""

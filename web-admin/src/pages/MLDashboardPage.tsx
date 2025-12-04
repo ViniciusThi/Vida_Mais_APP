@@ -141,7 +141,17 @@ export default function MLDashboardPage() {
           <div className="p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600">Última Atualização</p>
             <p className="text-lg font-bold text-gray-900">
-              {modelsStatus?.lastUpdate ? new Date(modelsStatus.lastUpdate).toLocaleDateString('pt-BR') : 'N/A'}
+              {modelsStatus?.lastUpdate && 
+               modelsStatus.lastUpdate !== 'nunca' && 
+               modelsStatus.lastUpdate !== 'desconhecido' 
+                ? new Date(modelsStatus.lastUpdate).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })
+                : 'Nunca treinado'}
             </p>
           </div>
         </div>

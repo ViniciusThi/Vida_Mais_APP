@@ -31,16 +31,16 @@ export default function DashboardPage() {
 
 function AdminDashboard({ navigate }: any) {
   const menuItems = [
-    { title: 'Professores', subtitle: 'Gerenciar professores', path: '/admin/professores', icon: Users, color: 'blue' },
-    { title: 'Alunos', subtitle: 'Gerenciar alunos', path: '/admin/alunos', icon: GraduationCap, color: 'orange' },
-    { title: 'Turmas', subtitle: 'Gerenciar turmas', path: '/admin/turmas', icon: ClipboardList, color: 'green' },
-    { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, color: 'purple' },
-    { title: 'Questionários', subtitle: 'Gerenciar questionários', path: '/questionarios', icon: FileQuestion, color: 'blue' },
-    { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, color: 'purple' },
+    { title: 'Professores', subtitle: 'Gerenciar professores', path: '/admin/professores', icon: Users, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+    { title: 'Alunos', subtitle: 'Gerenciar alunos', path: '/admin/alunos', icon: GraduationCap, borderColor: 'border-orange-600', bgColor: 'bg-orange-100', iconColor: 'text-orange-600' },
+    { title: 'Turmas', subtitle: 'Gerenciar turmas', path: '/admin/turmas', icon: ClipboardList, borderColor: 'border-green-600', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
+    { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
+    { title: 'Questionários', subtitle: 'Gerenciar questionários', path: '/questionarios', icon: FileQuestion, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+    { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
   ];
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Painel Administrativo</h1>
         <p className="text-gray-600 mt-2">Gerencie o sistema Vida Mais</p>
@@ -51,11 +51,11 @@ function AdminDashboard({ navigate }: any) {
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
-            className={`card hover:shadow-xl transition-all text-left border-l-4 border-${item.color}-600`}
+            className={`card hover:shadow-xl transition-all text-left border-l-4 ${item.borderColor}`}
           >
             <div className="flex items-start gap-4">
-              <div className={`flex-shrink-0 w-12 h-12 bg-${item.color}-100 rounded-lg flex items-center justify-center`}>
-                <item.icon className={`text-${item.color}-600`} size={24} />
+              <div className={`flex-shrink-0 w-12 h-12 ${item.bgColor} rounded-lg flex items-center justify-center`}>
+                <item.icon className={item.iconColor} size={24} />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-lg text-gray-900">{item.title}</h3>
@@ -71,13 +71,13 @@ function AdminDashboard({ navigate }: any) {
 
 function ProfessorDashboard({ navigate }: any) {
   const menuItems = [
-    { title: 'Meus Questionários', subtitle: 'Ver questionários criados', path: '/questionarios', icon: FileQuestion, color: 'blue' },
-    { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, color: 'purple' },
-    { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, color: 'purple' },
+    { title: 'Meus Questionários', subtitle: 'Ver questionários criados', path: '/questionarios', icon: FileQuestion, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+    { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
+    { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
   ];
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Painel do Professor</h1>
         <p className="text-gray-600 mt-2">Crie e gerencie questionários</p>
@@ -88,11 +88,11 @@ function ProfessorDashboard({ navigate }: any) {
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
-            className={`card hover:shadow-xl transition-all text-left border-l-4 border-${item.color}-600`}
+            className={`card hover:shadow-xl transition-all text-left border-l-4 ${item.borderColor}`}
           >
             <div className="flex items-start gap-4">
-              <div className={`flex-shrink-0 w-12 h-12 bg-${item.color}-100 rounded-lg flex items-center justify-center`}>
-                <item.icon className={`text-${item.color}-600`} size={24} />
+              <div className={`flex-shrink-0 w-12 h-12 ${item.bgColor} rounded-lg flex items-center justify-center`}>
+                <item.icon className={item.iconColor} size={24} />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-lg text-gray-900">{item.title}</h3>
