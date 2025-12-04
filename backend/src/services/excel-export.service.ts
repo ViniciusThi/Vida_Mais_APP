@@ -128,7 +128,8 @@ export class ExcelExportService {
           else if (resposta.valorOpcao) valor = resposta.valorOpcao;
         }
 
-        row.push(valor);
+        // Converter para string para compatibilidade com ExcelJS
+        row.push(typeof valor === 'number' ? String(valor) : valor);
       });
 
       const dataRow = worksheet.addRow(row);
