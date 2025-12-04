@@ -1,7 +1,7 @@
 {
   "name": "vida-mais-backend",
   "version": "1.0.0",
-  "description": "API Backend para o sistema Vida Mais",
+  "description": "API Backend para o sistema Forms Tech",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

@@ -39,7 +39,7 @@ export default function CadastroPage() {
             Cadastro de Associado
           </h1>
           <p className="text-gray-600">
-            Centro do Idoso Vida Mais
+            Forms Tech - Sistema de Pesquisas
           </p>
         </div>
 

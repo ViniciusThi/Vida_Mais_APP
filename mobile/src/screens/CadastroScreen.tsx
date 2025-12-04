@@ -99,7 +99,7 @@ export default function CadastroScreen() {
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Image
-            source={require('../../assets/Logo_VidaMais.png')}
+            source={require('../../assets/Logo_VidaMais.jpg')}
             style={styles.logo}
             resizeMode="contain"
           />

@@ -72,7 +72,7 @@ export default function MeusQuestionariosAlunoPage() {
           Questionários Disponíveis
         </h1>
         <p style={{ fontSize: `${16 * scale}px` }} className="text-gray-600">
-          Responda aos questionários ativos para contribuir com o Vida Mais
+          Responda aos questionários ativos para contribuir com o Forms Tech
         </p>
       </div>
 

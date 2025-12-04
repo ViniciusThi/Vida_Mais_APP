@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
 import { LogIn } from 'lucide-react';
-import logoVidaMais from '../../assets/Logo_VidaMais.png';
+import logoFormsTech from '../../assets/Logo_VidaMais.jpg';
 
 interface LoginForm {
   emailOuTelefone: string;
@@ -39,9 +39,10 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <img 
-              src={logoVidaMais} 
-              alt="Logo Vida Mais" 
-              className="h-24 w-auto object-contain"
+              src={logoFormsTech} 
+              alt="Logo Forms Tech" 
+              className="h-32 w-auto object-contain"
+              style={{ aspectRatio: '645/800' }}
               onError={(e) => {
                 // Fallback se a logo não carregar
                 e.currentTarget.style.display = 'none';
@@ -53,8 +54,8 @@ export default function LoginPage() {
               <span className="text-4xl font-bold text-white">V+</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Vida Mais</h1>
-          <p className="text-gray-600 mt-2">Centro do Idoso</p>
+          <h1 className="text-3xl font-bold text-gray-900">Forms Tech</h1>
+          <p className="text-gray-600 mt-2">Sistema de Pesquisas</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

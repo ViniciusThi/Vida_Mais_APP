@@ -20,7 +20,7 @@ export default function SuccessScreen() {
         </Text>
         
         <Text style={styles.submessage}>
-          Sua opinião é muito importante para tornar a Vida Mais ainda melhor!
+          Sua opinião é muito importante para tornar o Forms Tech ainda melhor!
         </Text>
         
         <TouchableOpacity
@@ -38,7 +38,7 @@ export default function SuccessScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7ABA43' // Verde Vida Mais
+    backgroundColor: '#7ABA43' // Verde Forms Tech
   },
   content: {
     flex: 1,

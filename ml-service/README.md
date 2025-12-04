@@ -1,6 +1,6 @@
-# 🤖 ML Service - Análise Preditiva Vida Mais
+# 🤖 ML Service - Análise Preditiva Forms Tech
 
-Serviço Python de Machine Learning para análise preditiva de dados do sistema Vida Mais.
+Serviço Python de Machine Learning para análise preditiva de dados do sistema Forms Tech.
 
 ## 📋 Funcionalidades
 
@@ -160,5 +160,5 @@ Este serviço foi projetado para ser facilmente extensível. Para adicionar novo
 
 ---
 
-**Desenvolvido com ❤️ para o Projeto Vida Mais**
+**Desenvolvido com ❤️ para o Projeto Forms Tech**
 

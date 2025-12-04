@@ -147,7 +147,7 @@ async function main() {
         questionarioId: questionario.id,
         ordem: 3,
         tipo: 'BOOLEAN',
-        enunciado: 'Você recomendaria a Vida Mais para outros?',
+        enunciado: 'Você recomendaria o Forms Tech para outros?',
         obrigatoria: true,
         opcoesJson: null
       },

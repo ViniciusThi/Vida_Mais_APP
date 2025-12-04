@@ -53,7 +53,7 @@ export default function DashboardLayout({ children }: Props) {
                 {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
               <h1 className="ml-2 sm:ml-4 lg:ml-0 text-lg sm:text-xl font-bold text-primary-600 truncate">
-                Vida Mais
+                Forms Tech
               </h1>
             </div>
             

@@ -57,7 +57,7 @@ export default function LoginScreen() {
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Image
-            source={require('../../assets/Logo_VidaMais.png')}
+            source={require('../../assets/Logo_VidaMais.jpg')}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -124,7 +124,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#075D94' // Azul Vida Mais
+    backgroundColor: '#075D94' // Azul Forms Tech
   },
   scrollContent: {
     flexGrow: 1,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     minHeight: 60
   },
   button: {
-    backgroundColor: '#FF7E00', // Laranja Vida Mais
+    backgroundColor: '#FF7E00', // Laranja Forms Tech
     borderRadius: 12,
     paddingVertical: 22,
     paddingHorizontal: 20,

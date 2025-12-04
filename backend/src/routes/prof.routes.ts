@@ -418,7 +418,7 @@ router.post('/questionarios-padrao', async (req: AuthRequest, res, next) => {
     const questionario = await prisma.questionario.create({
       data: {
         titulo: `Pesquisa de Satisfação ${ano}`,
-        descricao: `Questionário padrão anual de satisfação do Vida Mais - ${ano}`,
+        descricao: `Questionário padrão anual de satisfação do Forms Tech - ${ano}`,
         criadoPor: req.user!.id,
         visibilidade: Visibilidade.GLOBAL,
         padrao: true,
@@ -475,7 +475,7 @@ router.post('/questionarios-padrao/:id/duplicar', async (req: AuthRequest, res, 
     const novoQuestionario = await prisma.questionario.create({
       data: {
         titulo: `Pesquisa de Satisfação ${ano}`,
-        descricao: `Questionário padrão anual de satisfação do Vida Mais - ${ano}`,
+        descricao: `Questionário padrão anual de satisfação do Forms Tech - ${ano}`,
         criadoPor: req.user!.id,
         visibilidade: Visibilidade.GLOBAL,
         padrao: true,
@@ -920,7 +920,7 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
     const questionario = await prisma.questionario.create({
       data: {
         titulo,
-        descricao: descricao || `Pesquisa com os Beneficiados do Vida Mais no ano de ${ano}`,
+        descricao: descricao || `Pesquisa com os Beneficiados do Forms Tech no ano de ${ano}`,
         criadoPor: req.user!.id,
         padrao: isPadrao,
         ano: isPadrao ? ano : null,
@@ -1127,7 +1127,7 @@ router.post('/questionarios-padrao/:id/duplicar', authorize(Role.ADMIN), async (
     const duplicado = await prisma.questionario.create({
       data: {
         titulo: `Pesquisa de Satisfação dos Usuários - ${novoAno}`,
-        descricao: `Pesquisa com os Beneficiados do Vida Mais no ano de ${novoAno}`,
+        descricao: `Pesquisa com os Beneficiados do Forms Tech no ano de ${novoAno}`,
         criadoPor: req.user!.id,
         padrao: true,
         ano: novoAno,

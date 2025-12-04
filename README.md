@@ -1,13 +1,13 @@
-# 📱 Vida Mais APP - Sistema de Pesquisa de Satisfação Digital
+# 📱 Forms Tech - Sistema de Pesquisa de Satisfação Digital
 
 > Projeto Integrador V - Faculdade de Tecnologia (FATEC)  
-> Sistema completo para digitalização de pesquisas de satisfação da Instituição Vida Mais
+> Sistema completo para digitalização de pesquisas de satisfação
 
 ---
 
 ## 📋 Sobre o Projeto
 
-O **Vida Mais APP** é uma solução completa desenvolvida para digitalizar o processo de pesquisa anual de satisfação (agosto-setembro) da Instituição Vida Mais, que anteriormente era realizado manualmente em papel. O sistema oferece uma plataforma integrada com aplicativo mobile acessível para idosos, painel web administrativo e API robusta.
+O **Forms Tech** é uma solução completa desenvolvida para digitalizar o processo de pesquisa anual de satisfação (agosto-setembro), que anteriormente era realizado manualmente em papel. O sistema oferece uma plataforma integrada com aplicativo mobile acessível para idosos, painel web administrativo e API robusta.
 
 ### 🎯 Problema Identificado
 
@@ -350,7 +350,7 @@ npm start
 
 **Disciplina:** Projeto Integrador V  
 **Curso:** Análise e Desenvolvimento de Sistemas  
-**Instituição Parceira:** Vida Mais  
+**Instituição Parceira:** Forms Tech  
 **Período:** Agosto-Outubro 2025
 
 ### Objetivos de Aprendizagem
@@ -367,7 +367,7 @@ npm start
 ## 👥 Equipe de Desenvolvimento
 
 - **Desenvolvedor Full Stack:** Vinícius Tibério
-- **Instituição Parceira:** Vida Mais
+- **Instituição Parceira:** Forms Tech
 - **Orientação:** FATEC
 
 ---
@@ -432,7 +432,7 @@ Para dúvidas ou sugestões:
 
 <div align="center">
 
-**Desenvolvido com ❤️ para a Instituição Vida Mais**
+**Desenvolvido com ❤️ para o Forms Tech**
 
 *Projeto Integrador V - FATEC 2025*
 

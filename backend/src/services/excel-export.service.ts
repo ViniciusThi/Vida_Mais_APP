@@ -39,7 +39,7 @@ export class ExcelExportService {
     const workbook = new ExcelJS.Workbook();
     
     // Metadados
-    workbook.creator = 'Sistema Vida Mais';
+    workbook.creator = 'Sistema Forms Tech';
     workbook.created = new Date();
     workbook.modified = new Date();
 
@@ -88,7 +88,7 @@ export class ExcelExportService {
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: colNumber <= 2 ? 'FF075D94' : 'FFFF7E00' } // Azul/Laranja Vida Mais
+        fgColor: { argb: colNumber <= 2 ? 'FF075D94' : 'FFFF7E00' } // Azul/Laranja Forms Tech
       };
       cell.font = {
         bold: true,

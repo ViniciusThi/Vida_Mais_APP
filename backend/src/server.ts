@@ -47,7 +47,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    service: 'Vida Mais API'
+    service: 'Forms Tech API'
   });
 });
 

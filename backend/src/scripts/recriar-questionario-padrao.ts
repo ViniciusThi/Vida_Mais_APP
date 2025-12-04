@@ -59,7 +59,7 @@ async function recriarQuestionarioPadrao(ano: number) {
     const questionario = await prisma.questionario.create({
       data: {
         titulo: `Pesquisa de Satisfação dos Usuários - ${ano}`,
-        descricao: `Pesquisa com os Beneficiados do Vida Mais no ano de ${ano}`,
+        descricao: `Pesquisa com os Beneficiados do Forms Tech no ano de ${ano}`,
         criadoPor: admin.id,
         padrao: true,
         ano: ano,
