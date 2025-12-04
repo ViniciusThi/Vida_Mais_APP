@@ -14,19 +14,36 @@ export default function DashboardPage() {
     enabled: user?.role === 'ALUNO'
   });
 
-  if (user?.role === 'ADMIN') {
+  // Loading state
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center py-12">
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role === 'ADMIN') {
     return <AdminDashboard navigate={navigate} />;
   }
 
-  if (user?.role === 'PROF') {
+  if (user.role === 'PROF') {
     return <ProfessorDashboard navigate={navigate} />;
   }
 
-  if (user?.role === 'ALUNO') {
+  if (user.role === 'ALUNO') {
     return <AlunoDashboard navigate={navigate} questionarios={questionarios || []} />;
   }
 
-  return null;
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="text-center py-12">
+        <p className="text-gray-600">Role não reconhecido: {user.role}</p>
+      </div>
+    </div>
+  );
 }
 
 function AdminDashboard({ navigate }: any) {
@@ -111,7 +128,7 @@ function AlunoDashboard({ navigate, questionarios }: any) {
   const respondidos = questionarios.filter((q: any) => q.respondido);
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Bem-vindo!</h1>
