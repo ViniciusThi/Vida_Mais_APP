@@ -7,7 +7,8 @@ import { authService } from '../services/authService';
 
 export default function CadastroPage() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();
+  const senha = watch('senha');
 
   const cadastroMutation = useMutation({
     mutationFn: authService.cadastro,
@@ -145,6 +146,24 @@ export default function CadastroPage() {
             />
             {errors.senha && (
               <p className="text-red-600 text-sm mt-1">{errors.senha.message as string}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirmar Senha *
+            </label>
+            <input
+              {...register('confirmarSenha', { 
+                required: 'Confirmação de senha é obrigatória',
+                validate: (value) => value === senha || 'As senhas não coincidem'
+              })}
+              type="password"
+              className="input"
+              placeholder="Digite a senha novamente"
+            />
+            {errors.confirmarSenha && (
+              <p className="text-red-600 text-sm mt-1">{errors.confirmarSenha.message as string}</p>
             )}
           </div>
 
