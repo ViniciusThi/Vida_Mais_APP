@@ -3,13 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { alunoService } from '../services/alunoService';
-import { ArrowLeft, CheckCircle2, Eye, Send } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Send } from 'lucide-react';
 
 export default function ResponderQuestionarioPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [respostas, setRespostas] = useState<Record<string, any>>({});
-  const [modoRevisao, setModoRevisao] = useState(false);
 
   const { data: questionario, isLoading } = useQuery({
     queryKey: ['questionario', id],
@@ -56,19 +55,10 @@ export default function ResponderQuestionarioPage() {
     return true;
   };
 
-  const handleRevisar = () => {
-    if (validarRespostas()) {
-      setModoRevisao(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleVoltar = () => {
-    setModoRevisao(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const handleSubmit = () => {
+    if (!validarRespostas()) {
+      return;
+    }
     if (!questionario || !turmas || turmas.length === 0) return;
 
     const payload = {
@@ -100,30 +90,6 @@ export default function ResponderQuestionarioPage() {
     enviarMutation.mutate(payload);
   };
 
-  // Função para formatar o valor da resposta para exibição
-  const formatarResposta = (pergunta: any, resposta: any) => {
-    if (!resposta) return <span className="text-gray-400 italic">Não respondida</span>;
-
-    switch (pergunta.tipo) {
-      case 'BOOLEAN':
-        return resposta.valor === 'true' ? 'Sim' : 'Não';
-      case 'ESCALA':
-        return (
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[200px]">
-              <div 
-                className="bg-primary-500 h-2 rounded-full transition-all"
-                style={{ width: `${(Number(resposta.valor) / 10) * 100}%` }}
-              />
-            </div>
-            <span className="font-bold text-primary-600">{resposta.valor}/10</span>
-          </div>
-        );
-      default:
-        return resposta.valor;
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="text-center py-12">
@@ -139,94 +105,6 @@ export default function ResponderQuestionarioPage() {
       </div>
     );
   }
-
-  // MODO REVISÃO
-  if (modoRevisao) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <button onClick={handleVoltar} className="btn-secondary mb-6">
-          <ArrowLeft size={20} className="inline mr-2" />
-          Voltar para edição
-        </button>
-
-        <div className="card mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200">
-          <div className="flex items-center gap-3 mb-2">
-            <Eye size={24} className="text-amber-600" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Revisão das Respostas
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Confira suas respostas antes de enviar o questionário <strong>"{questionario.titulo}"</strong>
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {questionario.perguntas?.map((pergunta: any, index: number) => (
-            <div 
-              key={pergunta.id} 
-              className={`card transition-all ${
-                respostas[pergunta.id] 
-                  ? 'border-l-4 border-l-green-500' 
-                  : 'border-l-4 border-l-gray-300'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold text-sm">
-                  {index + 1}
-                </span>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-700 text-sm mb-1">
-                    {pergunta.enunciado}
-                    {pergunta.obrigatoria && <span className="text-red-600 ml-1">*</span>}
-                  </h3>
-                  <div className="text-gray-900 font-medium mt-2 p-3 bg-gray-50 rounded-lg">
-                    {formatarResposta(pergunta, respostas[pergunta.id])}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Resumo e ações */}
-        <div className="mt-8 space-y-4">
-          <div className="card bg-gray-50">
-            <h3 className="font-bold text-gray-900 mb-3">📊 Resumo</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Total de perguntas:</span>
-                <span className="font-bold ml-2">{questionario.perguntas?.length || 0}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Respondidas:</span>
-                <span className="font-bold ml-2 text-green-600">{Object.keys(respostas).length}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <button
-              onClick={handleSubmit}
-              disabled={enviarMutation.isPending}
-              className="btn-primary px-8 py-3 bg-green-600 hover:bg-green-700"
-            >
-              {enviarMutation.isPending ? (
-                'Enviando...'
-              ) : (
-                <>
-                  <Send size={20} className="mr-2" />
-                  Enviar
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // MODO RESPONDER
   return (
     <div className="max-w-4xl mx-auto">
       <button onClick={() => navigate(-1)} className="btn-secondary mb-6">
@@ -406,22 +284,21 @@ export default function ResponderQuestionarioPage() {
         })}
       </div>
 
-      <div className="mt-8 card bg-primary-50 border-2 border-primary-200">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <h3 className="font-bold text-gray-900 mb-1">Pronto para enviar?</h3>
-            <p className="text-sm text-gray-600">
-              Clique em revisar para conferir suas respostas antes de enviar
-            </p>
-          </div>
-          <button
-            onClick={handleRevisar}
-            className="btn-primary w-full sm:w-auto"
-          >
-            <Eye size={20} className="inline mr-2" />
-            Revisar Respostas
-          </button>
-        </div>
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={handleSubmit}
+          disabled={enviarMutation.isPending}
+          className="btn-primary px-8 py-3 bg-green-600 hover:bg-green-700"
+        >
+          {enviarMutation.isPending ? (
+            'Enviando...'
+          ) : (
+            <>
+              <Send size={20} className="mr-2" />
+              Enviar
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
