@@ -391,26 +391,15 @@ export default function QuestionarioScreen() {
           </TouchableOpacity>
           
           {currentIndex === perguntas.length - 1 ? (
-            <View style={{ flex: 1, gap: 8 }}>
-              <TouchableOpacity
-                style={[styles.navButton, styles.navButtonRevisar]}
-                onPress={handleRevisar}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.navButtonTextRevisar, { fontSize: Math.min(width * 0.048, 20) * fontScale }]}>
-                  📋 REVISAR
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.navButton, styles.navButtonPrimary]}
-                onPress={handleProxima}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.navButtonTextPrimary, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}>
-                  ✓ ENVIAR
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.navButton, styles.navButtonRevisar]}
+              onPress={handleRevisar}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.navButtonTextRevisar, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}>
+                📋 REVISAR
+              </Text>
+            </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={[styles.navButton, styles.navButtonPrimary]}
