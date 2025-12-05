@@ -42,7 +42,7 @@ export default function RevisarRespostasScreen() {
       case 'BOOLEAN':
         return <Text style={styles.respostaTexto}>{resposta.valor === true || resposta.valor === 'true' ? 'Sim' : 'Não'}</Text>;
       case 'ESCALA':
-        return <Text style={styles.respostaTexto}>{resposta.valor}/5</Text>;
+        return <Text style={styles.respostaTexto}>{resposta.valor}/10</Text>;
       case 'TEXTO':
         return <Text style={styles.respostaTexto}>{resposta.valor}</Text>;
       case 'UNICA':

@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
@@ -286,25 +287,26 @@ export default function QuestionarioScreen() {
             {/* ESCALA */}
             {pergunta.tipo === 'ESCALA' && (
               <View style={styles.escalaContainer}>
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <TouchableOpacity
-                    key={num}
-                    style={[
-                      styles.escalaButton,
-                      respostas[pergunta.id]?.valor === num && styles.escalaButtonActive
-                    ]}
-                    onPress={() => handleResposta(num, 'ESCALA')}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[
-                      styles.escalaText,
-                      { fontSize: Math.min(width * 0.09, 36) * fontScale },
-                      respostas[pergunta.id]?.valor === num && styles.escalaTextActive
-                    ]}>
-                      {num}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                <View style={styles.escalaSliderContainer}>
+                  <Text style={[styles.escalaLabel, { fontSize: Math.min(width * 0.05, 20) * fontScale }]}>
+                    Valor selecionado: <Text style={styles.escalaValue}>{respostas[pergunta.id]?.valor || 5}</Text>
+                  </Text>
+                  <Slider
+                    style={styles.escalaSlider}
+                    minimumValue={0}
+                    maximumValue={10}
+                    step={1}
+                    value={respostas[pergunta.id]?.valor || 5}
+                    onValueChange={(value) => handleResposta(Math.round(value), 'ESCALA')}
+                    minimumTrackTintColor="#7ABA43"
+                    maximumTrackTintColor="#D1D5DB"
+                    thumbTintColor="#FF7E00"
+                  />
+                  <View style={styles.escalaLabels}>
+                    <Text style={[styles.escalaMinMax, { fontSize: Math.min(width * 0.04, 16) * fontScale }]}>0</Text>
+                    <Text style={[styles.escalaMinMax, { fontSize: Math.min(width * 0.04, 16) * fontScale }]}>10</Text>
+                  </View>
+                </View>
               </View>
             )}
 
@@ -537,33 +539,38 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB'
   },
   escalaContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    flexWrap: 'wrap',
-    gap: isTablet ? 16 : 8,
-    flexShrink: 1
+    flexShrink: 1,
+    marginTop: 8
   },
-  escalaButton: {
-    width: isTablet ? 90 : Math.min(width * 0.16, 70),
-    height: isTablet ? 90 : Math.min(width * 0.16, 70),
-    borderRadius: isTablet ? 45 : Math.min(width * 0.08, 35),
-    borderWidth: 3,
-    borderColor: '#D1D5DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF'
+  escalaSliderContainer: {
+    width: '100%'
   },
-  escalaButtonActive: {
-    backgroundColor: '#7ABA43', // Verde
-    borderColor: '#7ABA43'
+  escalaLabel: {
+    fontSize: Math.min(width * 0.05, 20),
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 16,
+    textAlign: 'center'
   },
-  escalaText: {
-    fontSize: Math.min(width * 0.09, 36),
+  escalaValue: {
+    fontSize: Math.min(width * 0.08, 32),
     fontWeight: 'bold',
-    color: '#6B7280'
+    color: '#FF7E00'
   },
-  escalaTextActive: {
-    color: '#FFFFFF'
+  escalaSlider: {
+    width: '100%',
+    height: 50
+  },
+  escalaLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    paddingHorizontal: 4
+  },
+  escalaMinMax: {
+    fontSize: Math.min(width * 0.04, 16),
+    color: '#6B7280',
+    fontWeight: '500'
   },
   booleanContainer: {
     gap: 14,
