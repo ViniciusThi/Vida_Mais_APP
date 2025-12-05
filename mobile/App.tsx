@@ -12,6 +12,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import CadastroScreen from './src/screens/CadastroScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import QuestionarioScreen from './src/screens/QuestionarioScreen';
+import RevisarRespostasScreen from './src/screens/RevisarRespostasScreen';
 import SuccessScreen from './src/screens/SuccessScreen';
 
 // Admin Screens
@@ -99,6 +100,11 @@ export default function App() {
                   name="Questionario" 
                   component={QuestionarioScreen} 
                   options={{ title: 'Responder Questionário' }}
+                />
+                <Stack.Screen 
+                  name="RevisarRespostas" 
+                  component={RevisarRespostasScreen} 
+                  options={{ title: 'Revisar Respostas' }}
                 />
                 <Stack.Screen 
                   name="Success" 

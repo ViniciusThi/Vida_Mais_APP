@@ -26,11 +26,11 @@ export default function QuestionarioScreen() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const queryClient = useQueryClient();
-  const { id, turmaId } = route.params;
+  const { id, turmaId, initialIndex, enviarDireto, respostasIniciais } = route.params || {};
   const { fontScale } = useFontSize();
   
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [respostas, setRespostas] = useState<Record<string, any>>({});
+  const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
+  const [respostas, setRespostas] = useState<Record<string, any>>(respostasIniciais || {});
   const [vozPtBr, setVozPtBr] = useState<string | null>(null);
   useEffect(() => {
     const configurarAudio = async () => {
@@ -99,6 +99,20 @@ export default function QuestionarioScreen() {
     }
   });
 
+  // Se initialIndex foi passado, atualiza o índice quando o componente montar
+  useEffect(() => {
+    if (initialIndex !== undefined && initialIndex !== currentIndex) {
+      setCurrentIndex(initialIndex);
+    }
+  }, [initialIndex]);
+
+  // Se enviarDireto for true, envia imediatamente
+  useEffect(() => {
+    if (enviarDireto && questionario && Object.keys(respostas).length > 0) {
+      handleEnviar();
+    }
+  }, [enviarDireto, questionario, respostas]);
+
   if (isLoading || !questionario) {
     return (
       <View style={styles.loadingContainer}>
@@ -130,6 +144,30 @@ export default function QuestionarioScreen() {
     } else {
       handleEnviar();
     }
+  };
+
+  const handleRevisar = () => {
+    // Valida se todas as obrigatórias foram respondidas
+    const obrigatorias = perguntas.filter((p: any) => p.obrigatoria);
+    const respondidas = Object.keys(respostas);
+    const faltantes = obrigatorias.filter((p: any) => !respondidas.includes(p.id));
+
+    if (faltantes.length > 0) {
+      Alert.alert(
+        'Atenção',
+        `Por favor, responda todas as perguntas obrigatórias antes de revisar.\n\nFaltam ${faltantes.length} pergunta(s) obrigatória(s).`,
+        [{ text: 'OK', style: 'default' }]
+      );
+      return;
+    }
+
+    // Navega para a tela de revisão
+    navigation.navigate('RevisarRespostas', {
+      questionario,
+      respostas,
+      id,
+      turmaId
+    });
   };
 
   const handleAnterior = () => {
@@ -350,15 +388,38 @@ export default function QuestionarioScreen() {
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity
-            style={[styles.navButton, styles.navButtonPrimary]}
-            onPress={handleProxima}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.navButtonTextPrimary, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}>
-              {currentIndex === perguntas.length - 1 ? '✓ ENVIAR' : 'PRÓXIMA →'}
-            </Text>
-          </TouchableOpacity>
+          {currentIndex === perguntas.length - 1 ? (
+            <View style={{ flex: 1, gap: 8 }}>
+              <TouchableOpacity
+                style={[styles.navButton, styles.navButtonRevisar]}
+                onPress={handleRevisar}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.navButtonTextRevisar, { fontSize: Math.min(width * 0.048, 20) * fontScale }]}>
+                  📋 REVISAR
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.navButton, styles.navButtonPrimary]}
+                onPress={handleProxima}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.navButtonTextPrimary, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}>
+                  ✓ ENVIAR
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.navButton, styles.navButtonPrimary]}
+              onPress={handleProxima}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.navButtonTextPrimary, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}>
+                PRÓXIMA →
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -598,6 +659,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4
   },
+  navButtonRevisar: {
+    backgroundColor: '#075D94', // Azul
+    borderWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4
+  },
   navButtonDisabled: {
     opacity: 0.4
   },
@@ -613,6 +683,13 @@ const styles = StyleSheet.create({
   },
   navButtonTextPrimary: {
     fontSize: Math.min(width * 0.058, 24),
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    flexShrink: 1
+  },
+  navButtonTextRevisar: {
+    fontSize: Math.min(width * 0.048, 20),
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

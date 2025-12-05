@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { alunoService } from '../services/alunoService';
-import { ArrowLeft, CheckCircle2, Eye, Edit2, Send } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Eye, Send } from 'lucide-react';
 
 export default function ResponderQuestionarioPage() {
   const { id } = useParams<{ id: string }>();
@@ -205,25 +205,18 @@ export default function ResponderQuestionarioPage() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={handleVoltar}
-              className="btn-secondary flex-1 justify-center"
-            >
-              <Edit2 size={20} className="mr-2" />
-              Editar Respostas
-            </button>
+          <div className="flex justify-center">
             <button
               onClick={handleSubmit}
               disabled={enviarMutation.isPending}
-              className="btn-primary flex-1 justify-center bg-green-600 hover:bg-green-700"
+              className="btn-primary px-8 py-3 bg-green-600 hover:bg-green-700"
             >
               {enviarMutation.isPending ? (
                 'Enviando...'
               ) : (
                 <>
                   <Send size={20} className="mr-2" />
-                  Confirmar e Enviar
+                  Enviar
                 </>
               )}
             </button>
