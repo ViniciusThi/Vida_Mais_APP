@@ -385,11 +385,15 @@ class MLPredictor:
             # Obter dados para treinamento
             alunos = self.db.get_alunos_data()
             
-            if len(alunos) < int(os.getenv('TRAIN_THRESHOLD', 30)):
+            # Threshold mínimo de alunos (padrão: 5)
+            min_alunos = int(os.getenv('TRAIN_THRESHOLD', 5))
+            
+            if len(alunos) < min_alunos:
                 return {
                     'success': False,
-                    'message': 'Dados insuficientes para treinamento',
-                    'totalAlunos': len(alunos)
+                    'message': f'Dados insuficientes para treinamento. Mínimo necessário: {min_alunos} alunos',
+                    'totalAlunos': len(alunos),
+                    'minimoNecessario': min_alunos
                 }
             
             # Preparar dataset

@@ -73,11 +73,21 @@ export default function MLDashboardPage() {
   // Mutations
   const trainMutation = useMutation({
     mutationFn: mlService.trainModels,
-    onSuccess: () => {
-      toast.success('Modelos treinados com sucesso!');
+    onSuccess: (data: any) => {
+      if (data.success) {
+        toast.success(`✅ Modelos treinados com sucesso! (${data.totalAlunos} alunos)`);
+      } else {
+        toast.warning(`⚠️ ${data.message || 'Não foi possível treinar os modelos'}`, {
+          description: data.totalAlunos !== undefined 
+            ? `Alunos atuais: ${data.totalAlunos} | Mínimo: ${data.minimoNecessario || 5}`
+            : undefined
+        });
+      }
     },
-    onError: () => {
-      toast.error('Erro ao treinar modelos');
+    onError: (error: any) => {
+      toast.error('Erro ao treinar modelos', {
+        description: error?.message || 'Verifique se o serviço ML está rodando'
+      });
     }
   });
 
