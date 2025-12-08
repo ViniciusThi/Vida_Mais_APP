@@ -421,14 +421,31 @@ class MLPredictor:
             )
             self.evasao_model.fit(X_scaled, y_evasao)
             
+            # Preparar dados para modelo de desempenho
+            y_desempenho = []
+            for aluno in alunos:
+                # Usar média de notas como target (ou valor padrão 5)
+                media = aluno.get('media_notas', 5.0) or 5.0
+                y_desempenho.append(media)
+            
+            y_desempenho = np.array(y_desempenho)
+            
+            # Treinar modelo de desempenho (regressão)
+            self.desempenho_model = GradientBoostingRegressor(
+                n_estimators=100,
+                max_depth=5,
+                random_state=42
+            )
+            self.desempenho_model.fit(X_scaled, y_desempenho)
+            
             # Salvar modelos
             self.save_models()
             
             return {
                 'success': True,
-                'message': 'Modelos treinados com sucesso',
+                'message': 'Modelos de Evasão e Desempenho treinados com sucesso!',
                 'totalAlunos': len(alunos),
-                'accuracy': 'Em produção, calcular métricas reais'
+                'modelosTreinados': ['evasao', 'desempenho']
             }
         
         except Exception as e:
