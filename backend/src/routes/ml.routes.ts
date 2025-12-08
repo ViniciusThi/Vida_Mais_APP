@@ -159,8 +159,8 @@ router.get('/patterns/responses', authorize(Role.ADMIN, Role.PROF), async (req: 
 
 // ========== MODELOS ==========
 
-// POST /ml/train - Treinar modelos (apenas admin)
-router.post('/train', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+// POST /ml/train - Treinar modelos (admin e professor)
+router.post('/train', authorize(Role.ADMIN, Role.PROF), async (req: AuthRequest, res, next) => {
   try {
     const response = await axios.post(`${ML_SERVICE_URL}/train/models`);
     res.json(response.data);
@@ -174,7 +174,7 @@ router.post('/train', authorize(Role.ADMIN), async (req: AuthRequest, res, next)
 });
 
 // GET /ml/models/status
-router.get('/models/status', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
+router.get('/models/status', authorize(Role.ADMIN, Role.PROF), async (req: AuthRequest, res, next) => {
   try {
     const response = await axios.get(`${ML_SERVICE_URL}/models/status`);
     res.json(response.data);
