@@ -4,12 +4,15 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { questionarioService } from '../services/questionarioService';
+import { adminService } from '../services/adminService';
+import { useAuthStore } from '../stores/authStore';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 type Modo = 'TEMPLATE' | 'MANUAL';
 
 export default function CriarQuestionarioPage() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [modo, setModo] = useState<Modo>('TEMPLATE');
   const [templateSelecionado, setTemplateSelecionado] = useState<any>(null);
   
@@ -26,9 +29,17 @@ export default function CriarQuestionarioPage() {
     queryFn: questionarioService.getTemplates
   });
 
+  // Buscar turmas - usa endpoint diferente baseado no role
   const { data: turmas } = useQuery({
-    queryKey: ['minhas-turmas'],
-    queryFn: questionarioService.getMinhasTurmas
+    queryKey: ['turmas-criar', user?.role],
+    queryFn: async () => {
+      if (user?.role === 'ADMIN') {
+        return adminService.getTurmas();
+      } else {
+        return questionarioService.getMinhasTurmas();
+      }
+    },
+    enabled: !!user
   });
 
   const criarDeTemplateMutation = useMutation({
