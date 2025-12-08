@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Dimensions, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
-import { professorService } from '../../services/api';
+import { professorService, adminService } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useFontSize } from '../../contexts/FontSizeContext';
@@ -12,6 +13,7 @@ export default function CriarQuestionarioScreen() {
   const navigation = useNavigation<any>();
   const queryClient = useQueryClient();
   const { fontScale } = useFontSize();
+  const { user } = useAuthStore();
   
   // Modo: 'TEMPLATE' ou 'MANUAL'
   const [modo, setModo] = useState<'TEMPLATE' | 'MANUAL'>('TEMPLATE');
@@ -35,9 +37,17 @@ export default function CriarQuestionarioScreen() {
     queryFn: professorService.getTemplates
   });
 
+  // Buscar turmas - usa endpoint diferente baseado no role
   const { data: turmas } = useQuery({
-    queryKey: ['minhas-turmas'],
-    queryFn: professorService.getMinhasTurmas
+    queryKey: ['turmas-criar', user?.role],
+    queryFn: async () => {
+      if (user?.role === 'ADMIN') {
+        return adminService.getTurmas();
+      } else {
+        return professorService.getMinhasTurmas();
+      }
+    },
+    enabled: !!user
   });
 
   // Criar do template (questionário padrão)
