@@ -1,18 +1,27 @@
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { professorService } from '../../services/api';
+import { professorService, adminService } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 import axios from 'axios';
 
 const ML_BASE_URL = 'http://54.233.110.183:3000/ml';
 
 export default function MLInsightsScreen() {
   const [selectedTurmaId, setSelectedTurmaId] = useState<string>('');
+  const { user } = useAuthStore();
 
-  // Buscar turmas do professor
+  // Buscar turmas - usa endpoint diferente baseado no role
   const { data: turmas, isLoading: loadingTurmas } = useQuery({
-    queryKey: ['minhas-turmas'],
-    queryFn: professorService.getMinhasTurmas
+    queryKey: ['turmas-ml', user?.role],
+    queryFn: async () => {
+      if (user?.role === 'ADMIN') {
+        return adminService.getTurmas();
+      } else {
+        return professorService.getMinhasTurmas();
+      }
+    },
+    enabled: !!user
   });
 
   // Buscar overview
