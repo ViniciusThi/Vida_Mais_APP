@@ -88,6 +88,7 @@ function AdminDashboard({ navigate }: any) {
 
 function ProfessorDashboard({ navigate }: any) {
   const menuItems = [
+    { title: 'Minhas Turmas', subtitle: 'Ver turmas e alunos', path: '/minhas-turmas', icon: Users, borderColor: 'border-green-600', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
     { title: 'Meus Questionários', subtitle: 'Ver questionários criados', path: '/questionarios', icon: FileQuestion, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
     { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },

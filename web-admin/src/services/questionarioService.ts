@@ -7,6 +7,11 @@ export const questionarioService = {
     return data;
   },
 
+  async getAlunosDaTurma(turmaId: string) {
+    const { data } = await api.get(`/prof/turmas/${turmaId}/alunos`);
+    return data;
+  },
+
   // Questionários
   async getQuestionarios() {
     const { data } = await api.get('/prof/questionarios');
