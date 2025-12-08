@@ -55,6 +55,5 @@ temp/
 nginx-vida-mais.conf
 mobile/assets/
 
-# Arquivos temporários da doc (scripts de debug)
-doc/*.sh
-doc/__pycache__/
+# Documentação local (não versionar)
+doc/
