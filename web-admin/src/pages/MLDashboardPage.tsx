@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { mlService } from '../services/mlService';
 import { adminService } from '../services/adminService';
+import { questionarioService } from '../services/questionarioService';
+import { useAuthStore } from '../stores/authStore';
 import { toast } from 'sonner';
 import { 
   Brain, 
@@ -17,6 +19,7 @@ import {
 
 export default function MLDashboardPage() {
   const [selectedTurma, setSelectedTurma] = useState<string>('');
+  const { user } = useAuthStore();
 
   // Queries
   const { data: health } = useQuery({
@@ -30,9 +33,18 @@ export default function MLDashboardPage() {
     queryFn: mlService.getOverview
   });
 
+  // Usa endpoint diferente baseado no role do usuário
   const { data: turmas } = useQuery({
-    queryKey: ['turmas'],
-    queryFn: adminService.getTurmas
+    queryKey: ['turmas-ml', user?.role],
+    queryFn: async () => {
+      if (user?.role === 'ADMIN') {
+        return adminService.getTurmas();
+      } else {
+        // Professor usa /prof/minhas-turmas
+        return questionarioService.getMinhasTurmas();
+      }
+    },
+    enabled: !!user
   });
 
   const { data: turmaAnalytics, isLoading: loadingTurma } = useQuery({
