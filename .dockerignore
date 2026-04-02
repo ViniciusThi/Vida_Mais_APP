@@ -1,0 +1,17 @@
+.git
+.github
+**/node_modules
+**/dist
+**/build
+**/.next
+**/.expo
+**/.expo-shared
+**/.pm2
+**/logs
+**/__pycache__
+**/*.pyc
+**/venv
+**/.venv
+.env
+.env.*
+

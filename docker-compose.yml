@@ -1,0 +1,73 @@
+services:
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: vida_mais
+      MYSQL_USER: vidamais
+      MYSQL_PASSWORD: vidamais2025
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  ml-service:
+    build:
+      context: ./ml-service
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_USER: vidamais
+      DB_PASSWORD: vidamais2025
+      DB_NAME: vida_mais
+      PORT: "5000"
+      FLASK_DEBUG: "0"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: mysql://vidamais:vidamais2025@db:3306/vida_mais
+      JWT_SECRET: change-me-in-production
+      JWT_EXPIRES_IN: 7d
+      ALLOWED_ORIGINS: "*"
+      ML_SERVICE_URL: http://ml-service:5000
+    depends_on:
+      db:
+        condition: service_healthy
+      ml-service:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web-admin
+      args:
+        VITE_API_URL: /api
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  db_data:
+

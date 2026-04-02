@@ -327,6 +327,37 @@ npm start
 
 ---
 
+## 🐳 Subir tudo na EC2 com Docker (recomendado)
+
+Se você quer **ligar a EC2 e o sistema já subir automaticamente**, use o `docker-compose.yml` (sobe **MySQL + backend + ml-service + web-admin**).
+
+### Pré-requisitos na EC2 (Ubuntu)
+
+- Docker instalado
+- Docker Compose Plugin instalado (comando `docker compose`)
+
+### Subir o sistema
+
+```bash
+cd ~/Vida_Mais_APP
+git pull origin main
+
+docker compose up -d --build
+docker compose ps
+```
+
+### Acessos
+
+- **Painel Web**: `http://IP_DA_EC2/`
+- **API (backend)**: `http://IP_DA_EC2/api/health`
+
+### Observações importantes
+
+- O `JWT_SECRET` do `docker-compose.yml` está como `change-me-in-production`. Em produção, **troque** por um segredo forte.
+- O MySQL está exposto em `3306` no host por conveniência. Se quiser mais segurança, remova o `ports: "3306:3306"` do serviço `db`.
+
+---
+
 ## 📚 Documentação
 
 ### Guias de Instalação e Uso

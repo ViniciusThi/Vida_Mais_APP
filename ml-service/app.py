@@ -133,5 +133,8 @@ def get_models_status():
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Em produção (Docker/EC2) não podemos forçar debug=True.
+    # Permite controlar via variável de ambiente.
+    debug = os.getenv('FLASK_DEBUG', '0').lower() in ('1', 'true', 'yes', 'on')
+    app.run(host='0.0.0.0', port=port, debug=debug)
 
