@@ -9,7 +9,6 @@ import {
   ScrollView,
   Platform,
   Dimensions,
-  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
@@ -56,11 +55,8 @@ export default function LoginScreen() {
     >
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image
-            source={require('../../assets/Logo_VidaMais.jpg')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <Text style={styles.logoText}>V+</Text>
+          <Text style={styles.logoSubText}>Vida Mais</Text>
         </View>
         <Text style={styles.subtitle}>Pesquisa de Satisfação</Text>
       </View>
@@ -154,6 +150,18 @@ const styles = StyleSheet.create({
   logo: {
     width: '100%',
     height: '100%'
+  },
+  logoText: {
+    fontSize: 64,
+    fontWeight: '900',
+    color: '#075D94'
+  },
+  logoSubText: {
+    marginTop: 6,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#075D94',
+    letterSpacing: 0.5
   },
   subtitle: {
     fontSize: Math.min(width * 0.065, 28),

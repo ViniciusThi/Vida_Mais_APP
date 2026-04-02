@@ -22,7 +22,9 @@
       "backgroundColor": "#FFFFFF",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "pt_BR",
-        "CFBundleLocalizations": ["pt_BR"]
+        "CFBundleLocalizations": [
+          "pt_BR"
+        ]
       }
     },
     "android": {
@@ -35,12 +37,11 @@
       "intentFilters": []
     },
     "web": {},
+    "scheme": "vidamais",
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "21175ea8-ad33-405c-826b-0c4aa97a0f51"
       }
-    },
-    "scheme": "vidamais"
+    }
   }
 }
-
