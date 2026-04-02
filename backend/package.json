@@ -17,6 +17,9 @@
     "lint": "eslint src --ext .ts",
     "test": "jest"
   },
+  "prisma": {
+    "seed": "node dist/prisma/seed.js"
+  },
   "keywords": ["api", "vida-mais", "express"],
   "author": "",
   "license": "ISC",
