@@ -10,16 +10,31 @@ import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 type Modo = 'TEMPLATE' | 'MANUAL';
 
+type CriarQuestionarioFormValues = {
+  titulo: string;
+  descricao?: string;
+  visibilidade: 'GLOBAL' | 'TURMA';
+  ano: number;
+  turmaId?: string;
+  periodoInicio?: string;
+  periodoFim?: string;
+};
+
 export default function CriarQuestionarioPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [modo, setModo] = useState<Modo>('TEMPLATE');
   const [templateSelecionado, setTemplateSelecionado] = useState<any>(null);
   
-  const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm({
+  const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm<CriarQuestionarioFormValues>({
     defaultValues: {
+      titulo: '',
+      descricao: '',
       visibilidade: 'GLOBAL',
-      ano: new Date().getFullYear()
+      ano: new Date().getFullYear(),
+      turmaId: '',
+      periodoInicio: '',
+      periodoFim: ''
     }
   });
   const visibilidade = watch('visibilidade');
@@ -70,7 +85,7 @@ export default function CriarQuestionarioPage() {
     setValue('descricao', template.descricao);
   };
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: CriarQuestionarioFormValues) => {
     if (modo === 'TEMPLATE') {
       if (!templateSelecionado) {
         toast.error('Selecione um template');
@@ -83,10 +98,15 @@ export default function CriarQuestionarioPage() {
         descricao: data.descricao,
         ano: Number(data.ano),
         visibilidade: data.visibilidade,
-        turmaId: data.visibilidade === 'TURMA' ? data.turmaId : undefined
+        turmaId: data.visibilidade === 'TURMA' ? (data.turmaId || undefined) : undefined
       });
     } else {
-      criarManualMutation.mutate(data);
+      criarManualMutation.mutate({
+        ...data,
+        turmaId: data.visibilidade === 'TURMA' ? (data.turmaId || undefined) : undefined,
+        periodoInicio: data.periodoInicio || undefined,
+        periodoFim: data.periodoFim || undefined
+      });
     }
   };
 

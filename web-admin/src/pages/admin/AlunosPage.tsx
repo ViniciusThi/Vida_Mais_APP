@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
-import { Plus, X, Edit, Trash2, Users, Mail, Phone } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Users, Phone } from 'lucide-react';
 
 export default function AlunosPage() {
   const [showModal, setShowModal] = useState(false);

@@ -13,8 +13,7 @@ import {
   Target, 
   Activity,
   RefreshCw,
-  CheckCircle,
-  XCircle
+  CheckCircle
 } from 'lucide-react';
 
 export default function MLDashboardPage() {
@@ -28,7 +27,7 @@ export default function MLDashboardPage() {
     refetchInterval: 30000 // Verificar a cada 30s
   });
 
-  const { data: overview, isLoading: loadingOverview } = useQuery({
+  const { data: overview } = useQuery({
     queryKey: ['ml-overview'],
     queryFn: mlService.getOverview
   });
@@ -47,13 +46,13 @@ export default function MLDashboardPage() {
     enabled: !!user
   });
 
-  const { data: turmaAnalytics, isLoading: loadingTurma } = useQuery({
+  const { data: turmaAnalytics } = useQuery({
     queryKey: ['turma-analytics', selectedTurma],
     queryFn: () => mlService.getTurmaAnalytics(selectedTurma),
     enabled: !!selectedTurma
   });
 
-  const { data: evasaoData, isLoading: loadingEvasao } = useQuery({
+  const { data: evasaoData } = useQuery({
     queryKey: ['evasao-prediction', selectedTurma],
     queryFn: () => mlService.predictEvasao(selectedTurma),
     enabled: !!selectedTurma

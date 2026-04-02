@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { alunoService } from '../services/alunoService';
-import { Users, GraduationCap, ClipboardList, FileQuestion, Plus, BarChart3, Brain } from 'lucide-react';
+import { Users, GraduationCap, ClipboardList, FileQuestion, Plus, Brain } from 'lucide-react';
 
 export default function DashboardPage() {
   const navigate = useNavigate();

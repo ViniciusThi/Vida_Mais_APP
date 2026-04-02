@@ -4,6 +4,7 @@ type FontSize = 'small' | 'normal' | 'large' | 'xlarge';
 
 interface FontSizeContextType {
   fontSize: FontSize;
+  scale: number;
   setFontSize: (size: FontSize) => void;
 }
 
@@ -14,6 +15,15 @@ export function FontSizeProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('app-font-size');
     return (saved as FontSize) || 'normal';
   });
+
+  const scale =
+    fontSize === 'small'
+      ? 0.9
+      : fontSize === 'large'
+        ? 1.15
+        : fontSize === 'xlarge'
+          ? 1.3
+          : 1;
 
   useEffect(() => {
     // Aplica o tamanho de fonte no elemento root
@@ -26,7 +36,7 @@ export function FontSizeProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <FontSizeContext.Provider value={{ fontSize, setFontSize }}>
+    <FontSizeContext.Provider value={{ fontSize, scale, setFontSize }}>
       {children}
     </FontSizeContext.Provider>
   );
