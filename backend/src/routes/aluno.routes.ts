@@ -177,7 +177,7 @@ router.get('/questionarios/:id', async (req: AuthRequest, res, next) => {
 
 const enviarRespostasSchema = z.object({
   questionarioId: z.string().uuid(),
-  turmaId: z.string().uuid(),
+  turmaId: z.string().uuid().optional(),
   respostas: z.array(
     z.object({
       perguntaId: z.string().uuid(),
@@ -219,16 +219,36 @@ router.post('/respostas', async (req: AuthRequest, res, next) => {
       return res.status(403).json({ error: 'Questionário já encerrado' });
     }
 
-    // Verificar se o aluno pertence à turma
-    const vinculo = await prisma.alunoTurma.findFirst({
-      where: {
-        alunoId: req.user!.id,
-        turmaId: data.turmaId
-      }
-    });
+    // Resolver o turmaId efetivo para salvar as respostas
+    let turmaIdEfetivo: string;
 
-    if (!vinculo) {
-      return res.status(403).json({ error: 'Você não pertence a esta turma' });
+    if (data.turmaId) {
+      // Verificar se o aluno pertence à turma enviada no payload
+      const vinculo = await prisma.alunoTurma.findFirst({
+        where: { alunoId: req.user!.id, turmaId: data.turmaId }
+      });
+      if (!vinculo) {
+        return res.status(403).json({ error: 'Você não pertence a esta turma' });
+      }
+      turmaIdEfetivo = data.turmaId;
+    } else if (questionario.visibilidade === 'TURMA' && questionario.turmaId) {
+      // Questionário de turma: verifica pelo turmaId do questionário
+      const vinculo = await prisma.alunoTurma.findFirst({
+        where: { alunoId: req.user!.id, turmaId: questionario.turmaId }
+      });
+      if (!vinculo) {
+        return res.status(403).json({ error: 'Você não pertence a esta turma' });
+      }
+      turmaIdEfetivo = questionario.turmaId;
+    } else {
+      // Questionário global sem turmaId: usa a primeira turma do aluno
+      const primeiroVinculo = await prisma.alunoTurma.findFirst({
+        where: { alunoId: req.user!.id }
+      });
+      if (!primeiroVinculo) {
+        return res.status(403).json({ error: 'Você precisa estar vinculado a uma turma' });
+      }
+      turmaIdEfetivo = primeiroVinculo.turmaId;
     }
 
     // Verificar se já respondeu
@@ -263,7 +283,7 @@ router.post('/respostas', async (req: AuthRequest, res, next) => {
             questionarioId: data.questionarioId,
             perguntaId: resposta.perguntaId,
             alunoId: req.user!.id,
-            turmaId: data.turmaId,
+            turmaId: turmaIdEfetivo,
             valorTexto: resposta.valorTexto,
             valorNum: resposta.valorNum,
             valorBool: resposta.valorBool,

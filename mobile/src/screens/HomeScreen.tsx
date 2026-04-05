@@ -174,7 +174,7 @@ function AlunoMenu({ navigation, fontScale }: any) {
             <TouchableOpacity
               key={item.id}
               style={styles.questionCard}
-              onPress={() => navigation.navigate('Questionario', { id: item.id, turmaId: turmas?.[0]?.id })}
+              onPress={() => navigation.navigate('Questionario', { id: item.id, turmaId: item.turma?.id || turmas?.[0]?.id })}
               activeOpacity={0.7}
             >
               <Text style={[styles.questionTitle, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
