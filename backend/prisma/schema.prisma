@@ -148,7 +148,7 @@ model Resposta {
   questionarioId String    @map("questionario_id")
   perguntaId     String    @map("pergunta_id")
   alunoId        String    @map("aluno_id")
-  turmaId        String    @map("turma_id")
+  turmaId        String?   @map("turma_id")
   valorTexto     String?   @map("valor_texto")
   valorNum       Int?      @map("valor_num")
   valorBool      Boolean?  @map("valor_bool")
@@ -159,7 +159,7 @@ model Resposta {
   questionario Questionario @relation(fields: [questionarioId], references: [id], onDelete: Cascade)
   pergunta     Pergunta     @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
   aluno        User         @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  turma        Turma        @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  turma        Turma?       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
 
   @@index([questionarioId])
   @@index([perguntaId])

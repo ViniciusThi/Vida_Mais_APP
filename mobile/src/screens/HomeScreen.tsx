@@ -136,10 +136,12 @@ function ProfessorMenu({ navigation, fontScale }: any) {
 }
 
 function AlunoMenu({ navigation, fontScale }: any) {
-  const { data: turmas } = useQuery({
+  const { data: turmas, isLoading: turmasLoading } = useQuery({
     queryKey: ['minhas-turmas'],
     queryFn: alunoService.getMinhasTurmas
   });
+
+  const semTurma = !turmasLoading && turmas !== undefined && turmas.length === 0;
 
   const { data: questionarios, isLoading } = useQuery({
     queryKey: ['questionarios-ativos'],
@@ -155,6 +157,18 @@ function AlunoMenu({ navigation, fontScale }: any) {
         <View style={styles.infoCard}>
           <Text style={[styles.infoText, { fontSize: Math.min(width * 0.045, 20) * fontScale }]}>
             🎓 {turmas.map((t: any) => t.nome).join(', ')}
+          </Text>
+        </View>
+      )}
+
+      {semTurma && (
+        <View style={styles.semTurmaCard}>
+          <Text style={styles.semTurmaIcon}>⚠️</Text>
+          <Text style={[styles.semTurmaText, { fontSize: Math.min(width * 0.05, 22) * fontScale }]}>
+            Você não está vinculado a nenhuma turma
+          </Text>
+          <Text style={[styles.semTurmaSubtext, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
+            Fale com seu professor ou administrador para ser incluído em uma turma.
           </Text>
         </View>
       )}
@@ -200,7 +214,7 @@ function AlunoMenu({ navigation, fontScale }: any) {
         </>
       )}
 
-      {pendentes.length === 0 && !isLoading && (
+      {pendentes.length === 0 && !isLoading && !semTurma && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>✓</Text>
           <Text style={[styles.emptyText, { fontSize: Math.min(width * 0.05, 22) * fontScale }]}>
@@ -425,5 +439,31 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     textAlign: 'center',
     marginTop: 40
+  },
+  semTurmaCard: {
+    backgroundColor: '#FFF7ED',
+    borderRadius: 16,
+    padding: width * 0.05,
+    marginBottom: 24,
+    borderWidth: 3,
+    borderColor: '#FF7E00',
+    alignItems: 'center'
+  },
+  semTurmaIcon: {
+    fontSize: 48,
+    marginBottom: 12
+  },
+  semTurmaText: {
+    fontSize: Math.min(width * 0.05, 22),
+    fontWeight: 'bold',
+    color: '#92400E',
+    textAlign: 'center',
+    marginBottom: 8
+  },
+  semTurmaSubtext: {
+    fontSize: Math.min(width * 0.04, 18),
+    color: '#B45309',
+    textAlign: 'center',
+    lineHeight: 24
   }
 });

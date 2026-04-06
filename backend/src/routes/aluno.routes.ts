@@ -220,7 +220,7 @@ router.post('/respostas', async (req: AuthRequest, res, next) => {
     }
 
     // Resolver o turmaId efetivo para salvar as respostas
-    let turmaIdEfetivo: string;
+    let turmaIdEfetivo: string | null;
 
     if (data.turmaId) {
       // Verificar se o aluno pertence à turma enviada no payload
@@ -241,14 +241,11 @@ router.post('/respostas', async (req: AuthRequest, res, next) => {
       }
       turmaIdEfetivo = questionario.turmaId;
     } else {
-      // Questionário global sem turmaId: usa a primeira turma do aluno
+      // Questionário global sem turmaId: usa a primeira turma do aluno, ou null se não tiver
       const primeiroVinculo = await prisma.alunoTurma.findFirst({
         where: { alunoId: req.user!.id }
       });
-      if (!primeiroVinculo) {
-        return res.status(403).json({ error: 'Você precisa estar vinculado a uma turma' });
-      }
-      turmaIdEfetivo = primeiroVinculo.turmaId;
+      turmaIdEfetivo = primeiroVinculo ? primeiroVinculo.turmaId : null;
     }
 
     // Verificar se já respondeu

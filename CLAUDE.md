@@ -25,6 +25,7 @@ npm run db:seed          # Seed database with initial data
 npm run db:studio        # Open Prisma Studio GUI
 npm run lint             # ESLint
 npm run test             # Jest
+npm run test -- path/to/file.test.ts  # Run a single test file
 npm run questionario:criar    # Create standard questionnaire
 npm run questionario:recriar  # Recreate standard questionnaire
 ```
@@ -35,6 +36,8 @@ npm run dev              # Vite dev server on port 5173
 npm run build            # TypeScript check + Vite build to /dist
 npm run lint             # ESLint
 npm run preview          # Preview production build
+npm run test             # Vitest (jsdom environment)
+npm run test -- --run src/path/to/file.test.ts  # Run a single test file
 ```
 
 ### Mobile (`cd mobile`)
@@ -42,6 +45,15 @@ npm run preview          # Preview production build
 npm start                # Expo dev server
 npm run android          # Build/run for Android
 npm run ios              # Build/run for iOS
+npm run test             # Jest (jest-expo preset)
+npm run test -- path/to/file.test.ts  # Run a single test file
+```
+
+### ML Service (`cd ml-service`)
+```bash
+pip install -r requirements-dev.txt  # Install dev dependencies
+pytest                               # Run all tests
+pytest tests/test_specific.py        # Run a single test file
 ```
 
 ### Docker (root)
