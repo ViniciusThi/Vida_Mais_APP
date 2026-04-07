@@ -22,10 +22,15 @@
   "prisma": {
     "seed": "node dist/prisma/seed.js"
   },
-  "keywords": ["api", "vida-mais", "express"],
+  "keywords": [
+    "api",
+    "vida-mais",
+    "express"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-rekognition": "^3.1025.0",
     "@prisma/client": "^5.20.0",
     "axios": "^1.6.5",
     "bcrypt": "^5.1.1",
@@ -58,4 +63,3 @@
     "typescript": "^5.3.3"
   }
 }
-

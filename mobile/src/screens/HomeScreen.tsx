@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { useFontSize } from '../contexts/FontSizeContext';
-import { alunoService } from '../services/api';
+import { alunoService, authService } from '../services/api';
 import FontSizeControl from '../components/FontSizeControl';
 import { useState } from 'react';
 
@@ -141,6 +141,11 @@ function AlunoMenu({ navigation, fontScale }: any) {
     queryFn: alunoService.getMinhasTurmas
   });
 
+  const { data: faceStatus } = useQuery({
+    queryKey: ['face-status'],
+    queryFn: authService.statusRosto,
+  });
+
   const semTurma = !turmasLoading && turmas !== undefined && turmas.length === 0;
 
   const { data: questionarios, isLoading } = useQuery({
@@ -222,6 +227,24 @@ function AlunoMenu({ navigation, fontScale }: any) {
           </Text>
         </View>
       )}
+
+      {/* Menu de gestão facial */}
+      <TouchableOpacity
+        style={[styles.menuCard, { borderLeftColor: '#075D94', borderLeftWidth: 6, marginTop: 16 }]}
+        onPress={() => navigation.navigate('CadastrarRosto')}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.menuIcon}>🪪</Text>
+        <View style={styles.menuTextContainer}>
+          <Text style={[styles.menuTitle, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
+            {faceStatus?.faceRegistrada ? 'Gerenciar Rosto' : 'Cadastrar Rosto'}
+          </Text>
+          <Text style={[styles.menuSubtitle, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
+            {faceStatus?.faceRegistrada ? 'Remover login facial' : 'Ativar login pelo rosto'}
+          </Text>
+        </View>
+        <Text style={[styles.menuArrow, { color: '#075D94' }]}>›</Text>
+      </TouchableOpacity>
 
       {respondidos.length > 0 && (
         <>

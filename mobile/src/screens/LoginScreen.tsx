@@ -111,6 +111,16 @@ export default function LoginScreen() {
           >
             <Text style={styles.linkText}>Não tem cadastro? Criar conta</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.faceButton}
+            onPress={() => navigation.navigate('FaceLogin' as never)}
+            activeOpacity={0.7}
+            accessibilityLabel="Entrar com reconhecimento facial"
+            accessibilityHint="Toque para fazer login usando seu rosto"
+          >
+            <Text style={styles.faceButtonText}>🪪  ENTRAR COM ROSTO</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -246,6 +256,25 @@ const styles = StyleSheet.create({
     color: '#075D94',
     fontWeight: '600',
     textDecorationLine: 'underline'
-  }
+  },
+  faceButton: {
+    backgroundColor: '#075D94',
+    borderRadius: 12,
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 70,
+    marginTop: 12,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+  },
+  faceButtonText: {
+    color: '#FFFFFF',
+    fontSize: Math.min(width * 0.055, 24),
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+    textAlign: 'center',
+  },
 });
 

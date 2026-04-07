@@ -7,6 +7,7 @@ import { adminRouter } from './routes/admin.routes';
 import { profRouter } from './routes/prof.routes';
 import { alunoRouter } from './routes/aluno.routes';
 import { mlRouter } from './routes/ml.routes';
+import { faceRouter } from './routes/face.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -57,6 +58,7 @@ app.use('/admin', adminRouter);
 app.use('/prof', profRouter);
 app.use('/aluno', alunoRouter);
 app.use('/ml', mlRouter);
+app.use('/face', faceRouter);
 
 // 404 handler
 app.use((req, res) => {

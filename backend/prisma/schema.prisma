@@ -41,9 +41,11 @@ model User {
   role         Role     @default(ALUNO)
   idade        Int?
   deficiencia  String?  // Descrição da deficiência (auditiva, visual, etc)
-  ativo        Boolean  @default(true)
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+  ativo          Boolean  @default(true)
+  faceId         String?  @unique @map("face_id")
+  faceRegistrada Boolean  @default(false) @map("face_registrada")
+  criadoEm       DateTime @default(now()) @map("criado_em")
+  atualizadoEm   DateTime @updatedAt @map("atualizado_em")
 
   // Relações
   turmasProfessor Turma[]         @relation("ProfessorTurmas")

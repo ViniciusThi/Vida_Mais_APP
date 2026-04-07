@@ -27,7 +27,23 @@ export const authService = {
   }) {
     const { data } = await api.post('/auth/cadastro', dados);
     return data;
-  }
+  },
+  async loginComRosto(imagemBase64: string) {
+    const { data } = await api.post('/face/login', { imagemBase64 });
+    return data as { token: string; user: { id: string; nome: string; email: string; telefone: string | null; role: string }; similaridade: number };
+  },
+  async cadastrarRosto(imagemBase64: string) {
+    const { data } = await api.post('/face/registrar', { imagemBase64 });
+    return data as { message: string; faceRegistrada: boolean };
+  },
+  async removerRosto() {
+    const { data } = await api.delete('/face/registrar');
+    return data as { message: string };
+  },
+  async statusRosto() {
+    const { data } = await api.get('/face/status');
+    return data as { faceRegistrada: boolean };
+  },
 };
 
 // Serviços do Admin

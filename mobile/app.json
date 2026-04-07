@@ -24,7 +24,8 @@
         "CFBundleDevelopmentRegion": "pt_BR",
         "CFBundleLocalizations": [
           "pt_BR"
-        ]
+        ],
+        "NSCameraUsageDescription": "O aplicativo usa a câmera para login pelo reconhecimento facial."
       }
     },
     "android": {
@@ -33,7 +34,7 @@
       },
       "package": "com.vidamais.app",
       "backgroundColor": "#FFFFFF",
-      "permissions": [],
+      "permissions": ["android.permission.CAMERA"],
       "intentFilters": []
     },
     "web": {},
@@ -44,7 +45,8 @@
       }
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-camera"
     ]
   }
 }

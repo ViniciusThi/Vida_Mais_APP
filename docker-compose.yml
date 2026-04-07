@@ -43,6 +43,10 @@ services:
       JWT_EXPIRES_IN: 7d
       ALLOWED_ORIGINS: "*"
       ML_SERVICE_URL: http://ml-service:5000
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: sa-east-1
+      AWS_REKOGNITION_COLLECTION_ID: vida-mais-faces
     depends_on:
       db:
         condition: service_healthy

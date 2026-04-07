@@ -10,6 +10,8 @@ import { Text, TextInput } from 'react-native';
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
 import CadastroScreen from './src/screens/CadastroScreen';
+import FaceLoginScreen from './src/screens/FaceLoginScreen';
+import CadastrarRostoScreen from './src/screens/CadastrarRostoScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import QuestionarioScreen from './src/screens/QuestionarioScreen';
 import RevisarRespostasScreen from './src/screens/RevisarRespostasScreen';
@@ -77,14 +79,19 @@ export default function App() {
                   component={LoginScreen} 
                   options={{ headerShown: false }}
                 />
-                <Stack.Screen 
-                  name="Cadastro" 
-                  component={CadastroScreen} 
-                  options={{ 
+                <Stack.Screen
+                  name="Cadastro"
+                  component={CadastroScreen}
+                  options={{
                     title: 'Cadastro de Associado',
                     headerShown: true,
                     headerBackTitle: 'Voltar'
                   }}
+                />
+                <Stack.Screen
+                  name="FaceLogin"
+                  component={FaceLoginScreen}
+                  options={{ headerShown: false }}
                 />
               </>
             ) : (
@@ -165,10 +172,15 @@ export default function App() {
                   component={MinhasTurmasScreen} 
                   options={{ title: 'Minhas Turmas' }}
                 />
-                <Stack.Screen 
-                  name="MLInsights" 
-                  component={MLInsightsScreen} 
+                <Stack.Screen
+                  name="MLInsights"
+                  component={MLInsightsScreen}
                   options={{ title: 'Insights Preditivos 🤖' }}
+                />
+                <Stack.Screen
+                  name="CadastrarRosto"
+                  component={CadastrarRostoScreen}
+                  options={{ title: 'Cadastro Facial' }}
                 />
               </>
             )}
