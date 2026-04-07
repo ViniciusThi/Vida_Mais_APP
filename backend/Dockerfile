@@ -33,5 +33,5 @@ EXPOSE 3000
 
 # Garante que o Prisma Client esteja gerado e o schema exista no banco.
 # Usa db push para criar/atualizar tabelas de forma simples (sem depender de migrações).
-CMD sh -c "npx prisma generate && npx prisma db push && node dist/server.js"
+CMD sh -c "npx prisma generate && npx prisma db push --accept-data-loss && node dist/server.js"
 
