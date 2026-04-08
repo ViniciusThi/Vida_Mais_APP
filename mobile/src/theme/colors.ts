@@ -40,10 +40,10 @@ export const colors = {
 
   // Estados e Feedback
   feedback: {
-    sucesso: '#7ABA43',        // Verde Forms Tech
+    sucesso: '#7ABA43',        // Verde Vida Mais
     erro: '#DC2626',           // Vermelho vibrante
     aviso: '#F59E0B',          // Amarelo/laranja
-    info: '#075D94',           // Azul Forms Tech
+    info: '#075D94',           // Azul Vida Mais
   },
 
   // Sombras (para dar profundidade)

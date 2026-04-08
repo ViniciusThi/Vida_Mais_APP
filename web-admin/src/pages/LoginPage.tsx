@@ -39,7 +39,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-6">
             <img 
               src={logoFormsTech} 
-              alt="Logo Forms Tech" 
+              alt="Logo Vida Mais" 
               className="h-32 w-auto object-contain"
               style={{ aspectRatio: '645/800' }}
               onError={(e) => {
@@ -53,7 +53,7 @@ export default function LoginPage() {
               <span className="text-4xl font-bold text-white">V+</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Forms Tech</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Vida Mais</h1>
           <p className="text-gray-600 mt-2">Sistema de Pesquisas</p>
         </div>
 
@@ -105,7 +105,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4">
+          <Link
+            to="/face-login"
+            className="flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-primary-500 text-primary-600 hover:bg-primary-50 rounded-xl font-semibold transition-colors"
+          >
+            🪪 Entrar com Reconhecimento Facial
+          </Link>
+        </div>
+
+        <div className="mt-4 text-center">
           <p className="text-gray-600">
             Novo associado?{' '}
             <Link to="/cadastro" className="text-primary-600 hover:text-primary-700 font-medium">

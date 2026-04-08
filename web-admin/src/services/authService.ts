@@ -31,6 +31,26 @@ export const authService = {
   }) {
     const { data } = await api.post('/auth/cadastro', dados);
     return data;
+  },
+
+  async faceLogin(imagemBase64: string): Promise<LoginResponse> {
+    const { data } = await api.post('/face/login', { imagemBase64 });
+    return data;
+  },
+
+  async cadastrarRosto(imagemBase64: string): Promise<{ message: string; faceRegistrada: boolean }> {
+    const { data } = await api.post('/face/registrar', { imagemBase64 });
+    return data;
+  },
+
+  async removerRosto(): Promise<{ message: string }> {
+    const { data } = await api.delete('/face/registrar');
+    return data;
+  },
+
+  async statusRosto(): Promise<{ faceRegistrada: boolean }> {
+    const { data } = await api.get('/face/status');
+    return data;
   }
 };
 

@@ -273,12 +273,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB'
   },
   header: {
-    backgroundColor: '#075D94', // Azul Forms Tech
+    backgroundColor: '#075D94', // Azul Vida Mais
     paddingHorizontal: width * 0.05,
     paddingTop: Platform.OS === 'ios' ? 50 : 16,
     paddingBottom: 16,
     borderBottomWidth: 3,
-    borderBottomColor: '#FF7E00' // Laranja Forms Tech
+    borderBottomColor: '#FF7E00' // Laranja Vida Mais
   },
   greeting: {
     fontSize: Math.min(width * 0.06, 24),

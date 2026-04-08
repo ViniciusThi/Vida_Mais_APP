@@ -1,4 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <string name="name" tools:ignore="ExtraTranslation">"Forms Tech - App de Pesquisa de Satisfação"</string>
-  <string name="description" tools:ignore="ExtraTranslation">"Aplicativo para pesquisas de satisfação do Forms Tech"</string>
+  <string name="name" tools:ignore="ExtraTranslation">"Vida Mais - App de Pesquisa de Satisfação"</string>
+  <string name="description" tools:ignore="ExtraTranslation">"Aplicativo para pesquisas de satisfação do Vida Mais"</string>
 </resources>

@@ -67,7 +67,7 @@ export default function App() {
           <StatusBar style="light" />
           <Stack.Navigator
             screenOptions={{
-              headerStyle: { backgroundColor: '#075D94' }, // Azul Forms Tech
+              headerStyle: { backgroundColor: '#075D94' }, // Azul Vida Mais
               headerTintColor: '#fff',
               headerTitleStyle: { fontWeight: 'bold', fontSize: 22 }
             }}
@@ -99,7 +99,7 @@ export default function App() {
                 <Stack.Screen 
                   name="Home" 
                   component={HomeScreen} 
-                  options={{ title: 'Forms Tech' }}
+                  options={{ title: 'Vida Mais' }}
                 />
                 
                 {/* Telas de Aluno */}

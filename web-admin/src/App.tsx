@@ -3,6 +3,8 @@ import { useAuthStore } from './stores/authStore';
 import { FontSizeProvider } from './contexts/FontSizeContext';
 import LoginPage from './pages/LoginPage';
 import CadastroPage from './pages/CadastroPage';
+import FaceLoginPage from './pages/FaceLoginPage';
+import PerfilPage from './pages/PerfilPage';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import ProfessoresPage from './pages/admin/ProfessoresPage';
@@ -27,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<CadastroPage />} />
+          <Route path="/face-login" element={<FaceLoginPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </FontSizeProvider>
@@ -69,6 +72,7 @@ function App() {
             </>
           )}
           
+          <Route path="/perfil" element={<PerfilPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </DashboardLayout>

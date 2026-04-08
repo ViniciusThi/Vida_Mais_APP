@@ -1,5 +1,5 @@
 /**
- * Questionário Padrão de Satisfação - Forms Tech
+ * Questionário Padrão de Satisfação - Vida Mais
  * 38 questões aplicadas anualmente aos associados
  */
 
@@ -14,13 +14,13 @@ export interface PerguntaPadrao {
 export const QUESTIONARIO_PADRAO_2025: PerguntaPadrao[] = [
   {
     ordem: 1,
-    enunciado: 'Há quanto tempo você frequenta o Forms Tech?',
+    enunciado: 'Há quanto tempo você frequenta o Vida Mais?',
     tipo: 'TEXTO',
     obrigatoria: true
   },
   {
     ordem: 2,
-    enunciado: 'Se você está no Forms Tech há mais de um ano, responda: O que mudou na sua vida?',
+    enunciado: 'Se você está no Vida Mais há mais de um ano, responda: O que mudou na sua vida?',
     tipo: 'TEXTO',
     obrigatoria: false
   },
@@ -33,13 +33,13 @@ export const QUESTIONARIO_PADRAO_2025: PerguntaPadrao[] = [
   },
   {
     ordem: 4,
-    enunciado: 'O que mudou em sua vida depois que começou a frequentar o Forms Tech?',
+    enunciado: 'O que mudou em sua vida depois que começou a frequentar o Vida Mais?',
     tipo: 'TEXTO',
     obrigatoria: true
   },
   {
     ordem: 5,
-    enunciado: 'Como tem sido sua experiência no Forms Tech?',
+    enunciado: 'Como tem sido sua experiência no Vida Mais?',
     tipo: 'TEXTO',
     obrigatoria: true
   },
@@ -129,14 +129,14 @@ export const QUESTIONARIO_PADRAO_2025: PerguntaPadrao[] = [
   },
   {
     ordem: 18,
-    enunciado: 'Você pretende sair do Forms Tech nos próximos anos?',
+    enunciado: 'Você pretende sair do Vida Mais nos próximos anos?',
     tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true
   },
   {
     ordem: 19,
-    enunciado: 'Você indicaria o Forms Tech para alguém próximo?',
+    enunciado: 'Você indicaria o Vida Mais para alguém próximo?',
     tipo: 'MULTIPLA',
     opcoes: ['Sim', 'Não', 'Não sei dizer'],
     obrigatoria: true

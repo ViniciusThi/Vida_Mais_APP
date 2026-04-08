@@ -2,15 +2,16 @@ import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import FontSizeControl from '../components/FontSizeControl';
-import { 
-  LayoutDashboard, 
-  Users, 
-  GraduationCap, 
-  UsersRound, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  UsersRound,
+  FileText,
   LogOut,
   Menu,
-  X
+  X,
+  UserCircle
 } from 'lucide-react';
 
 interface Props {
@@ -53,7 +54,7 @@ export default function DashboardLayout({ children }: Props) {
                 {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
               <h1 className="ml-2 sm:ml-4 lg:ml-0 text-lg sm:text-xl font-bold text-primary-600 truncate">
-                Forms Tech
+                Vida Mais
               </h1>
             </div>
             
@@ -67,6 +68,13 @@ export default function DashboardLayout({ children }: Props) {
                   {user?.role === 'ADMIN' ? 'Administrador' : 'Professor'}
                 </p>
               </div>
+              <Link
+                to="/perfil"
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg flex-shrink-0"
+                title="Meu Perfil"
+              >
+                <UserCircle size={20} />
+              </Link>
               <button
                 onClick={logout}
                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg flex-shrink-0"
