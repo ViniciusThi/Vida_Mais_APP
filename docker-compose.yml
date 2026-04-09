@@ -41,7 +41,7 @@ services:
       DATABASE_URL: mysql://vidamais:vidamais2025@db:3306/vida_mais
       JWT_SECRET: change-me-in-production
       JWT_EXPIRES_IN: 7d
-      ALLOWED_ORIGINS: "*"
+      ALLOWED_ORIGINS: "https://vidamais-app.com,https://www.vidamais-app.com"
       ML_SERVICE_URL: http://ml-service:5000
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
@@ -64,6 +64,9 @@ services:
         condition: service_started
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: unless-stopped
 
 volumes:

@@ -5,7 +5,11 @@
       "Bash(find:*)",
       "Bash(xargs cat:*)",
       "Bash(node -e ':*)",
-      "Bash(npx expo:*)"
+      "Bash(npx expo:*)",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "mcp__plugin_context-mode_context-mode__ctx_stats",
+      "mcp__plugin_context-mode_context-mode__ctx_execute"
     ]
   }
 }
