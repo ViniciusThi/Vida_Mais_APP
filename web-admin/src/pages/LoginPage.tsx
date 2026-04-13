@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
-import logoFormsTech from '../../assets/Logo_VidaMais.jpg';
+import logoFormsTech from '../../assets/Logo_Vidamais.png';
 
 interface LoginForm {
   emailOuTelefone: string;
@@ -59,28 +59,28 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-lg font-semibold text-gray-800 mb-2">
               Email ou Telefone
             </label>
             <input
-              {...register('emailOuTelefone', { 
+              {...register('emailOuTelefone', {
                 required: 'Email ou telefone é obrigatório'
               })}
               type="text"
-              className="input"
+              className="input text-lg py-4"
               placeholder="seu@email.com ou (11) 99999-9999"
             />
             {errors.emailOuTelefone && (
-              <p className="mt-1 text-sm text-red-600">{errors.emailOuTelefone.message}</p>
+              <p className="mt-1 text-base font-medium text-red-600">{errors.emailOuTelefone.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-lg font-semibold text-gray-800 mb-2">
               Senha
             </label>
             <input
-              {...register('senha', { 
+              {...register('senha', {
                 required: 'Senha é obrigatória',
                 minLength: {
                   value: 6,
@@ -88,36 +88,36 @@ export default function LoginPage() {
                 }
               })}
               type="password"
-              className="input"
+              className="input text-lg py-4"
               placeholder="••••••"
             />
             {errors.senha && (
-              <p className="mt-1 text-sm text-red-600">{errors.senha.message}</p>
+              <p className="mt-1 text-base font-medium text-red-600">{errors.senha.message}</p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full"
+            className="btn-primary w-full text-xl py-4"
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Entrando...' : '✓ Entrar'}
           </button>
         </form>
 
         <div className="mt-4">
           <Link
             to="/face-login"
-            className="flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-primary-500 text-primary-600 hover:bg-primary-50 rounded-xl font-semibold transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-4 px-4 border-2 border-primary-500 text-primary-600 hover:bg-primary-50 rounded-xl text-lg font-semibold transition-colors"
           >
             🪪 Entrar com Reconhecimento Facial
           </Link>
         </div>
 
         <div className="mt-4 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-lg">
             Novo associado?{' '}
-            <Link to="/cadastro" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link to="/cadastro" className="text-primary-600 hover:text-primary-700 font-semibold">
               Cadastre-se aqui
             </Link>
           </p>

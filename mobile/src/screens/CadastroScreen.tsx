@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -11,12 +12,14 @@ import {
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { authService } from '../services/api';
+import { authService, setAuthToken } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 const { width, height } = Dimensions.get('window');
 
 export default function CadastroScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const { setAuth, setNeedsFaceSetup } = useAuthStore();
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
   const [email, setEmail] = useState('');
@@ -68,16 +71,11 @@ export default function CadastroScreen() {
         senha
       });
 
-      Alert.alert(
-        'Cadastro realizado!',
-        'Seu cadastro foi realizado com sucesso. Você já pode fazer login.',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack()
-          }
-        ]
-      );
+      // Auto-login após cadastro e redirecionar para cadastro facial
+      const loginResponse = await authService.login(email, senha);
+      setAuthToken(loginResponse.token);
+      setNeedsFaceSetup(true);
+      await setAuth(loginResponse.token, loginResponse.user);
     } catch (error: any) {
       Alert.alert(
         'Erro no cadastro',
@@ -97,8 +95,11 @@ export default function CadastroScreen() {
     >
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>V+</Text>
-          <Text style={styles.logoSubText}>Vida Mais</Text>
+          <Image
+            source={require('../assets/Logo_Vidamais.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
         <Text style={styles.subtitle}>Cadastro de Associado</Text>
       </View>
@@ -251,18 +252,6 @@ const styles = StyleSheet.create({
   logo: {
     width: '100%',
     height: '100%'
-  },
-  logoText: {
-    fontSize: 56,
-    fontWeight: '900',
-    color: '#075D94'
-  },
-  logoSubText: {
-    marginTop: 6,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#075D94',
-    letterSpacing: 0.5
   },
   subtitle: {
     fontSize: Math.min(width * 0.06, 26),

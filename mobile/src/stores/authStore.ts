@@ -11,14 +11,17 @@ interface User {
 interface AuthState {
   token: string | null;
   user: User | null;
+  needsFaceSetup: boolean;
   loadToken: () => Promise<void>;
   setAuth: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
+  setNeedsFaceSetup: (val: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   user: null,
+  needsFaceSetup: false,
   
   loadToken: async () => {
     try {
@@ -45,10 +48,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await SecureStore.deleteItemAsync('token');
       await SecureStore.deleteItemAsync('user');
-      set({ token: null, user: null });
+      set({ token: null, user: null, needsFaceSetup: false });
     } catch (error) {
       console.error('Error logging out:', error);
     }
-  }
+  },
+
+  setNeedsFaceSetup: (val: boolean) => set({ needsFaceSetup: val }),
 }));
 

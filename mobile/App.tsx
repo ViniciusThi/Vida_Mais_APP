@@ -6,6 +6,7 @@ import { useAuthStore } from './src/stores/authStore';
 import { FontSizeProvider } from './src/contexts/FontSizeContext';
 import { useEffect, useState } from 'react';
 import { Text, TextInput } from 'react-native';
+import { authService } from './src/services/api';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -49,12 +50,25 @@ TextInput.defaultProps = {
 };
 
 export default function App() {
-  const { token, loadToken } = useAuthStore();
+  const { token, user, loadToken, needsFaceSetup, setNeedsFaceSetup } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadToken().finally(() => setLoading(false));
   }, []);
+
+  // Ao entrar com token existente (app reaberto), verificar se rosto já foi cadastrado
+  useEffect(() => {
+    if (token && user?.role === 'ALUNO' && !needsFaceSetup) {
+      authService.statusRosto()
+        .then((status) => {
+          if (!status.faceRegistrada) {
+            setNeedsFaceSetup(true);
+          }
+        })
+        .catch(() => {/* silencioso — não bloquear o acesso por falha de rede */});
+    }
+  }, [token]);
 
   if (loading) {
     return null; // Splash screen
@@ -74,9 +88,9 @@ export default function App() {
           >
             {!token ? (
               <>
-                <Stack.Screen 
-                  name="Login" 
-                  component={LoginScreen} 
+                <Stack.Screen
+                  name="Login"
+                  component={LoginScreen}
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen
@@ -92,6 +106,18 @@ export default function App() {
                   name="FaceLogin"
                   component={FaceLoginScreen}
                   options={{ headerShown: false }}
+                />
+              </>
+            ) : needsFaceSetup ? (
+              <>
+                <Stack.Screen
+                  name="CadastrarRosto"
+                  component={CadastrarRostoScreen}
+                  options={{
+                    title: 'Cadastrar Reconhecimento Facial',
+                    headerShown: true,
+                    headerLeft: () => null, // impede voltar para login
+                  }}
                 />
               </>
             ) : (

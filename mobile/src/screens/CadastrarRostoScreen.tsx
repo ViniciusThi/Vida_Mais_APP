@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/api';
 import { captureAndResize } from '../utils/captureAndResize';
+import { useAuthStore } from '../stores/authStore';
 
 const { width } = Dimensions.get('window');
 
@@ -22,11 +23,20 @@ type Etapa = 'camera' | 'sucesso' | 'erro';
 export default function CadastrarRostoScreen() {
   const navigation = useNavigation<any>();
   const queryClient = useQueryClient();
+  const { needsFaceSetup, setNeedsFaceSetup } = useAuthStore();
   const [permission, requestPermission] = useCameraPermissions();
   const [loading, setLoading] = useState(false);
   const [etapa, setEtapa] = useState<Etapa>('camera');
   const [erro, setErro] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
+
+  const handlePular = () => {
+    if (needsFaceSetup) {
+      setNeedsFaceSetup(false);
+    } else {
+      navigation.navigate('Home');
+    }
+  };
 
   const handleCapture = async () => {
     if (loading) return;
@@ -93,8 +103,8 @@ export default function CadastrarRostoScreen() {
         >
           <Text style={styles.tentarNovamenteBotaoTexto}>TENTAR NOVAMENTE</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.voltarLink} onPress={() => navigation.goBack()}>
-          <Text style={styles.voltarLinkTexto}>Voltar</Text>
+        <TouchableOpacity style={styles.voltarLink} onPress={handlePular}>
+          <Text style={styles.voltarLinkTexto}>Pular por agora</Text>
         </TouchableOpacity>
       </View>
     );
@@ -120,8 +130,8 @@ export default function CadastrarRostoScreen() {
         <TouchableOpacity style={styles.permissaoBotao} onPress={requestPermission}>
           <Text style={styles.permissaoBotaoTexto}>PERMITIR CÂMERA</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.voltarLink} onPress={() => navigation.goBack()}>
-          <Text style={styles.voltarLinkTexto}>Voltar</Text>
+        <TouchableOpacity style={styles.voltarLink} onPress={handlePular}>
+          <Text style={styles.voltarLinkTexto}>Pular por agora</Text>
         </TouchableOpacity>
       </View>
     );
@@ -171,6 +181,9 @@ export default function CadastrarRostoScreen() {
           </TouchableOpacity>
         )}
         <Text style={styles.rodapeTexto}>Olhe diretamente para a câmera</Text>
+        <TouchableOpacity style={styles.pularLink} onPress={handlePular}>
+          <Text style={styles.pularLinkTexto}>Pular por agora</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -384,6 +397,18 @@ const styles = StyleSheet.create({
     color: '#075D94',
     fontSize: Math.min(width * 0.048, 20),
     fontWeight: '600',
+  },
+  pularLink: {
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    marginTop: 8,
+  },
+  pularLinkTexto: {
+    color: '#E5E7EB',
+    fontSize: Math.min(width * 0.042, 17),
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+    textAlign: 'center',
   },
   // Permissão
   permissaoTitulo: {

@@ -57,7 +57,7 @@ export default function LoginScreen() {
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Image
-            source={require('../assets/Logo_VidaMais.jpg')}
+            source={require('../assets/Logo_Vidamais.png')}
             style={styles.logo}
             resizeMode="contain"
           />

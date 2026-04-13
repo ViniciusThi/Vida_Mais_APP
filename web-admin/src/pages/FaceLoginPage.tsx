@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
-import logoVidaMais from '../../assets/Logo_VidaMais.jpg';
+import logoVidaMais from '../../assets/Logo_Vidamais.png';
 
 export default function FaceLoginPage() {
   const navigate = useNavigate();
@@ -67,8 +67,8 @@ export default function FaceLoginPage() {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-6">
           <img src={logoVidaMais} alt="Logo Vida Mais" className="h-24 w-auto object-contain mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900">Login pelo Rosto</h1>
-          <p className="text-gray-600 mt-1">Posicione seu rosto no centro e clique em capturar</p>
+          <h1 className="text-3xl font-bold text-gray-900">Login pelo Rosto</h1>
+          <p className="text-gray-600 mt-2 text-lg">Posicione seu rosto no centro e clique em capturar</p>
         </div>
 
         <div className="relative rounded-xl overflow-hidden bg-black mb-4" style={{ aspectRatio: '4/3' }}>
@@ -104,13 +104,13 @@ export default function FaceLoginPage() {
         <button
           onClick={captureAndLogin}
           disabled={loading || !cameraReady}
-          className="btn-primary w-full mb-4"
+          className="btn-primary w-full text-xl py-4 mb-4"
         >
           {loading ? 'Reconhecendo...' : '📷 Capturar e Entrar'}
         </button>
 
         <div className="text-center">
-          <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium text-sm">
+          <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold text-lg">
             ← Voltar para o login
           </Link>
         </div>
