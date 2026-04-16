@@ -77,8 +77,8 @@ describe('POST /admin/professores', () => {
 
 describe('PUT /admin/professores/:id', () => {
   it('deve atualizar professor existente', async () => {
-    // Rota usa findUnique para verificar se é PROF
-    prismaMock.user.findUnique.mockResolvedValue({ id: 'prof-1', role: 'PROF' });
+    // Rota usa findFirst (com filtro de role) para verificar se é PROF
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'prof-1', role: 'PROF' });
     prismaMock.user.update.mockResolvedValue({
       id: 'prof-1',
       nome: 'Prof Atualizado',
@@ -96,7 +96,7 @@ describe('PUT /admin/professores/:id', () => {
   });
 
   it('deve retornar 404 para professor inexistente', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.user.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/admin/professores/naoexiste')
@@ -109,7 +109,7 @@ describe('PUT /admin/professores/:id', () => {
 
 describe('DELETE /admin/professores/:id', () => {
   it('deve deletar professor existente', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ id: 'prof-1', role: 'PROF' });
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'prof-1', role: 'PROF' });
     prismaMock.user.delete.mockResolvedValue({ id: 'prof-1' });
 
     const res = await request(app)
@@ -120,7 +120,7 @@ describe('DELETE /admin/professores/:id', () => {
   });
 
   it('deve retornar 404 para professor inexistente', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.user.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .delete('/admin/professores/naoexiste')

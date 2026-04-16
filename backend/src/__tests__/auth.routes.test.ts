@@ -1,14 +1,20 @@
 import request from 'supertest';
 import bcrypt from 'bcrypt';
 
-// ── Mock do Prisma: mantém exports reais (Role, Prisma, enums) e só substitui PrismaClient ──
-jest.mock('@prisma/client', () => {
-  const actual = jest.requireActual('@prisma/client');
-  return {
-    ...actual,
-    PrismaClient: jest.fn(() => require('./helpers/prisma.mock').prismaMock),
-  };
-});
+// ── Mock do Prisma: inline (sem jest.requireActual) para evitar que o módulo real
+//    do Prisma corrompa o registry do zod e quebre o instanceof ZodError no errorHandler ──
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn(() => require('./helpers/prisma.mock').prismaMock),
+  Role: { ADMIN: 'ADMIN', PROF: 'PROF', ALUNO: 'ALUNO' },
+  Visibilidade: { GLOBAL: 'GLOBAL', TURMA: 'TURMA' },
+  TipoPergunta: { TEXTO: 'TEXTO', MULTIPLA: 'MULTIPLA', UNICA: 'UNICA', ESCALA: 'ESCALA', BOOLEAN: 'BOOLEAN' },
+  Prisma: {
+    PrismaClientKnownRequestError: class extends Error {
+      code: string; meta: any;
+      constructor(msg: string, opts: any) { super(msg); this.code = opts.code; this.meta = opts.meta; }
+    },
+  },
+}));
 
 import app from '../server';
 import { prismaMock } from './helpers/prisma.mock';

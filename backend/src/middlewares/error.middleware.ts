@@ -8,7 +8,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error('❌ Erro:', error);
+  console.error('❌ Erro:', error instanceof Error ? `${error.constructor.name}: ${error.message}` : String(error));
 
   // Zod validation errors
   if (error instanceof ZodError) {

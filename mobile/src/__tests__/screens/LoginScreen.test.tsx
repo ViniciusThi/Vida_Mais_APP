@@ -40,16 +40,16 @@ describe('LoginScreen', () => {
   });
 
   it('deve renderizar botão de login', () => {
-    const { getByText } = render(<LoginScreen />);
-    // O botão de login deve estar visível
-    expect(getByText(/Entrar/i)).toBeTruthy();
+    const { getByLabelText } = render(<LoginScreen />);
+    // Usa accessibilityLabel para evitar ambiguidade com "ENTRAR COM ROSTO"
+    expect(getByLabelText('Botão de login')).toBeTruthy();
   });
 
   it('deve mostrar alerta quando campos estão vazios', () => {
-    const { getByText } = render(<LoginScreen />);
+    const { getByLabelText } = render(<LoginScreen />);
     const alertSpy = jest.spyOn(require('react-native').Alert, 'alert');
 
-    fireEvent.press(getByText(/Entrar/i));
+    fireEvent.press(getByLabelText('Botão de login'));
 
     expect(alertSpy).toHaveBeenCalledWith(
       'Atenção',
@@ -64,11 +64,11 @@ describe('LoginScreen', () => {
       user: { id: 'u-1', nome: 'Maria', email: 'maria@test.com', role: 'ALUNO' },
     });
 
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+    const { getByPlaceholderText, getByLabelText } = render(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText('Digite seu email ou telefone'), 'maria@test.com');
     fireEvent.changeText(getByPlaceholderText('Digite sua senha'), 'senha123');
-    fireEvent.press(getByText(/Entrar/i));
+    fireEvent.press(getByLabelText('Botão de login'));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('maria@test.com', 'senha123');
@@ -81,11 +81,11 @@ describe('LoginScreen', () => {
       user: { id: 'u-1', nome: 'Maria', email: 'maria@test.com', role: 'ALUNO' },
     });
 
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+    const { getByPlaceholderText, getByLabelText } = render(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText('Digite seu email ou telefone'), 'maria@test.com');
     fireEvent.changeText(getByPlaceholderText('Digite sua senha'), 'senha123');
-    fireEvent.press(getByText(/Entrar/i));
+    fireEvent.press(getByLabelText('Botão de login'));
 
     await waitFor(() => {
       expect(mockSetAuthToken).toHaveBeenCalledWith('jwt-token');
@@ -99,11 +99,11 @@ describe('LoginScreen', () => {
 
     const alertSpy = jest.spyOn(require('react-native').Alert, 'alert');
 
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+    const { getByPlaceholderText, getByLabelText } = render(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText('Digite seu email ou telefone'), 'errado@test.com');
     fireEvent.changeText(getByPlaceholderText('Digite sua senha'), 'senhaerrada');
-    fireEvent.press(getByText(/Entrar/i));
+    fireEvent.press(getByLabelText('Botão de login'));
 
     await waitFor(() => {
       expect(alertSpy).toHaveBeenCalledWith(
@@ -119,11 +119,11 @@ describe('LoginScreen', () => {
 
     const alertSpy = jest.spyOn(require('react-native').Alert, 'alert');
 
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+    const { getByPlaceholderText, getByLabelText } = render(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText('Digite seu email ou telefone'), 'a@b.com');
     fireEvent.changeText(getByPlaceholderText('Digite sua senha'), 'senha123');
-    fireEvent.press(getByText(/Entrar/i));
+    fireEvent.press(getByLabelText('Botão de login'));
 
     await waitFor(() => {
       expect(alertSpy).toHaveBeenCalledWith(
