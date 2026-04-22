@@ -28,7 +28,7 @@ export default function MinhasTurmasScreen() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loading}>Carregando turmas...</Text>
+        <Text style={styles.loading}>Carregando grupos...</Text>
       </View>
     );
   }
@@ -42,15 +42,15 @@ export default function MinhasTurmasScreen() {
     >
       <View style={styles.content}>
         <View style={styles.headerCard}>
-          <Text style={styles.headerTitle}>📚 Minhas Turmas</Text>
+          <Text style={styles.headerTitle}>📚 Meus Grupos</Text>
           <Text style={styles.headerSubtitle}>
-            Visualização das turmas e alunos
+            Visualização dos grupos e participantes
           </Text>
         </View>
 
         {turmas?.length === 0 && (
           <Text style={styles.emptyText}>
-            Você ainda não tem turmas cadastradas.
+            Você ainda não tem grupos cadastrados.
           </Text>
         )}
 
@@ -68,16 +68,16 @@ export default function MinhasTurmasScreen() {
                 <Text style={styles.statNumber}>
                   {turma.alunos?.length || 0}
                 </Text>
-                <Text style={styles.statLabel}>Alunos</Text>
+                <Text style={styles.statLabel}>Participantes</Text>
               </View>
             </View>
 
             <View style={styles.divider} />
 
-            <Text style={styles.alunosTitle}>👥 Alunos da Turma:</Text>
+            <Text style={styles.alunosTitle}>👥 Participantes do Grupo:</Text>
 
             {turma.alunos?.length === 0 ? (
-              <Text style={styles.noAlunos}>Nenhum aluno nesta turma</Text>
+              <Text style={styles.noAlunos}>Nenhum participante neste grupo</Text>
             ) : (
               turma.alunos?.map((alunoTurma: any) => (
                 <View key={alunoTurma.id} style={styles.alunoCard}>
@@ -92,7 +92,7 @@ export default function MinhasTurmasScreen() {
         <View style={styles.infoCard}>
           <Text style={styles.infoText}>
             ℹ️ <Text style={styles.infoBold}>Atenção:</Text> Esta é uma visualização apenas.
-            Para adicionar ou remover alunos, entre em contato com o administrador.
+            Para adicionar ou remover participantes, entre em contato com o administrador.
           </Text>
         </View>
       </View>

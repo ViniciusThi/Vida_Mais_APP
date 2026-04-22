@@ -91,14 +91,14 @@ export default function MLInsightsScreen() {
             <View style={styles.statsGrid}>
               <View style={[styles.statCard, { backgroundColor: '#EFF6FF' }]}>
                 <Text style={styles.statValue}>{overview.totalAlunos}</Text>
-                <Text style={styles.statLabel}>Total de Alunos</Text>
+                <Text style={styles.statLabel}>Total de Participantes</Text>
               </View>
               
               <View style={[styles.statCard, { backgroundColor: '#F0FDF4' }]}>
                 <Text style={[styles.statValue, { color: '#16A34A' }]}>
                   {overview.alunosAtivos}
                 </Text>
-                <Text style={styles.statLabel}>Alunos Ativos</Text>
+                <Text style={styles.statLabel}>Participantes Ativos</Text>
               </View>
               
               <View style={[styles.statCard, { backgroundColor: '#FEF3C7' }]}>
@@ -112,7 +112,7 @@ export default function MLInsightsScreen() {
                 <Text style={[styles.statValue, { color: '#9333EA' }]}>
                   {overview.mediaNotasGeral}
                 </Text>
-                <Text style={styles.statLabel}>Média Notas</Text>
+                <Text style={styles.statLabel}>Índice Bem-Estar</Text>
               </View>
             </View>
           </View>
@@ -120,8 +120,8 @@ export default function MLInsightsScreen() {
 
         {/* Seletor de Turma */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🎯 Análise por Turma</Text>
-          <Text style={styles.instruction}>Selecione uma turma para ver predições:</Text>
+          <Text style={styles.sectionTitle}>🎯 Análise por Grupo</Text>
+          <Text style={styles.instruction}>Selecione um grupo para ver análises:</Text>
           
           <View style={styles.turmasGrid}>
             {turmas?.map((turma: any) => (
@@ -147,7 +147,7 @@ export default function MLInsightsScreen() {
         {/* Predição de Evasão */}
         {selectedTurmaId && evasaoData && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>⚠️ Risco de Evasão</Text>
+            <Text style={styles.sectionTitle}>⚠️ Risco de Abandono das Atividades</Text>
             
             {/* Resumo */}
             <View style={styles.riskSummary}>
@@ -180,7 +180,7 @@ export default function MLInsightsScreen() {
             </View>
 
             {/* Lista de Alunos em Risco */}
-            <Text style={styles.subSectionTitle}>🎯 Alunos que Precisam de Atenção:</Text>
+            <Text style={styles.subSectionTitle}>🎯 Participantes que Precisam de Atenção:</Text>
             
             {evasaoData.predictions
               ?.filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio')
@@ -206,9 +206,15 @@ export default function MLInsightsScreen() {
                   </View>
                   
                   <Text style={styles.riscoPercentual}>
-                    Risco: {pred.riscoEvasao}%
+                    Risco de abandono: {pred.riscoEvasao}%
                   </Text>
-                  
+
+                  {pred.nivelRisco === 'alto' && (
+                    <Text style={[styles.fator, { color: '#DC2626', fontWeight: '600', marginBottom: 4 }]}>
+                      📞 Entre em contato com este participante
+                    </Text>
+                  )}
+
                   <View style={styles.fatores}>
                     {pred.fatores?.map((fator: string, idx: number) => (
                       <Text key={idx} style={styles.fator}>• {fator}</Text>
@@ -220,8 +226,8 @@ export default function MLInsightsScreen() {
             {evasaoData.metodo === 'heuristica' && (
               <View style={styles.infoBox}>
                 <Text style={styles.infoText}>
-                  💡 Usando análise heurística. Para predições mais precisas com ML, 
-                  acumule dados de pelo menos 30 alunos e treine os modelos no painel web.
+                  💡 Usando análise heurística. Para análises mais precisas com ML,
+                  acumule dados de pelo menos 30 participantes e treine os modelos no painel web.
                 </Text>
               </View>
             )}
@@ -232,10 +238,10 @@ export default function MLInsightsScreen() {
         {!selectedTurmaId && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyEmoji}>🎯</Text>
-            <Text style={styles.emptyTitle}>Selecione uma Turma</Text>
+            <Text style={styles.emptyTitle}>Selecione um Grupo</Text>
             <Text style={styles.emptyText}>
-              Escolha uma turma acima para ver análises preditivas e identificar 
-              alunos que precisam de atenção especial.
+              Escolha um grupo acima para ver análises preditivas e identificar
+              participantes que precisam de atenção especial.
             </Text>
           </View>
         )}

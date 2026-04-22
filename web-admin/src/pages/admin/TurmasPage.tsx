@@ -26,38 +26,38 @@ export default function TurmasPage() {
   const createMutation = useMutation({
     mutationFn: adminService.createTurma,
     onSuccess: () => {
-      toast.success('Turma criada com sucesso!');
+      toast.success('Grupo criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       setShowModal(false);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao criar turma');
+      toast.error(error.response?.data?.error || 'Erro ao criar grupo');
     }
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...data }: any) => adminService.updateTurma(id, data),
     onSuccess: () => {
-      toast.success('Turma atualizada com sucesso!');
+      toast.success('Grupo atualizado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       setShowModal(false);
       setEditando(null);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao atualizar turma');
+      toast.error(error.response?.data?.error || 'Erro ao atualizar grupo');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteTurma,
     onSuccess: () => {
-      toast.success('Turma excluída com sucesso!');
+      toast.success('Grupo excluído com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao excluir turma');
+      toast.error(error.response?.data?.error || 'Erro ao excluir grupo');
     }
   });
 
@@ -76,7 +76,7 @@ export default function TurmasPage() {
   };
 
   const handleExcluir = (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir esta turma?')) {
+    if (window.confirm('Tem certeza que deseja excluir este grupo?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -94,10 +94,10 @@ export default function TurmasPage() {
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Turmas</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Grupos</h1>
         <button onClick={() => setShowModal(true)} className="btn-primary">
           <Plus size={20} className="inline mr-2" />
-          Nova Turma
+          Novo Grupo
         </button>
       </div>
 
@@ -117,7 +117,7 @@ export default function TurmasPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Users size={16} className="text-blue-600" />
-                  <span className="font-semibold text-gray-900">{turma._count.alunos} alunos</span>
+                  <span className="font-semibold text-gray-900">{turma._count.alunos} participantes</span>
                 </div>
               </div>
 
@@ -155,7 +155,7 @@ export default function TurmasPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg sm:text-xl font-bold">{editando ? 'Editar Turma' : 'Nova Turma'}</h2>
+              <h2 className="text-lg sm:text-xl font-bold">{editando ? 'Editar Grupo' : 'Novo Grupo'}</h2>
               <button onClick={handleFecharModal} className="flex-shrink-0">
                 <X size={24} />
               </button>
@@ -175,7 +175,7 @@ export default function TurmasPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">Professor</label>
+                <label className="block text-sm font-medium mb-1">Coordenador</label>
                 <select {...register('professorId', { required: true })} className="input">
                   <option value="">Selecione...</option>
                   {professores?.map((prof: any) => (
@@ -186,7 +186,7 @@ export default function TurmasPage() {
               </div>
               
               <button type="submit" className="btn-primary w-full">
-                {editando ? 'Atualizar Turma' : 'Criar Turma'}
+                {editando ? 'Atualizar Grupo' : 'Criar Grupo'}
               </button>
             </form>
           </div>

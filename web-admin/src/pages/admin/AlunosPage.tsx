@@ -19,38 +19,38 @@ export default function AlunosPage() {
   const createMutation = useMutation({
     mutationFn: adminService.createAluno,
     onSuccess: () => {
-      toast.success('Aluno criado com sucesso!');
+      toast.success('Participante criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
       setShowModal(false);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao criar aluno');
+      toast.error(error.response?.data?.error || 'Erro ao criar participante');
     }
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...data }: any) => adminService.updateAluno(id, data),
     onSuccess: () => {
-      toast.success('Aluno atualizado com sucesso!');
+      toast.success('Participante atualizado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
       setShowModal(false);
       setEditando(null);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao atualizar aluno');
+      toast.error(error.response?.data?.error || 'Erro ao atualizar participante');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteAluno,
     onSuccess: () => {
-      toast.success('Aluno excluído com sucesso!');
+      toast.success('Participante excluído com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao excluir aluno');
+      toast.error(error.response?.data?.error || 'Erro ao excluir participante');
     }
   });
 
@@ -68,7 +68,7 @@ export default function AlunosPage() {
   };
 
   const handleExcluir = (id: string, nome: string) => {
-    if (window.confirm(`Tem certeza que deseja excluir ${nome}?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o participante ${nome}?`)) {
       deleteMutation.mutate(id);
     }
   };
@@ -86,10 +86,10 @@ export default function AlunosPage() {
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Alunos</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Participantes</h1>
         <button onClick={() => setShowModal(true)} className="btn-primary">
           <Plus size={20} className="inline mr-2" />
-          Novo Aluno
+          Novo Participante
         </button>
       </div>
 
@@ -129,7 +129,7 @@ export default function AlunosPage() {
                   <span className="text-gray-600">
                     {aluno.alunoTurmas?.length > 0
                       ? aluno.alunoTurmas.map((at: any) => at.turma.nome).join(', ')
-                      : 'Sem turma'}
+                      : 'Sem grupo'}
                   </span>
                 </div>
 
@@ -166,7 +166,7 @@ export default function AlunosPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl animate-slideInRight">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">{editando ? '✏️ Editar Aluno' : '➕ Novo Aluno'}</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{editando ? '✏️ Editar Participante' : '➕ Novo Participante'}</h2>
               <button onClick={handleFecharModal} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <X size={24} />
               </button>
@@ -216,7 +216,7 @@ export default function AlunosPage() {
                   Cancelar
                 </button>
                 <button type="submit" className="flex-1 btn-primary">
-                  {editando ? 'Atualizar' : 'Criar Aluno'}
+                  {editando ? 'Atualizar' : 'Cadastrar Participante'}
                 </button>
               </div>
             </form>

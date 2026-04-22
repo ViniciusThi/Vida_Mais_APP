@@ -22,7 +22,7 @@ export default function ProfessoresScreen() {
   const createMutation = useMutation({
     mutationFn: adminService.createProfessor,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Professor criado com sucesso!');
+      Alert.alert('Sucesso', 'Coordenador criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
       setShowForm(false);
       setNome('');
@@ -30,18 +30,18 @@ export default function ProfessoresScreen() {
       setSenha('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar professor');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar coordenador');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteProfessor,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Professor removido com sucesso!');
+      Alert.alert('Sucesso', 'Coordenador removido com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover professor');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover coordenador');
     }
   });
 
@@ -77,13 +77,13 @@ export default function ProfessoresScreen() {
           onPress={() => setShowForm(!showForm)}
         >
           <Text style={styles.addButtonText}>
-            {showForm ? '✕ Cancelar' : '➕ Novo Professor'}
+            {showForm ? '✕ Cancelar' : '➕ Novo Coordenador'}
           </Text>
         </TouchableOpacity>
 
         {showForm && (
           <View style={styles.form}>
-            <Text style={styles.formTitle}>Novo Professor</Text>
+            <Text style={styles.formTitle}>Novo Coordenador</Text>
             
             <Text style={styles.label}>Nome</Text>
             <TextInput
@@ -116,13 +116,13 @@ export default function ProfessoresScreen() {
               style={styles.submitButton}
               onPress={handleSubmit}
             >
-              <Text style={styles.submitButtonText}>Criar Professor</Text>
+              <Text style={styles.submitButtonText}>Cadastrar Coordenador</Text>
             </TouchableOpacity>
           </View>
         )}
 
         <Text style={styles.sectionTitle}>
-          Professores Cadastrados ({professores?.length || 0})
+          Coordenadores Cadastrados ({professores?.length || 0})
         </Text>
 
         {professores?.map((prof: any) => (
@@ -132,7 +132,7 @@ export default function ProfessoresScreen() {
                 <Text style={styles.cardTitle}>{prof.nome}</Text>
                 <Text style={styles.cardEmail}>{prof.email}</Text>
                 <Text style={styles.cardMeta}>
-                  {prof._count?.turmasProfessor || 0} turmas
+                  {prof._count?.turmasProfessor || 0} grupos
                 </Text>
               </View>
               <View style={prof.ativo ? styles.badgeActive : styles.badgeInactive}>
@@ -164,7 +164,7 @@ export default function ProfessoresScreen() {
 
         {professores?.length === 0 && !isLoading && (
           <Text style={styles.emptyText}>
-            Nenhum professor cadastrado ainda.
+            Nenhum coordenador cadastrado ainda.
           </Text>
         )}
       </View>

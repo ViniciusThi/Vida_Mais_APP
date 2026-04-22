@@ -74,11 +74,11 @@ export default function MLDashboardPage() {
     mutationFn: mlService.trainModels,
     onSuccess: (data: any) => {
       if (data.success) {
-        toast.success(`✅ Modelos treinados com sucesso! (${data.totalAlunos} alunos)`);
+        toast.success(`✅ Modelos treinados com sucesso! (${data.totalAlunos} participantes)`);
       } else {
         toast.warning(`⚠️ ${data.message || 'Não foi possível treinar os modelos'}`, {
           description: data.totalAlunos !== undefined 
-            ? `Alunos atuais: ${data.totalAlunos} | Mínimo: ${data.minimoNecessario || 5}`
+            ? `Participantes atuais: ${data.totalAlunos} | Mínimo: ${data.minimoNecessario || 5}`
             : undefined
         });
       }
@@ -121,7 +121,7 @@ export default function MLDashboardPage() {
             Análise Preditiva & Insights
           </h1>
           <p className="text-gray-600 mt-1">
-            Machine Learning aplicado para melhorar o engajamento dos alunos
+            Machine Learning aplicado para acompanhar o bem-estar e engajamento dos participantes
           </p>
         </div>
         <div className="flex gap-3">
@@ -154,7 +154,7 @@ export default function MLDashboardPage() {
             </p>
           </div>
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Modelo de Desempenho</p>
+            <p className="text-sm text-gray-600">Modelo de Bem-Estar</p>
             <p className="text-lg font-bold text-gray-900 capitalize">
               {modelsStatus?.desempenhoModel || 'Carregando...'}
             </p>
@@ -187,7 +187,7 @@ export default function MLDashboardPage() {
                 <Users className="text-blue-600" size={24} />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total de Alunos</p>
+                <p className="text-sm text-gray-600">Total de Participantes</p>
                 <p className="text-2xl font-bold text-gray-900">{overview.totalAlunos}</p>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function MLDashboardPage() {
                 <TrendingUp className="text-purple-600" size={24} />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Média de Notas</p>
+                <p className="text-sm text-gray-600">Índice de Bem-Estar</p>
                 <p className="text-2xl font-bold text-gray-900">{overview.mediaNotasGeral}</p>
               </div>
             </div>
@@ -234,14 +234,14 @@ export default function MLDashboardPage() {
       {/* Seletor de Turma */}
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Selecione uma turma para análise detalhada:
+          Selecione um grupo para análise detalhada:
         </label>
         <select
           value={selectedTurma}
           onChange={(e) => setSelectedTurma(e.target.value)}
           className="input w-full md:w-96"
         >
-          <option value="">Selecione uma turma...</option>
+          <option value="">Selecione um grupo...</option>
           {turmas?.map((turma: any) => (
             <option key={turma.id} value={turma.id}>
               {turma.nome}
@@ -254,15 +254,15 @@ export default function MLDashboardPage() {
       {selectedTurma && turmaAnalytics && (
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Análise da Turma
+            Análise do Grupo
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-sm text-gray-600">Total de Alunos</p>
+              <p className="text-sm text-gray-600">Total de Participantes</p>
               <p className="text-3xl font-bold text-gray-900">{turmaAnalytics.totalAlunos}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Alunos Ativos</p>
+              <p className="text-sm text-gray-600">Participantes Ativos</p>
               <p className="text-3xl font-bold text-green-600">{turmaAnalytics.alunosAtivos}</p>
             </div>
             <div>
@@ -274,7 +274,7 @@ export default function MLDashboardPage() {
           {/* Distribuição de Notas */}
           {turmaAnalytics.distribuicaoNotas && (
             <div className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Distribuição de Notas</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Distribuição de Bem-Estar</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm text-green-900">Excelente (8-10)</p>
@@ -311,7 +311,7 @@ export default function MLDashboardPage() {
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <AlertTriangle className="text-red-600" size={24} />
-            Análise de Risco de Evasão
+            Análise de Risco de Abandono das Atividades
             {evasaoData.metodo === 'heuristica' && (
               <span className="text-sm text-gray-500 font-normal">
                 (usando heurística - treine os modelos para ML)
@@ -336,7 +336,7 @@ export default function MLDashboardPage() {
 
           {/* Lista de Alunos em Risco */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900">Alunos que Necessitam Atenção:</h3>
+            <h3 className="font-semibold text-gray-900">Participantes que Necessitam Atenção:</h3>
             {evasaoData.predictions
               .filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio')
               .slice(0, 10)
@@ -353,8 +353,13 @@ export default function MLDashboardPage() {
                     <div>
                       <p className="font-semibold text-gray-900">{pred.alunoNome}</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        Risco: <span className="font-bold">{pred.riscoEvasao}%</span>
+                        Risco de abandono: <span className="font-bold">{pred.riscoEvasao}%</span>
                       </p>
+                      {pred.nivelRisco === 'alto' && (
+                        <p className="text-sm text-red-700 font-semibold mt-1">
+                          📞 Entre em contato com este participante
+                        </p>
+                      )}
                       <ul className="mt-2 space-y-1">
                         {pred.fatores.map((fator: string, idx: number) => (
                           <li key={idx} className="text-sm text-gray-700">• {fator}</li>
@@ -391,7 +396,7 @@ export default function MLDashboardPage() {
                 {engagement.altoEngajamento?.total || 0}
               </p>
               <p className="text-sm text-gray-600">
-                {engagement.altoEngajamento?.percentual || 0}% dos alunos
+                {engagement.altoEngajamento?.percentual || 0}% dos participantes
               </p>
             </div>
             <div className="p-4 bg-yellow-50 rounded-lg">
@@ -400,7 +405,7 @@ export default function MLDashboardPage() {
                 {engagement.medioEngajamento?.total || 0}
               </p>
               <p className="text-sm text-gray-600">
-                {engagement.medioEngajamento?.percentual || 0}% dos alunos
+                {engagement.medioEngajamento?.percentual || 0}% dos participantes
               </p>
             </div>
             <div className="p-4 bg-red-50 rounded-lg">
@@ -409,7 +414,7 @@ export default function MLDashboardPage() {
                 {engagement.baixoEngajamento?.total || 0}
               </p>
               <p className="text-sm text-gray-600">
-                {engagement.baixoEngajamento?.percentual || 0}% dos alunos
+                {engagement.baixoEngajamento?.percentual || 0}% dos participantes
               </p>
             </div>
           </div>

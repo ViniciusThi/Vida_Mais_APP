@@ -27,9 +27,9 @@ export default function DashboardLayout({ children }: Props) {
 
   const adminLinks = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/professores', icon: GraduationCap, label: 'Professores' },
-    { path: '/admin/alunos', icon: Users, label: 'Alunos' },
-    { path: '/admin/turmas', icon: UsersRound, label: 'Turmas' },
+    { path: '/admin/professores', icon: GraduationCap, label: 'Coordenadores' },
+    { path: '/admin/alunos', icon: Users, label: 'Participantes' },
+    { path: '/admin/turmas', icon: UsersRound, label: 'Grupos' },
     { path: '/questionarios', icon: FileText, label: 'Questionários' }
   ];
 
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: Props) {
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{user?.nome}</p>
                 <p className="text-xs text-gray-500">
-                  {user?.role === 'ADMIN' ? 'Administrador' : 'Professor'}
+                  {user?.role === 'ADMIN' ? 'Administrador' : 'Coordenador'}
                 </p>
               </div>
               <Link

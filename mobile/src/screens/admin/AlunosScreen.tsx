@@ -22,7 +22,7 @@ export default function AlunosScreen() {
   const createMutation = useMutation({
     mutationFn: adminService.createAluno,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno criado com sucesso!');
+      Alert.alert('Sucesso', 'Participante criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
       setShowForm(false);
       setNome('');
@@ -30,18 +30,18 @@ export default function AlunosScreen() {
       setSenha('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar aluno');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar participante');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteAluno,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno removido com sucesso!');
+      Alert.alert('Sucesso', 'Participante removido com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover aluno');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover participante');
     }
   });
 
@@ -77,13 +77,13 @@ export default function AlunosScreen() {
           onPress={() => setShowForm(!showForm)}
         >
           <Text style={styles.addButtonText}>
-            {showForm ? '✕ Cancelar' : '➕ Novo Aluno'}
+            {showForm ? '✕ Cancelar' : '➕ Novo Participante'}
           </Text>
         </TouchableOpacity>
 
         {showForm && (
           <View style={styles.form}>
-            <Text style={styles.formTitle}>Novo Aluno</Text>
+            <Text style={styles.formTitle}>Novo Participante</Text>
             
             <Text style={styles.label}>Nome</Text>
             <TextInput
@@ -116,13 +116,13 @@ export default function AlunosScreen() {
               style={styles.submitButton}
               onPress={handleSubmit}
             >
-              <Text style={styles.submitButtonText}>Criar Aluno</Text>
+              <Text style={styles.submitButtonText}>Cadastrar Participante</Text>
             </TouchableOpacity>
           </View>
         )}
 
         <Text style={styles.sectionTitle}>
-          Alunos Cadastrados ({alunos?.length || 0})
+          Participantes Cadastrados ({alunos?.length || 0})
         </Text>
 
         {alunos?.map((aluno: any) => (
@@ -164,7 +164,7 @@ export default function AlunosScreen() {
 
         {alunos?.length === 0 && !isLoading && (
           <Text style={styles.emptyText}>
-            Nenhum aluno cadastrado ainda.
+            Nenhum participante cadastrado ainda.
           </Text>
         )}
       </View>

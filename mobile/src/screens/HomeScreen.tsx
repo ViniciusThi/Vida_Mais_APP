@@ -42,8 +42,8 @@ export default function HomeScreen() {
           Olá, {user?.nome}!
         </Text>
         <Text style={[styles.subtitle, { fontSize: Math.min(width * 0.045, 18) * fontScale }]}>
-          {user?.role === 'ADMIN' ? '👨‍💼 Administrador' : 
-           user?.role === 'PROF' ? '👨‍🏫 Professor' : '👤 Aluno'}
+          {user?.role === 'ADMIN' ? '👨‍💼 Administrador' :
+           user?.role === 'PROF' ? '👨‍🏫 Coordenador' : '👤 Participante'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Text style={[styles.logoutText, { fontSize: Math.min(width * 0.04, 16) * fontScale }]}>
@@ -69,9 +69,9 @@ export default function HomeScreen() {
 
 function AdminMenu({ navigation, fontScale }: any) {
   const menuItems = [
-    { title: 'Professores', subtitle: 'Gerenciar professores', screen: 'Professores', icon: '👨‍🏫', color: '#075D94' },
-    { title: 'Alunos', subtitle: 'Gerenciar alunos', screen: 'Alunos', icon: '👥', color: '#FF7E00' },
-    { title: 'Turmas', subtitle: 'Gerenciar turmas', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
+    { title: 'Coordenadores', subtitle: 'Gerenciar coordenadores', screen: 'Professores', icon: '👨‍🏫', color: '#075D94' },
+    { title: 'Participantes', subtitle: 'Gerenciar participantes', screen: 'Alunos', icon: '👥', color: '#FF7E00' },
+    { title: 'Grupos', subtitle: 'Gerenciar grupos', screen: 'Turmas', icon: '🎓', color: '#7ABA43' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', screen: 'CriarQuestionario', icon: '📝', color: '#9333EA' },
     { title: 'Questionários', subtitle: 'Gerenciar questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
     { title: 'Insights Preditivos', subtitle: 'Machine Learning', screen: 'MLInsights', icon: '🤖', color: '#9333EA' },
@@ -106,7 +106,7 @@ function ProfessorMenu({ navigation, fontScale }: any) {
   const menuItems = [
     { title: 'Meus Questionários', subtitle: 'Ver questionários', screen: 'MeusQuestionarios', icon: '📋', color: '#075D94' },
     { title: 'Criar Questionário', subtitle: 'Novo questionário', screen: 'CriarQuestionario', icon: '➕', color: '#FF7E00' },
-    { title: 'Minhas Turmas', subtitle: 'Ver alunos', screen: 'MinhasTurmas', icon: '📚', color: '#7ABA43' },
+    { title: 'Meus Grupos', subtitle: 'Ver participantes', screen: 'MinhasTurmas', icon: '📚', color: '#7ABA43' },
     { title: 'Insights Preditivos', subtitle: 'Machine Learning', screen: 'MLInsights', icon: '🤖', color: '#9333EA' },
   ];
 
@@ -170,10 +170,10 @@ function AlunoMenu({ navigation, fontScale }: any) {
         <View style={styles.semTurmaCard}>
           <Text style={styles.semTurmaIcon}>⚠️</Text>
           <Text style={[styles.semTurmaText, { fontSize: Math.min(width * 0.05, 22) * fontScale }]}>
-            Você não está vinculado a nenhuma turma
+            Você não está vinculado a nenhum grupo
           </Text>
           <Text style={[styles.semTurmaSubtext, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
-            Fale com seu professor ou administrador para ser incluído em uma turma.
+            Fale com seu coordenador ou administrador para ser incluído em um grupo.
           </Text>
         </View>
       )}

@@ -28,7 +28,7 @@ export default function TurmasScreen() {
   const createMutation = useMutation({
     mutationFn: adminService.createTurma,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Turma criada com sucesso!');
+      Alert.alert('Sucesso', 'Grupo criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       setShowForm(false);
       setNome('');
@@ -36,25 +36,25 @@ export default function TurmasScreen() {
       setProfessorId('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar turma');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar grupo');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteTurma,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Turma removida com sucesso!');
+      Alert.alert('Sucesso', 'Grupo removido com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover turma');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover grupo');
     }
   });
 
   const handleDelete = (id: string, nome: string) => {
     Alert.alert(
       'Confirmar Exclusão',
-      `Deseja realmente remover a turma ${nome}?`,
+      `Deseja realmente remover o grupo ${nome}?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Remover', style: 'destructive', onPress: () => deleteMutation.mutate(id) }
@@ -83,18 +83,18 @@ export default function TurmasScreen() {
           onPress={() => setShowForm(!showForm)}
         >
           <Text style={styles.addButtonText}>
-            {showForm ? '✕ Cancelar' : '➕ Nova Turma'}
+            {showForm ? '✕ Cancelar' : '➕ Novo Grupo'}
           </Text>
         </TouchableOpacity>
 
         {showForm && (
           <View style={styles.form}>
-            <Text style={styles.formTitle}>Nova Turma</Text>
-            
-            <Text style={styles.label}>Nome da Turma</Text>
+            <Text style={styles.formTitle}>Novo Grupo</Text>
+
+            <Text style={styles.label}>Nome do Grupo</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ex: Turma Manhã 2025"
+              placeholder="Ex: Yoga Manhã, Jogos Cognitivos"
               value={nome}
               onChangeText={setNome}
             />
@@ -108,14 +108,14 @@ export default function TurmasScreen() {
               keyboardType="numeric"
             />
 
-            <Text style={styles.label}>Professor</Text>
+            <Text style={styles.label}>Coordenador</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={professorId}
                 onValueChange={(value) => setProfessorId(value)}
                 style={styles.picker}
               >
-                <Picker.Item label="Selecione um professor..." value="" />
+                <Picker.Item label="Selecione um coordenador..." value="" />
                 {professores?.map((prof: any) => (
                   <Picker.Item key={prof.id} label={prof.nome} value={prof.id} />
                 ))}
@@ -126,25 +126,25 @@ export default function TurmasScreen() {
               style={styles.submitButton}
               onPress={handleSubmit}
             >
-              <Text style={styles.submitButtonText}>Criar Turma</Text>
+              <Text style={styles.submitButtonText}>Criar Grupo</Text>
             </TouchableOpacity>
           </View>
         )}
 
         <Text style={styles.sectionTitle}>
-          Turmas Cadastradas ({turmas?.length || 0})
+          Grupos Cadastrados ({turmas?.length || 0})
         </Text>
 
         {turmas?.map((turma: any) => (
           <View key={turma.id} style={styles.card}>
             <Text style={styles.cardTitle}>{turma.nome}</Text>
             <Text style={styles.cardSubtitle}>
-              Professor: {turma.professor?.nome || '-'}
+              Coordenador: {turma.professor?.nome || '-'}
             </Text>
             <View style={styles.cardFooter}>
               <Text style={styles.cardMeta}>Ano: {turma.ano}</Text>
               <Text style={styles.cardMeta}>
-                {turma._count?.alunos || 0} alunos
+                {turma._count?.alunos || 0} participantes
               </Text>
             </View>
             
@@ -170,7 +170,7 @@ export default function TurmasScreen() {
 
         {turmas?.length === 0 && !isLoading && (
           <Text style={styles.emptyText}>
-            Nenhuma turma cadastrada ainda.
+            Nenhum grupo cadastrado ainda.
           </Text>
         )}
       </View>

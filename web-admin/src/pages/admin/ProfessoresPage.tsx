@@ -19,38 +19,38 @@ export default function ProfessoresPage() {
   const createMutation = useMutation({
     mutationFn: adminService.createProfessor,
     onSuccess: () => {
-      toast.success('Professor criado com sucesso!');
+      toast.success('Coordenador criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
       setShowModal(false);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao criar professor');
+      toast.error(error.response?.data?.error || 'Erro ao criar coordenador');
     }
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...data }: any) => adminService.updateProfessor(id, data),
     onSuccess: () => {
-      toast.success('Professor atualizado com sucesso!');
+      toast.success('Coordenador atualizado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
       setShowModal(false);
       setEditando(null);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao atualizar professor');
+      toast.error(error.response?.data?.error || 'Erro ao atualizar coordenador');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteProfessor,
     onSuccess: () => {
-      toast.success('Professor excluído com sucesso!');
+      toast.success('Coordenador excluído com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao excluir professor');
+      toast.error(error.response?.data?.error || 'Erro ao excluir coordenador');
     }
   });
 
@@ -68,7 +68,7 @@ export default function ProfessoresPage() {
   };
 
   const handleExcluir = (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir este professor?')) {
+    if (window.confirm('Tem certeza que deseja excluir este coordenador?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -86,10 +86,10 @@ export default function ProfessoresPage() {
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Professores</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Coordenadores</h1>
         <button onClick={() => setShowModal(true)} className="btn-primary">
           <Plus size={20} className="inline mr-2" />
-          Novo Professor
+          Novo Coordenador
         </button>
       </div>
 
@@ -113,7 +113,7 @@ export default function ProfessoresPage() {
                 <div className="flex items-center gap-2 text-sm">
                   <Users size={14} className="text-purple-600" />
                   <span className="text-gray-600">
-                    {prof._count.turmasProfessor} {prof._count.turmasProfessor === 1 ? 'turma' : 'turmas'}
+                    {prof._count.turmasProfessor} {prof._count.turmasProfessor === 1 ? 'grupo' : 'grupos'}
                   </span>
                 </div>
 
@@ -151,7 +151,7 @@ export default function ProfessoresPage() {
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl animate-slideInRight">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                {editando ? '✏️ Editar Professor' : '👨‍🏫 Novo Professor'}
+                {editando ? '✏️ Editar Coordenador' : '👨‍🏫 Novo Coordenador'}
               </h2>
               <button onClick={handleFecharModal} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <X size={24} />
@@ -202,7 +202,7 @@ export default function ProfessoresPage() {
                   Cancelar
                 </button>
                 <button type="submit" className="flex-1 btn-primary">
-                  {editando ? 'Atualizar' : 'Criar Professor'}
+                  {editando ? 'Atualizar' : 'Cadastrar Coordenador'}
                 </button>
               </div>
             </form>

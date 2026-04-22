@@ -30,35 +30,35 @@ export default function EditarTurmaPage() {
   const vincularMutation = useMutation({
     mutationFn: (alunoId: string) => adminService.vincularAluno(alunoId, id!),
     onSuccess: () => {
-      toast.success('Aluno adicionado à turma!');
+      toast.success('Participante adicionado ao grupo!');
       queryClient.invalidateQueries({ queryKey: ['turma', id] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || 'Erro ao adicionar aluno');
+      toast.error(error.response?.data?.error || 'Erro ao adicionar participante');
     }
   });
 
   const desvincularMutation = useMutation({
     mutationFn: (vinculoId: string) => adminService.desvincularAluno(vinculoId),
     onSuccess: () => {
-      toast.success('Aluno removido da turma!');
+      toast.success('Participante removido do grupo!');
       queryClient.invalidateQueries({ queryKey: ['turma', id] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
     },
     onError: () => {
-      toast.error('Erro ao remover aluno da turma');
+      toast.error('Erro ao remover participante do grupo');
     }
   });
 
   const handleVincular = (alunoId: string, nomeAluno: string) => {
-    if (window.confirm(`Adicionar ${nomeAluno} a esta turma?`)) {
+    if (window.confirm(`Adicionar ${nomeAluno} a este grupo?`)) {
       vincularMutation.mutate(alunoId);
     }
   };
 
   const handleDesvincular = (vinculoId: string, nomeAluno: string) => {
-    if (window.confirm(`Remover ${nomeAluno} desta turma?`)) {
+    if (window.confirm(`Remover ${nomeAluno} deste grupo?`)) {
       desvincularMutation.mutate(vinculoId);
     }
   };
@@ -78,7 +78,7 @@ export default function EditarTurmaPage() {
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">Turma não encontrada</p>
+          <p className="text-red-800">Grupo não encontrado</p>
         </div>
       </div>
     );
@@ -92,8 +92,8 @@ export default function EditarTurmaPage() {
       </button>
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Gerenciar Turma</h1>
-        <p className="text-gray-600">Adicione ou remova alunos desta turma</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Gerenciar Grupo</h1>
+        <p className="text-gray-600">Adicione ou remova participantes deste grupo</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -112,11 +112,11 @@ export default function EditarTurmaPage() {
             
             <div className="bg-white/10 rounded-lg p-4 space-y-2">
               <div>
-                <p className="text-blue-100 text-sm">Professor</p>
+                <p className="text-blue-100 text-sm">Coordenador</p>
                 <p className="font-semibold">{turma.professor?.nome || '-'}</p>
               </div>
               <div>
-                <p className="text-blue-100 text-sm">Total de Alunos</p>
+                <p className="text-blue-100 text-sm">Total de Participantes</p>
                 <p className="font-semibold text-2xl">{turma.alunos?.length || 0}</p>
               </div>
             </div>
@@ -128,14 +128,14 @@ export default function EditarTurmaPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Users size={24} className="text-blue-600" />
-              Alunos na Turma ({turma.alunos?.length || 0})
+              Participantes no Grupo ({turma.alunos?.length || 0})
             </h3>
 
             {turma.alunos?.length === 0 ? (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <Users size={48} className="mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600">Nenhum aluno nesta turma ainda</p>
-                <p className="text-sm text-gray-500 mt-2">Adicione alunos abaixo</p>
+                <p className="text-gray-600">Nenhum participante neste grupo ainda</p>
+                <p className="text-sm text-gray-500 mt-2">Adicione participantes abaixo</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -156,7 +156,7 @@ export default function EditarTurmaPage() {
                     <button
                       onClick={() => handleDesvincular(alunoTurma.id, alunoTurma.aluno.nome)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Remover da turma"
+                      title="Remover do grupo"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -170,12 +170,12 @@ export default function EditarTurmaPage() {
           <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Plus size={24} className="text-green-600" />
-              Adicionar Alunos
+              Adicionar Participantes
             </h3>
 
             {alunosDisponiveis.length === 0 ? (
               <div className="text-center py-8 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-green-800 font-semibold">✅ Todos os alunos já estão nesta turma!</p>
+                <p className="text-green-800 font-semibold">✅ Todos os participantes já estão neste grupo!</p>
               </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
