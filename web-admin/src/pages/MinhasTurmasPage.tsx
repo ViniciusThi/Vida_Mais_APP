@@ -73,7 +73,7 @@ export default function MinhasTurmasPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Carregando turmas...</p>
+          <p className="text-gray-600 mt-4">Carregando grupos...</p>
         </div>
       </div>
     );
@@ -86,9 +86,9 @@ export default function MinhasTurmasPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Users className="text-blue-600" size={32} />
-            Minhas Turmas
+            Meus Grupos
           </h1>
-          <p className="text-gray-600 mt-2">Visualização das turmas e alunos vinculados</p>
+          <p className="text-gray-600 mt-2">Visualização dos grupos e participantes vinculados</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -119,10 +119,10 @@ export default function MinhasTurmasPage() {
         <div className="text-center py-16 card">
           <Users className="mx-auto text-gray-400 mb-4" size={64} />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Nenhuma turma encontrada
+            Nenhum grupo encontrado
           </h3>
           <p className="text-gray-600">
-            Você ainda não tem turmas vinculadas. Entre em contato com o administrador.
+            Você ainda não tem grupos vinculados. Entre em contato com o administrador.
           </p>
         </div>
       ) : (
@@ -133,7 +133,7 @@ export default function MinhasTurmasPage() {
               <div className="flex items-center gap-3">
                 <Users className="text-blue-600" size={24} />
                 <div>
-                  <p className="text-sm text-blue-700">Total de Turmas</p>
+                  <p className="text-sm text-blue-700">Total de Grupos</p>
                   <p className="text-2xl font-bold text-blue-900">{turmas.length}</p>
                 </div>
               </div>
@@ -142,7 +142,7 @@ export default function MinhasTurmasPage() {
               <div className="flex items-center gap-3">
                 <GraduationCap className="text-green-600" size={24} />
                 <div>
-                  <p className="text-sm text-green-700">Total de Alunos</p>
+                  <p className="text-sm text-green-700">Total de Participantes</p>
                   <p className="text-2xl font-bold text-green-900">
                     {turmas.reduce((acc, t) => acc + (t.alunos?.length || 0), 0)}
                   </p>
@@ -153,7 +153,7 @@ export default function MinhasTurmasPage() {
               <div className="flex items-center gap-3">
                 <GraduationCap className="text-orange-600" size={24} />
                 <div>
-                  <p className="text-sm text-orange-700">Média por Turma</p>
+                  <p className="text-sm text-orange-700">Média por Grupo</p>
                   <p className="text-2xl font-bold text-orange-900">
                     {turmas.length > 0 
                       ? Math.round(turmas.reduce((acc, t) => acc + (t.alunos?.length || 0), 0) / turmas.length)
@@ -188,7 +188,7 @@ export default function MinhasTurmasPage() {
                         </span>
                         <span className="text-gray-600 flex items-center gap-1">
                           <GraduationCap size={16} />
-                          {turma.alunos?.length || 0} alunos
+                          {turma.alunos?.length || 0} participantes
                         </span>
                       </div>
                     </div>
@@ -207,12 +207,12 @@ export default function MinhasTurmasPage() {
                   <div className="mt-6 pt-6 border-t border-gray-200">
                     <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
                       <GraduationCap size={18} />
-                      Alunos da Turma
+                      Participantes do Grupo
                     </h4>
                     
                     {!turma.alunos || turma.alunos.length === 0 ? (
                       <div className="text-center py-8 bg-gray-50 rounded-lg">
-                        <p className="text-gray-500">Nenhum aluno vinculado a esta turma</p>
+                        <p className="text-gray-500">Nenhum participante vinculado a este grupo</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -261,8 +261,8 @@ export default function MinhasTurmasPage() {
           <div>
             <p className="font-semibold text-blue-900">Informação</p>
             <p className="text-blue-800 mt-1">
-              Esta é uma visualização das turmas e alunos vinculados a você. 
-              Para adicionar, remover ou editar turmas e alunos, entre em contato com o administrador do sistema.
+              Esta é uma visualização dos grupos e participantes vinculados a você.
+              Para adicionar, remover ou editar grupos e participantes, entre em contato com o administrador do sistema.
             </p>
           </div>
         </div>

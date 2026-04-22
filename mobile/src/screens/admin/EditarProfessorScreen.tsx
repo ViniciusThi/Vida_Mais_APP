@@ -34,13 +34,13 @@ export default function EditarProfessorScreen() {
   const updateMutation = useMutation({
     mutationFn: (data: any) => adminService.updateProfessor(professorId, data),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Professor atualizado com sucesso!', [
+      Alert.alert('Sucesso', 'Coordenador atualizado com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
       queryClient.invalidateQueries({ queryKey: ['professores'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao atualizar professor');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao atualizar coordenador');
     }
   });
 
@@ -70,7 +70,7 @@ export default function EditarProfessorScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.form}>
-          <Text style={styles.formTitle}>✏️ Editar Professor</Text>
+          <Text style={styles.formTitle}>✏️ Editar Coordenador</Text>
 
           <Text style={styles.label}>Nome *</Text>
           <TextInput
@@ -126,7 +126,7 @@ export default function EditarProfessorScreen() {
           <Text style={styles.infoTitle}>ℹ️ Informações</Text>
           <Text style={styles.infoText}>• O email é usado para login</Text>
           <Text style={styles.infoText}>• Altere a senha apenas se necessário</Text>
-          <Text style={styles.infoText}>• Professor: {professor._count?.turmasProfessor || 0} turmas</Text>
+          <Text style={styles.infoText}>• Coordenador: {professor._count?.turmasProfessor || 0} grupos</Text>
         </View>
       </View>
     </ScrollView>

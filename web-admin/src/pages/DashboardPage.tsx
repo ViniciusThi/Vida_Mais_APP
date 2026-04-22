@@ -48,9 +48,9 @@ export default function DashboardPage() {
 
 function AdminDashboard({ navigate }: any) {
   const menuItems = [
-    { title: 'Professores', subtitle: 'Gerenciar professores', path: '/admin/professores', icon: Users, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
-    { title: 'Alunos', subtitle: 'Gerenciar alunos', path: '/admin/alunos', icon: GraduationCap, borderColor: 'border-orange-600', bgColor: 'bg-orange-100', iconColor: 'text-orange-600' },
-    { title: 'Turmas', subtitle: 'Gerenciar turmas', path: '/admin/turmas', icon: ClipboardList, borderColor: 'border-green-600', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
+    { title: 'Coordenadores', subtitle: 'Gerenciar coordenadores', path: '/admin/professores', icon: Users, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+    { title: 'Participantes', subtitle: 'Gerenciar participantes', path: '/admin/alunos', icon: GraduationCap, borderColor: 'border-orange-600', bgColor: 'bg-orange-100', iconColor: 'text-orange-600' },
+    { title: 'Grupos', subtitle: 'Gerenciar grupos', path: '/admin/turmas', icon: ClipboardList, borderColor: 'border-green-600', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
     { title: 'Questionários', subtitle: 'Gerenciar questionários', path: '/questionarios', icon: FileQuestion, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
     { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
@@ -60,7 +60,7 @@ function AdminDashboard({ navigate }: any) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Painel Administrativo</h1>
-        <p className="text-gray-600 mt-2">Gerencie o sistema Forms Tech</p>
+        <p className="text-gray-600 mt-2">Gerencie os grupos e pesquisas da Vida Mais</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -88,7 +88,7 @@ function AdminDashboard({ navigate }: any) {
 
 function ProfessorDashboard({ navigate }: any) {
   const menuItems = [
-    { title: 'Minhas Turmas', subtitle: 'Ver turmas e alunos', path: '/minhas-turmas', icon: Users, borderColor: 'border-green-600', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
+    { title: 'Meus Grupos', subtitle: 'Ver grupos e participantes', path: '/minhas-turmas', icon: Users, borderColor: 'border-green-600', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
     { title: 'Meus Questionários', subtitle: 'Ver questionários criados', path: '/questionarios', icon: FileQuestion, borderColor: 'border-blue-600', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
     { title: 'Criar Questionário', subtitle: 'Templates ou manual', path: '/questionarios/novo', icon: Plus, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
     { title: 'Insights Preditivos 🤖', subtitle: 'Machine Learning & Analytics', path: '/ml-insights', icon: Brain, borderColor: 'border-purple-600', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
@@ -97,7 +97,7 @@ function ProfessorDashboard({ navigate }: any) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Painel do Professor</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Painel do Coordenador</h1>
         <p className="text-gray-600 mt-2">Crie e gerencie questionários</p>
       </div>
 

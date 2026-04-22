@@ -34,13 +34,13 @@ export default function EditarAlunoScreen() {
   const updateMutation = useMutation({
     mutationFn: (data: any) => adminService.updateAluno(alunoId, data),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno atualizado com sucesso!', [
+      Alert.alert('Sucesso', 'Participante atualizado com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao atualizar aluno');
+      Alert.alert('Erro', error.response?.data?.error || 'Erro ao atualizar participante');
     }
   });
 
@@ -73,7 +73,7 @@ export default function EditarAlunoScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.form}>
-          <Text style={styles.formTitle}>✏️ Editar Aluno</Text>
+          <Text style={styles.formTitle}>✏️ Editar Participante</Text>
 
           <Text style={styles.label}>Nome *</Text>
           <TextInput
@@ -127,15 +127,15 @@ export default function EditarAlunoScreen() {
 
         {/* Turmas do Aluno */}
         <View style={styles.turmasCard}>
-          <Text style={styles.turmasTitle}>📚 Turmas do Aluno</Text>
-          
+          <Text style={styles.turmasTitle}>📚 Grupos do Participante</Text>
+
           <Text style={styles.infoText} style={{ marginBottom: 16 }}>
-            Para adicionar ou remover o aluno de turmas, vá em <Text style={{ fontWeight: 'bold', color: '#075D94' }}>Turmas → Editar Turma</Text>
+            Para adicionar ou remover o participante de grupos, vá em <Text style={{ fontWeight: 'bold', color: '#075D94' }}>Grupos → Editar Grupo</Text>
           </Text>
           
           {turmasDoAluno.length === 0 ? (
             <View style={styles.emptyTurmasBox}>
-              <Text style={styles.noTurmas}>❌ Aluno não está em nenhuma turma</Text>
+              <Text style={styles.noTurmas}>❌ Participante não está em nenhum grupo</Text>
             </View>
           ) : (
             turmasDoAluno.map((at: any) => (
@@ -148,7 +148,7 @@ export default function EditarAlunoScreen() {
                   <Text style={styles.turmaAno}>Ano {at.turma.ano}</Text>
                   {at.turma.professor && (
                     <Text style={styles.turmaProfessor}>
-                      Prof: {at.turma.professor.nome}
+                      Coordenador: {at.turma.professor.nome}
                     </Text>
                   )}
                 </View>
@@ -161,7 +161,7 @@ export default function EditarAlunoScreen() {
           <Text style={styles.infoTitle}>ℹ️ Informações</Text>
           <Text style={styles.infoText}>• O email é usado para login</Text>
           <Text style={styles.infoText}>• Altere a senha apenas se necessário</Text>
-          <Text style={styles.infoText}>• Para gerenciar turmas, vá em Turmas → Editar</Text>
+          <Text style={styles.infoText}>• Para gerenciar grupos, vá em Grupos → Editar</Text>
         </View>
       </View>
     </ScrollView>

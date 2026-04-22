@@ -53,7 +53,7 @@ export default function EditarTurmaScreen() {
   const addAlunoMutation = useMutation({
     mutationFn: (alunoId: string) => adminService.vincularAluno(alunoId, turmaId),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno adicionado à turma!');
+      Alert.alert('Sucesso', 'Participante adicionado ao grupo!');
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
@@ -68,13 +68,13 @@ export default function EditarTurmaScreen() {
   const removeAlunoMutation = useMutation({
     mutationFn: (alunoTurmaId: string) => adminService.desvincularAluno(alunoTurmaId),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Aluno removido da turma!');
+      Alert.alert('Sucesso', 'Participante removido do grupo!');
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', 'Erro ao remover aluno da turma');
+      Alert.alert('Erro', 'Erro ao remover participante do grupo');
     }
   });
 
@@ -82,7 +82,7 @@ export default function EditarTurmaScreen() {
   const handleRemoveAluno = (alunoTurmaId: string, nomeAluno: string) => {
     Alert.alert(
       'Confirmar Remoção',
-      `Deseja remover ${nomeAluno} desta turma?`,
+      `Deseja remover ${nomeAluno} deste grupo?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Remover', style: 'destructive', onPress: () => removeAlunoMutation.mutate(alunoTurmaId) }
@@ -103,7 +103,7 @@ export default function EditarTurmaScreen() {
       <View style={styles.content}>
         {/* Informações da Turma */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📚 Informações da Turma</Text>
+          <Text style={styles.sectionTitle}>📚 Informações do Grupo</Text>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Nome:</Text>
@@ -114,7 +114,7 @@ export default function EditarTurmaScreen() {
               <Text style={styles.infoValue}>{turma.ano}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Professor:</Text>
+              <Text style={styles.infoLabel}>Coordenador:</Text>
               <Text style={styles.infoValue}>{turma.professor?.nome || '-'}</Text>
             </View>
           </View>
@@ -122,17 +122,17 @@ export default function EditarTurmaScreen() {
 
           {/* Adicionar Aluno */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>➕ Adicionar Aluno à Turma</Text>
+          <Text style={styles.sectionTitle}>➕ Adicionar Participante ao Grupo</Text>
           <View style={styles.addCard}>
             {isLoadingAlunos ? (
-              <Text style={styles.loadingText}>Carregando alunos...</Text>
+              <Text style={styles.loadingText}>Carregando participantes...</Text>
             ) : alunosDisponiveis.length === 0 ? (
               <View style={styles.emptyBox}>
-                <Text style={styles.emptyText}>✅ Todos os alunos já estão nesta turma!</Text>
+                <Text style={styles.emptyText}>✅ Todos os participantes já estão neste grupo!</Text>
               </View>
             ) : (
               <ScrollView style={styles.alunosListContainer} nestedScrollEnabled>
-                <Text style={styles.helperText}>Toque no aluno para adicioná-lo:</Text>
+                <Text style={styles.helperText}>Toque no participante para adicioná-lo:</Text>
                 {alunosDisponiveis.map((aluno: any) => (
                   <TouchableOpacity
                     key={aluno.id}
@@ -140,7 +140,7 @@ export default function EditarTurmaScreen() {
                     onPress={() => {
                       Alert.alert(
                         'Confirmar',
-                        `Adicionar ${aluno.nome} a esta turma?`,
+                        `Adicionar ${aluno.nome} a este grupo?`,
                         [
                           { text: 'Cancelar', style: 'cancel' },
                           { 
@@ -172,11 +172,11 @@ export default function EditarTurmaScreen() {
         {/* Lista de Alunos */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            👥 Alunos na Turma ({turma.alunos?.length || 0})
+            👥 Participantes no Grupo ({turma.alunos?.length || 0})
           </Text>
           
           {turma.alunos?.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhum aluno nesta turma ainda.</Text>
+            <Text style={styles.emptyText}>Nenhum participante neste grupo ainda.</Text>
           ) : (
             turma.alunos?.map((alunoTurma: any) => (
               <View key={alunoTurma.id} style={styles.alunoCard}>
