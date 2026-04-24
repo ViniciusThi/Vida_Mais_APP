@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { questionarioService } from '../services/questionarioService';
 import { adminService } from '../services/adminService';
 import { useAuthStore } from '../stores/authStore';

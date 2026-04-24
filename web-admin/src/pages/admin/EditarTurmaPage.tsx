@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { adminService } from '../../services/adminService';
 import { ArrowLeft, Plus, Trash2, Users } from 'lucide-react';
 
@@ -46,8 +46,8 @@ export default function EditarTurmaPage() {
       queryClient.invalidateQueries({ queryKey: ['turma', id] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
     },
-    onError: () => {
-      toast.error('Erro ao remover participante do grupo');
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || 'Não foi possível remover o participante do grupo.');
     }
   });
 

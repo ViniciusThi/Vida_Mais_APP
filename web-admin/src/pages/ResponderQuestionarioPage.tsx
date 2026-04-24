@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { alunoService } from '../services/alunoService';
 import { ArrowLeft, CheckCircle2, Send } from 'lucide-react';
 

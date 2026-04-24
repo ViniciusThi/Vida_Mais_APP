@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
 import logoFormsTech from '../../assets/Logo_Vidamais.png';

@@ -143,71 +143,6 @@ router.get('/professores', async (req, res, next) => {
   }
 });
 
-// PUT /admin/professores/:id - Atualizar professor
-router.put('/professores/:id', async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-    const { nome, email, senha } = req.body;
-
-    // Verifica se o professor existe
-    const professor = await prisma.user.findUnique({
-      where: { id },
-      select: { role: true }
-    });
-
-    if (!professor || professor.role !== Role.PROF) {
-      return res.status(404).json({ error: 'Professor não encontrado' });
-    }
-
-    const updateData: any = { nome, email };
-    
-    if (senha) {
-      updateData.senhaHash = await bcrypt.hash(senha, 10);
-    }
-
-    const updated = await prisma.user.update({
-      where: { id },
-      data: updateData,
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        role: true
-      }
-    });
-
-    res.json(updated);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// DELETE /admin/professores/:id - Deletar professor
-router.delete('/professores/:id', async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-
-    // Verifica se o professor existe e é realmente um professor
-    const professor = await prisma.user.findUnique({
-      where: { id },
-      select: { role: true }
-    });
-
-    if (!professor || professor.role !== Role.PROF) {
-      return res.status(404).json({ error: 'Professor não encontrado' });
-    }
-
-    // Deleta o professor (cascade vai remover as turmas associadas)
-    await prisma.user.delete({
-      where: { id }
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    next(error);
-  }
-});
-
 // ========== ALUNOS ==========
 
 const createAlunoSchema = z.object({
@@ -245,184 +180,9 @@ router.post('/alunos', async (req: AuthRequest, res, next) => {
   }
 });
 
-// PUT /admin/alunos/:id - Atualizar aluno
-router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-    const { nome, email, senha, telefone, idade, deficiencia } = z.object({
-      nome: z.string().optional(),
-      email: z.string().email().optional(),
-      senha: z.string().min(6).optional(),
-      telefone: z.string().optional(),
-      idade: z.number().int().optional(),
-      deficiencia: z.string().optional()
-    }).parse(req.body);
-
-    // Verifica se o aluno existe
-    const alunoExistente = await prisma.user.findFirst({
-      where: { id, role: Role.ALUNO }
-    });
-
-    if (!alunoExistente) {
-      return res.status(404).json({ error: 'Aluno não encontrado' });
-    }
-
-    // Prepara os dados para atualização
-    const updateData: any = {};
-    if (nome) updateData.nome = nome;
-    if (email) updateData.email = email;
-    if (senha) updateData.senhaHash = await bcrypt.hash(senha, 10);
-    if (telefone !== undefined) updateData.telefone = telefone;
-    if (idade !== undefined) updateData.idade = idade;
-    if (deficiencia !== undefined) updateData.deficiencia = deficiencia;
-
-    // Atualiza o aluno
-    const aluno = await prisma.user.update({
-      where: { id },
-      data: updateData,
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        telefone: true,
-        idade: true,
-        deficiencia: true,
-        role: true,
-        ativo: true
-      }
-    });
-
-    res.json(aluno);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// DELETE /admin/alunos/:id - Deletar aluno
-router.delete('/alunos/:id', async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-
-    // Verifica se o aluno existe
-    const aluno = await prisma.user.findFirst({
-      where: { id, role: Role.ALUNO }
-    });
-
-    if (!aluno) {
-      return res.status(404).json({ error: 'Aluno não encontrado' });
-    }
-
-    // Deleta o aluno
-    await prisma.user.delete({
-      where: { id }
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    next(error);
-  }
-});
-
-// GET /admin/alunos - Listar alunos
-router.get('/alunos', async (req, res, next) => {
-  try {
-    const alunos = await prisma.user.findMany({
-      where: { role: Role.ALUNO },
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        ativo: true,
-        criadoEm: true,
-        alunoTurmas: {
-          select: {
-            turma: {
-              select: {
-                id: true,
-                nome: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: { nome: 'asc' }
-    });
-
-    res.json(alunos);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// PUT /admin/alunos/:id - Atualizar aluno
-router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-    const { nome, email, senha } = req.body;
-
-    // Verifica se o aluno existe
-    const aluno = await prisma.user.findUnique({
-      where: { id },
-      select: { role: true }
-    });
-
-    if (!aluno || aluno.role !== Role.ALUNO) {
-      return res.status(404).json({ error: 'Aluno não encontrado' });
-    }
-
-    const updateData: any = { nome, email };
-    
-    if (senha) {
-      updateData.senhaHash = await bcrypt.hash(senha, 10);
-    }
-
-    const updated = await prisma.user.update({
-      where: { id },
-      data: updateData,
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        role: true
-      }
-    });
-
-    res.json(updated);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// DELETE /admin/alunos/:id - Deletar aluno
-router.delete('/alunos/:id', async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-
-    // Verifica se o aluno existe e é realmente um aluno
-    const aluno = await prisma.user.findUnique({
-      where: { id },
-      select: { role: true }
-    });
-
-    if (!aluno || aluno.role !== Role.ALUNO) {
-      return res.status(404).json({ error: 'Aluno não encontrado' });
-    }
-
-    // Deleta o aluno (cascade vai remover os vínculos e respostas)
-    await prisma.user.delete({
-      where: { id }
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    next(error);
-  }
-});
-
 // POST /admin/alunos/import - Importar alunos via CSV
 router.post('/alunos/import', async (req: AuthRequest, res, next) => {
   try {
-    // Espera um CSV no body com formato: nome,email,senha
     const { csv } = req.body;
 
     if (!csv || typeof csv !== 'string') {
@@ -468,6 +228,110 @@ router.post('/alunos/import', async (req: AuthRequest, res, next) => {
           next(err);
         }
       });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /admin/alunos - Listar alunos
+router.get('/alunos', async (req, res, next) => {
+  try {
+    const alunos = await prisma.user.findMany({
+      where: { role: Role.ALUNO },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        ativo: true,
+        criadoEm: true,
+        alunoTurmas: {
+          select: {
+            turma: {
+              select: {
+                id: true,
+                nome: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { nome: 'asc' }
+    });
+
+    res.json(alunos);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /admin/alunos/:id - Atualizar aluno
+router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { nome, email, senha, telefone, idade, deficiencia } = z.object({
+      nome: z.string().optional(),
+      email: z.string().email().optional(),
+      senha: z.string().min(6).optional(),
+      telefone: z.string().optional(),
+      idade: z.number().int().optional(),
+      deficiencia: z.string().optional()
+    }).parse(req.body);
+
+    const alunoExistente = await prisma.user.findFirst({
+      where: { id, role: Role.ALUNO }
+    });
+
+    if (!alunoExistente) {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    const updateData: any = {};
+    if (nome) updateData.nome = nome;
+    if (email) updateData.email = email;
+    if (senha) updateData.senhaHash = await bcrypt.hash(senha, 10);
+    if (telefone !== undefined) updateData.telefone = telefone;
+    if (idade !== undefined) updateData.idade = idade;
+    if (deficiencia !== undefined) updateData.deficiencia = deficiencia;
+
+    const aluno = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true,
+        idade: true,
+        deficiencia: true,
+        role: true,
+        ativo: true
+      }
+    });
+
+    res.json(aluno);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /admin/alunos/:id - Deletar aluno
+router.delete('/alunos/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const aluno = await prisma.user.findFirst({
+      where: { id, role: Role.ALUNO }
+    });
+
+    if (!aluno) {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

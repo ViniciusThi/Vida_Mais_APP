@@ -19,6 +19,7 @@ import MeusQuestionariosAlunoPage from './pages/MeusQuestionariosAlunoPage';
 import EditarTurmaPage from './pages/admin/EditarTurmaPage';
 import MLDashboardPage from './pages/MLDashboardPage';
 import MinhasTurmasPage from './pages/MinhasTurmasPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   const { token, user } = useAuthStore();
@@ -73,7 +74,7 @@ function App() {
           )}
           
           <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </DashboardLayout>
     </FontSizeProvider>

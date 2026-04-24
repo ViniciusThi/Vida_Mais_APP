@@ -4,7 +4,7 @@ import { questionarioService } from '../services/questionarioService';
 import { ArrowLeft, Download } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -26,8 +26,8 @@ export default function RelatorioPage() {
       a.download = `relatorio-${id}.${formato}`;
       a.click();
       toast.success('Relatório exportado!');
-    } catch (error) {
-      toast.error('Erro ao exportar');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || 'Não foi possível exportar o relatório.');
     }
   };
 

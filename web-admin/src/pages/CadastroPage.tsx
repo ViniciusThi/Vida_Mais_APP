@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { authService } from '../services/authService';
 import logoVidaMais from '../../assets/Logo_Vidamais.png';
 

@@ -1,11 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { professorService, adminService } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
+import { ML_URL } from '../../config/api';
 import axios from 'axios';
-
-const ML_BASE_URL = 'http://54.233.110.183:3000/ml';
 
 export default function MLInsightsScreen() {
   const [selectedTurmaId, setSelectedTurmaId] = useState<string>('');
@@ -25,11 +24,11 @@ export default function MLInsightsScreen() {
   });
 
   // Buscar overview
-  const { data: overview, isLoading: loadingOverview, refetch: refetchOverview } = useQuery({
+  const { data: overview, isLoading: loadingOverview, isError: overviewError, refetch: refetchOverview } = useQuery({
     queryKey: ['ml-overview'],
     queryFn: async () => {
       const token = await import('../../stores/authStore').then(m => m.useAuthStore.getState().token);
-      const { data } = await axios.get(`${ML_BASE_URL}/analytics/overview`, {
+      const { data } = await axios.get(`${ML_URL}/analytics/overview`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return data;
@@ -38,12 +37,12 @@ export default function MLInsightsScreen() {
   });
 
   // Buscar predição de evasão
-  const { data: evasaoData, isLoading: loadingEvasao, refetch: refetchEvasao } = useQuery({
+  const { data: evasaoData, isLoading: loadingEvasao, isError: evasaoError, refetch: refetchEvasao } = useQuery({
     queryKey: ['ml-evasao', selectedTurmaId],
     queryFn: async () => {
       const token = await import('../../stores/authStore').then(m => m.useAuthStore.getState().token);
       const { data } = await axios.post(
-        `${ML_BASE_URL}/predict/evasao`,
+        `${ML_URL}/predict/evasao`,
         { turmaId: selectedTurmaId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -52,6 +51,24 @@ export default function MLInsightsScreen() {
     enabled: !!selectedTurmaId,
     retry: false
   });
+
+  useEffect(() => {
+    if (overviewError) {
+      Alert.alert(
+        'Serviço Indisponível',
+        'Não foi possível carregar os dados de análise. Verifique sua conexão com a internet.'
+      );
+    }
+  }, [overviewError]);
+
+  useEffect(() => {
+    if (evasaoError) {
+      Alert.alert(
+        'Erro na Análise',
+        'Não foi possível carregar a predição de abandono para este grupo. Tente novamente.'
+      );
+    }
+  }, [evasaoError]);
 
   const handleRefresh = useCallback(() => {
     refetchOverview();
@@ -247,7 +264,7 @@ export default function MLInsightsScreen() {
         )}
 
         {/* Erro ao carregar */}
-        {!overview && !loadingOverview && (
+        {overviewError && (
           <View style={styles.errorBox}>
             <Text style={styles.errorEmoji}>⚠️</Text>
             <Text style={styles.errorTitle}>Serviço ML Indisponível</Text>

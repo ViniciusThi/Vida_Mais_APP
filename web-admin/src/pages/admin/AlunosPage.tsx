@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { adminService } from '../../services/adminService';
 import { Plus, X, Edit, Trash2, Users, Phone } from 'lucide-react';
 
