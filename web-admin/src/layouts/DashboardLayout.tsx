@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: Props) {
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{user?.nome}</p>
                 <p className="text-xs text-gray-500">
-                  {user?.role === 'ADMIN' ? 'Administrador' : 'Coordenador'}
+                  {user?.role === 'ADMIN' ? 'Administrador' : user?.role === 'ALUNO' ? 'Participante' : 'Coordenador'}
                 </p>
               </div>
               <Link
