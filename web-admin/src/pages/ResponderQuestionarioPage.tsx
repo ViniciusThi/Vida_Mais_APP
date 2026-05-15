@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { alunoService } from '../services/alunoService';
-import { ArrowLeft, CheckCircle2, Send } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Send, Mic, MicOff } from 'lucide-react';
+
+const SpeechRecognitionAPI =
+  typeof window !== 'undefined'
+    ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    : null;
 
 export default function ResponderQuestionarioPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [respostas, setRespostas] = useState<Record<string, any>>({});
+  const [escutandoId, setEscutandoId] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const { data: questionario, isLoading } = useQuery({
     queryKey: ['questionario', id],
@@ -30,6 +37,35 @@ export default function ResponderQuestionarioPage() {
       toast.error(error.response?.data?.error || 'Erro ao enviar respostas');
     }
   });
+
+  const toggleVoz = (perguntaId: string) => {
+    if (!SpeechRecognitionAPI) return;
+
+    if (escutandoId === perguntaId) {
+      recognitionRef.current?.stop();
+      setEscutandoId(null);
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognitionRef.current = recognition;
+
+    recognition.onresult = (event: any) => {
+      const texto = event.results[0][0].transcript;
+      setRespostas(prev => ({
+        ...prev,
+        [perguntaId]: { tipo: 'TEXTO', valor: (prev[perguntaId]?.valor || '') + (prev[perguntaId]?.valor ? ' ' : '') + texto }
+      }));
+    };
+    recognition.onerror = () => setEscutandoId(null);
+    recognition.onend = () => setEscutandoId(null);
+
+    recognition.start();
+    setEscutandoId(perguntaId);
+  };
 
   const handleResposta = (perguntaId: string, tipo: string, valor: any) => {
     setRespostas(prev => ({
@@ -187,13 +223,29 @@ export default function ResponderQuestionarioPage() {
                   </h3>
 
                   {pergunta.tipo === 'TEXTO' && (
-                    <textarea
-                      className="input"
-                      rows={4}
-                      placeholder="Digite sua resposta..."
-                      value={respostas[pergunta.id]?.valor || ''}
-                      onChange={(e) => handleResposta(pergunta.id, 'TEXTO', e.target.value)}
-                    />
+                    <div className="relative">
+                      <textarea
+                        className="input pr-12"
+                        rows={4}
+                        placeholder="Digite sua resposta ou use o microfone..."
+                        value={respostas[pergunta.id]?.valor || ''}
+                        onChange={(e) => handleResposta(pergunta.id, 'TEXTO', e.target.value)}
+                      />
+                      {SpeechRecognitionAPI && (
+                        <button
+                          type="button"
+                          onClick={() => toggleVoz(pergunta.id)}
+                          title={escutandoId === pergunta.id ? 'Parar gravação' : 'Falar resposta'}
+                          className={`absolute bottom-3 right-3 p-2 rounded-full transition-colors ${
+                            escutandoId === pergunta.id
+                              ? 'bg-red-500 text-white animate-pulse'
+                              : 'bg-gray-100 hover:bg-primary-100 text-gray-600 hover:text-primary-700'
+                          }`}
+                        >
+                          {escutandoId === pergunta.id ? <MicOff size={18} /> : <Mic size={18} />}
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {pergunta.tipo === 'ESCALA' && (

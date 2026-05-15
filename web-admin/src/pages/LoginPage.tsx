@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
   const [loading, setLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
+  const navigate = useNavigate();
 
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
@@ -25,6 +26,7 @@ export default function LoginPage() {
       });
       setAuth(response.token, response.user);
       toast.success(`Bem-vindo, ${response.user.nome}!`);
+      navigate('/');
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Erro ao fazer login');
     } finally {

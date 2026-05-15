@@ -268,13 +268,15 @@ router.get('/alunos', async (req, res, next) => {
 router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
-    const { nome, email, senha, telefone, idade, deficiencia } = z.object({
+    const { nome, email, senha, telefone, idade, deficiencia, cep, logradouro } = z.object({
       nome: z.string().optional(),
       email: z.string().email().optional(),
       senha: z.string().min(6).optional(),
       telefone: z.string().optional(),
       idade: z.number().int().optional(),
-      deficiencia: z.string().optional()
+      deficiencia: z.string().optional(),
+      cep: z.string().optional(),
+      logradouro: z.string().optional()
     }).parse(req.body);
 
     const alunoExistente = await prisma.user.findFirst({
@@ -292,6 +294,8 @@ router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
     if (telefone !== undefined) updateData.telefone = telefone;
     if (idade !== undefined) updateData.idade = idade;
     if (deficiencia !== undefined) updateData.deficiencia = deficiencia;
+    if (cep !== undefined) updateData.cep = cep;
+    if (logradouro !== undefined) updateData.logradouro = logradouro;
 
     const aluno = await prisma.user.update({
       where: { id },
@@ -303,6 +307,8 @@ router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
         telefone: true,
         idade: true,
         deficiencia: true,
+        cep: true,
+        logradouro: true,
         role: true,
         ativo: true
       }

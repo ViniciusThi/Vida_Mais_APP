@@ -176,11 +176,11 @@ router.get('/questionarios/:id', async (req: AuthRequest, res, next) => {
 // ========== ENVIAR RESPOSTAS ==========
 
 const enviarRespostasSchema = z.object({
-  questionarioId: z.string().uuid(),
-  turmaId: z.string().uuid().optional(),
+  questionarioId: z.string().min(1),
+  turmaId: z.string().min(1).optional(),
   respostas: z.array(
     z.object({
-      perguntaId: z.string().uuid(),
+      perguntaId: z.string().min(1),
       valorTexto: z.string().optional(),
       valorNum: z.number().optional(),
       valorBool: z.boolean().optional(),

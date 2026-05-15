@@ -271,18 +271,28 @@ export default function QuestionarioScreen() {
 
             {/* TEXTO */}
             {pergunta.tipo === 'TEXTO' && (
-              <TextInput
-                style={[styles.textInput, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}
-                multiline
-                numberOfLines={4}
-                placeholder="Digite sua resposta aqui..."
-                placeholderTextColor="#9CA3AF"
-                value={respostas[pergunta.id]?.valor || ''}
-                onChangeText={(text) => handleResposta(text, 'TEXTO')}
-                onBlur={() => Keyboard.dismiss()}
-                autoCorrect={true}
-                autoCapitalize="sentences"
-              />
+              <View>
+                <TextInput
+                  style={[styles.textInput, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}
+                  multiline
+                  numberOfLines={4}
+                  placeholder="Digite sua resposta aqui..."
+                  placeholderTextColor="#9CA3AF"
+                  value={respostas[pergunta.id]?.valor || ''}
+                  onChangeText={(text) => handleResposta(text, 'TEXTO')}
+                  onBlur={() => Keyboard.dismiss()}
+                  autoCorrect={true}
+                  autoCapitalize="sentences"
+                />
+                <TouchableOpacity
+                  style={styles.micButton}
+                  onPress={() => Alert.alert('Entrada por Voz', 'A entrada por voz estará disponível na próxima versão do aplicativo.\n\nPor enquanto, use o botão "Ouvir" para escutar a pergunta e digite sua resposta.')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.micIcon}>🎤</Text>
+                  <Text style={[styles.micText, { fontSize: Math.min(width * 0.04, 16) * fontScale }]}>Falar resposta</Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             {/* ESCALA */}
@@ -500,6 +510,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#CC6500',
     flexShrink: 1
+  },
+  micButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    gap: 8
+  },
+  micIcon: {
+    fontSize: 22
+  },
+  micText: {
+    fontSize: Math.min(width * 0.04, 16),
+    color: '#374151',
+    fontWeight: '600'
   },
   question: {
     fontSize: Math.min(width * 0.08, 36),

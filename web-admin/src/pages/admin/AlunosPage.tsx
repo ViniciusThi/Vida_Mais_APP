@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { adminService } from '../../services/adminService';
-import { Plus, X, Edit, Trash2, Users, Phone } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Users, Phone, MapPin } from 'lucide-react';
 
 export default function AlunosPage() {
   const [showModal, setShowModal] = useState(false);
@@ -58,6 +58,8 @@ export default function AlunosPage() {
     setEditando(aluno);
     setValue('nome', aluno.nome);
     setValue('email', aluno.email);
+    setValue('cep', aluno.cep ?? '');
+    setValue('logradouro', aluno.logradouro ?? '');
     setShowModal(true);
   };
 
@@ -121,6 +123,13 @@ export default function AlunosPage() {
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <span>🎂</span>
                     <span>{aluno.idade} anos</span>
+                  </div>
+                )}
+
+                {aluno.logradouro && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin size={14} className="text-green-600 flex-shrink-0" />
+                    <span className="truncate">{aluno.logradouro}{aluno.cep ? ` — ${aluno.cep}` : ''}</span>
                   </div>
                 )}
 
@@ -207,10 +216,29 @@ export default function AlunosPage() {
                 {errors.senha && <span className="text-red-600 text-sm">Mínimo 6 caracteres</span>}
               </div>
 
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-700">CEP</label>
+                <input
+                  {...register('cep')}
+                  className="input"
+                  placeholder="00000-000"
+                  maxLength={9}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-700">Endereço</label>
+                <input
+                  {...register('logradouro')}
+                  className="input"
+                  placeholder="Rua, número, bairro, cidade"
+                />
+              </div>
+
               <div className="flex gap-3 pt-4">
-                <button 
+                <button
                   type="button"
-                  onClick={handleFecharModal} 
+                  onClick={handleFecharModal}
                   className="flex-1 btn-secondary"
                 >
                   Cancelar
