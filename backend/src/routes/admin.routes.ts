@@ -242,6 +242,10 @@ router.get('/alunos', async (req, res, next) => {
         id: true,
         nome: true,
         email: true,
+        telefone: true,
+        idade: true,
+        cep: true,
+        logradouro: true,
         ativo: true,
         criadoEm: true,
         alunoTurmas: {
