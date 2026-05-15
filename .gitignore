@@ -1,6 +1,22 @@
-# Arquivos pessoais
+# Arquivos pessoais e acadêmicos (local apenas)
 trabalho_jest_testes.md
+trabalho_jest/
 .claude/settings.local.json
+
+# Binários - apresentações e documentos
+*.pptx
+*.docx
+*.pdf
+
+# Claude Code - arquivos locais
+.claude_memory/
+mobile/.claude/
+
+# Documentos extras locais
+documentos/
+
+# Documentação gerada/redundante
+COMPREHENSIVE_DOCUMENTATION.md
 
 # Dependencies
 node_modules/
