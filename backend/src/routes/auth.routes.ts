@@ -82,6 +82,8 @@ const cadastroSchema = z.object({
   email: z.string().email('Email inválido'),
   telefone: z.string().min(10, 'Telefone inválido'),
   deficiencia: z.string().optional(),
+  cep: z.string().optional(),
+  logradouro: z.string().optional(),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres')
 });
 
@@ -121,6 +123,8 @@ router.post('/cadastro', async (req, res, next) => {
         telefone: data.telefone,
         idade: data.idade,
         deficiencia: data.deficiencia || null,
+        cep: data.cep || null,
+        logradouro: data.logradouro || null,
         senhaHash,
         role: 'ALUNO' // Associados têm role ALUNO
       },

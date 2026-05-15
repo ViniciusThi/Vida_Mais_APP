@@ -5,16 +5,20 @@ import { adminService } from '../services/adminService';
 import { questionarioService } from '../services/questionarioService';
 import { useAuthStore } from '../stores/authStore';
 import { toast } from 'sonner';
-import { 
-  Brain, 
-  TrendingUp, 
-  AlertTriangle, 
-  Users, 
-  Target, 
+import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import {
+  Brain,
+  TrendingUp,
+  AlertTriangle,
+  Users,
+  Target,
   Activity,
   RefreshCw,
   CheckCircle
 } from 'lucide-react';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function MLDashboardPage() {
   const [selectedTurma, setSelectedTurma] = useState<string>('');
@@ -301,6 +305,33 @@ export default function MLDashboardPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Gráfico de rosca */}
+              <div className="mt-6 flex justify-center">
+                <div style={{ maxWidth: 280 }}>
+                  <Doughnut
+                    data={{
+                      labels: ['Excelente (8-10)', 'Bom (6-8)', 'Regular (4-6)', 'Baixo (<4)'],
+                      datasets: [{
+                        data: [
+                          turmaAnalytics.distribuicaoNotas.excelente,
+                          turmaAnalytics.distribuicaoNotas.bom,
+                          turmaAnalytics.distribuicaoNotas.regular,
+                          turmaAnalytics.distribuicaoNotas.baixo,
+                        ],
+                        backgroundColor: ['#16a34a', '#2563eb', '#ca8a04', '#dc2626'],
+                        borderWidth: 2,
+                      }],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed} participantes` } },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -340,9 +371,9 @@ export default function MLDashboardPage() {
             {evasaoData.predictions
               .filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio')
               .slice(0, 10)
-              .map((pred: any) => (
+              .map((pred: any, index: number) => (
                 <div
-                  key={pred.alunoId}
+                  key={index}
                   className={`p-4 rounded-lg border ${
                     pred.nivelRisco === 'alto'
                       ? 'bg-red-50 border-red-200'
@@ -351,15 +382,10 @@ export default function MLDashboardPage() {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-semibold text-gray-900">{pred.alunoNome}</p>
+                      <p className="font-semibold text-gray-900">Participante #{index + 1}</p>
                       <p className="text-sm text-gray-600 mt-1">
                         Risco de abandono: <span className="font-bold">{pred.riscoEvasao}%</span>
                       </p>
-                      {pred.nivelRisco === 'alto' && (
-                        <p className="text-sm text-red-700 font-semibold mt-1">
-                          📞 Entre em contato com este participante
-                        </p>
-                      )}
                       <ul className="mt-2 space-y-1">
                         {pred.fatores.map((fator: string, idx: number) => (
                           <li key={idx} className="text-sm text-gray-700">• {fator}</li>

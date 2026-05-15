@@ -15,6 +15,7 @@
     "questionario:criar": "tsx src/scripts/criar-questionario-padrao.ts",
     "questionario:recriar": "tsx src/scripts/recriar-questionario-padrao.ts",
     "db:limpar-questionarios": "tsx src/scripts/limpar-questionarios.ts",
+    "db:seed-demo": "tsx src/scripts/seed-apresentacao.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest",
     "test:watch": "jest --watch",

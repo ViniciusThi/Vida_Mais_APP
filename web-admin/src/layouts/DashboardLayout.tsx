@@ -11,7 +11,8 @@ import {
   LogOut,
   Menu,
   X,
-  UserCircle
+  UserCircle,
+  MapPin
 } from 'lucide-react';
 
 interface Props {
@@ -30,7 +31,8 @@ export default function DashboardLayout({ children }: Props) {
     { path: '/admin/professores', icon: GraduationCap, label: 'Coordenadores' },
     { path: '/admin/alunos', icon: Users, label: 'Participantes' },
     { path: '/admin/turmas', icon: UsersRound, label: 'Grupos' },
-    { path: '/questionarios', icon: FileText, label: 'Questionários' }
+    { path: '/questionarios', icon: FileText, label: 'Questionários' },
+    { path: '/mapa-calor', icon: MapPin, label: 'Mapa de Calor' },
   ];
 
   const profLinks = [

@@ -5,13 +5,24 @@ import {
   DeleteFacesCommand,
 } from '@aws-sdk/client-rekognition';
 
-const client = new RekognitionClient({
-  region: process.env.AWS_REGION || 'sa-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+let _client: RekognitionClient | null = null;
+
+function getClient(): RekognitionClient {
+  if (!_client) {
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    if (!accessKeyId || !secretAccessKey) {
+      const err = new Error('AWS credentials not configured');
+      err.name = 'CredentialsProviderError';
+      throw err;
+    }
+    _client = new RekognitionClient({
+      region: process.env.AWS_REGION || 'sa-east-1',
+      credentials: { accessKeyId, secretAccessKey },
+    });
+  }
+  return _client;
+}
 
 const COLLECTION_ID =
   process.env.AWS_REKOGNITION_COLLECTION_ID || 'vida-mais-faces';
@@ -28,7 +39,7 @@ export async function indexFace(
   imageBase64: string,
   externalUserId: string
 ): Promise<string> {
-  const response = await client.send(
+  const response = await getClient().send(
     new IndexFacesCommand({
       CollectionId: COLLECTION_ID,
       Image: { Bytes: Buffer.from(imageBase64, 'base64') },
@@ -52,7 +63,7 @@ export async function indexFace(
 export async function searchFace(
   imageBase64: string
 ): Promise<{ userId: string; similarity: number } | null> {
-  const response = await client.send(
+  const response = await getClient().send(
     new SearchFacesByImageCommand({
       CollectionId: COLLECTION_ID,
       Image: { Bytes: Buffer.from(imageBase64, 'base64') },
@@ -78,7 +89,7 @@ export async function searchFace(
  * Remove uma face da collection pelo FaceId.
  */
 export async function deleteFace(faceId: string): Promise<void> {
-  await client.send(
+  await getClient().send(
     new DeleteFacesCommand({
       CollectionId: COLLECTION_ID,
       FaceIds: [faceId],

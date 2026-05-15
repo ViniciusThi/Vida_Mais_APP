@@ -19,6 +19,7 @@ import MeusQuestionariosAlunoPage from './pages/MeusQuestionariosAlunoPage';
 import EditarTurmaPage from './pages/admin/EditarTurmaPage';
 import MLDashboardPage from './pages/MLDashboardPage';
 import MinhasTurmasPage from './pages/MinhasTurmasPage';
+import MapaCalorPage from './pages/MapaCalorPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
               <Route path="/admin/alunos" element={<AlunosPage />} />
               <Route path="/admin/turmas" element={<TurmasPage />} />
               <Route path="/admin/turmas/:id/editar" element={<EditarTurmaPage />} />
+              <Route path="/mapa-calor" element={<MapaCalorPage />} />
             </>
           )}
           

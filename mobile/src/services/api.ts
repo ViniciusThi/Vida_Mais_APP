@@ -23,6 +23,8 @@ export const authService = {
     email: string;
     telefone: string;
     deficiencia?: string;
+    cep?: string;
+    logradouro?: string;
     senha: string;
   }) {
     const { data } = await api.post('/auth/cadastro', dados);

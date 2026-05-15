@@ -44,6 +44,8 @@ model User {
   ativo          Boolean  @default(true)
   faceId         String?  @unique @map("face_id")
   faceRegistrada Boolean  @default(false) @map("face_registrada")
+  cep            String?  @map("cep")
+  logradouro     String?  @map("logradouro")
   criadoEm       DateTime @default(now()) @map("criado_em")
   atualizadoEm   DateTime @updatedAt @map("atualizado_em")
 
@@ -116,6 +118,7 @@ model Questionario {
   turma     Turma?     @relation(fields: [turmaId], references: [id], onDelete: Cascade)
   perguntas Pergunta[]
   respostas Resposta[]
+  convites  Convite[]
 
   @@index([criadoPor])
   @@index([turmaId])
@@ -172,16 +175,19 @@ model Resposta {
 
 // Tabela de convites (QR Code)
 model Convite {
-  id        String    @id @default(uuid())
-  codigoQr  String    @unique @map("codigo_qr")
-  turmaId   String    @map("turma_id")
-  expiraEm  DateTime  @map("expira_em")
-  criadoEm  DateTime  @default(now()) @map("criado_em")
+  id             String        @id @default(uuid())
+  codigoQr       String        @unique @map("codigo_qr")
+  turmaId        String?       @map("turma_id")
+  questionarioId String?       @map("questionario_id")
+  expiraEm       DateTime      @map("expira_em")
+  criadoEm       DateTime      @default(now()) @map("criado_em")
 
   // Relações
-  turma Turma @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  turma        Turma?        @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  questionario Questionario? @relation(fields: [questionarioId], references: [id], onDelete: SetNull)
 
   @@index([turmaId])
+  @@index([questionarioId])
   @@index([codigoQr])
   @@map("convites")
 }

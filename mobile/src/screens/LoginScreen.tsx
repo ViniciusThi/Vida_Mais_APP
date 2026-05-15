@@ -67,8 +67,7 @@ export default function LoginScreen() {
 
       <View style={styles.formContainer}>
         <View style={styles.form}>
-          <Text style={styles.label}>Login do Associado</Text>
-          <Text style={styles.hint}>Email ou Telefone</Text>
+          <Text style={styles.label}>Email ou Telefone</Text>
           <TextInput
             style={styles.input}
             placeholder="Digite seu email ou telefone"

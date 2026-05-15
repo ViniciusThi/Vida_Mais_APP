@@ -12,6 +12,29 @@ const imageSchema = z.object({
   imagemBase64: z.string().min(100, 'Imagem inválida ou muito pequena'),
 });
 
+function handleAwsError(error: any, res: any): boolean {
+  if (
+    error.name === 'InvalidParameterException' ||
+    error.message === 'FACE_NOT_DETECTED'
+  ) {
+    res.status(400).json({ error: 'Rosto não detectado. Use boa iluminação e centralize o rosto.' });
+    return true;
+  }
+  if (error.name === 'ImageTooLargeException') {
+    res.status(400).json({ error: 'Imagem muito grande. Tente novamente.' });
+    return true;
+  }
+  if (error.name === 'AccessDeniedException' || error.name === 'ResourceNotFoundException') {
+    res.status(503).json({ error: 'Serviço de reconhecimento facial indisponível. Contate o administrador.' });
+    return true;
+  }
+  if (error.name === 'CredentialsProviderError' || error.message?.includes('credentials')) {
+    res.status(503).json({ error: 'Serviço de reconhecimento facial não configurado.' });
+    return true;
+  }
+  return false;
+}
+
 // ========== POST /face/login — público ==========
 router.post('/login', async (req, res, next) => {
   try {
@@ -34,10 +57,12 @@ router.post('/login', async (req, res, next) => {
       return res.status(403).json({ error: 'Conta inativa. Contate o administrador.' });
     }
     if (user.role !== Role.ALUNO) {
-      return res.status(403).json({ error: 'Login facial disponível apenas para alunos.' });
+      return res.status(403).json({ error: 'Login facial disponível apenas para participantes.' });
     }
 
-    const secret = process.env.JWT_SECRET || 'secret';
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return res.status(500).json({ error: 'Configuração de autenticação inválida.' });
+
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       secret,
@@ -46,30 +71,14 @@ router.post('/login', async (req, res, next) => {
 
     res.json({
       token,
-      user: {
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-        telefone: user.telefone,
-        role: user.role,
-      },
+      user: { id: user.id, nome: user.nome, email: user.email, telefone: user.telefone, role: user.role },
       similaridade: match.similarity,
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });
     }
-    if (
-      error.name === 'InvalidParameterException' ||
-      error.message === 'FACE_NOT_DETECTED'
-    ) {
-      return res
-        .status(400)
-        .json({ error: 'Rosto não detectado. Use boa iluminação e centralize o rosto.' });
-    }
-    if (error.name === 'ImageTooLargeException') {
-      return res.status(400).json({ error: 'Imagem muito grande. Tente novamente.' });
-    }
+    if (handleAwsError(error, res)) return;
     next(error);
   }
 });
@@ -95,6 +104,12 @@ router.post('/registrar', authorize(Role.ALUNO), async (req: AuthRequest, res, n
   try {
     const { imagemBase64 } = imageSchema.parse(req.body);
 
+    // Verificar se este rosto já pertence a outro usuário
+    const existingMatch = await searchFace(imagemBase64);
+    if (existingMatch && existingMatch.userId !== req.user!.id) {
+      return res.status(409).json({ error: 'Este rosto já está cadastrado para outro usuário.' });
+    }
+
     const userAtual = await prisma.user.findUnique({
       where: { id: req.user!.id },
       select: { faceId: true, faceRegistrada: true },
@@ -117,17 +132,7 @@ router.post('/registrar', authorize(Role.ALUNO), async (req: AuthRequest, res, n
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message });
     }
-    if (
-      error.name === 'InvalidParameterException' ||
-      error.message === 'FACE_NOT_DETECTED'
-    ) {
-      return res
-        .status(400)
-        .json({ error: 'Rosto não detectado. Use boa iluminação e centralize o rosto.' });
-    }
-    if (error.name === 'ImageTooLargeException') {
-      return res.status(400).json({ error: 'Imagem muito grande. Tente novamente.' });
-    }
+    if (handleAwsError(error, res)) return;
     next(error);
   }
 });

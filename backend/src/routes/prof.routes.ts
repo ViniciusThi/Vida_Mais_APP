@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { PrismaClient, Role, Visibilidade, TipoPergunta } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middleware';
 import ExcelJS from 'exceljs';
 import { ExcelExportService } from '../services/excel-export.service';
+import QRCode from 'qrcode';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -77,8 +79,8 @@ const createQuestionarioSchema = z.object({
   descricao: z.string().optional(),
   visibilidade: z.nativeEnum(Visibilidade),
   turmaId: z.string().uuid().optional(),
-  periodoInicio: z.string().datetime().optional(),
-  periodoFim: z.string().datetime().optional()
+  periodoInicio: z.string().optional(),
+  periodoFim: z.string().optional()
 });
 
 // POST /prof/questionarios
@@ -127,7 +129,13 @@ router.post('/questionarios', async (req: AuthRequest, res, next) => {
     });
 
     res.status(201).json(questionario);
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors[0].message });
+    }
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
+      return res.status(409).json({ error: 'Já existe um questionário com esses dados.' });
+    }
     next(error);
   }
 });
@@ -184,6 +192,41 @@ router.get('/questionarios/:id', async (req: AuthRequest, res, next) => {
     }
 
     res.json(questionario);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /prof/questionarios/:id/qrcode
+router.post('/questionarios/:id/qrcode', async (req: AuthRequest, res, next) => {
+  try {
+    const questionario = await prisma.questionario.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!questionario) {
+      return res.status(404).json({ error: 'Questionário não encontrado' });
+    }
+    if (req.user!.role === Role.PROF && questionario.criadoPor !== req.user!.id) {
+      return res.status(403).json({ error: 'Sem permissão' });
+    }
+
+    const link = `vidamais://questionario/${questionario.id}`;
+    const expiraEm = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 dias
+
+    const convite = await prisma.convite.upsert({
+      where: { codigoQr: link },
+      update: { expiraEm },
+      create: {
+        codigoQr: link,
+        questionarioId: questionario.id,
+        turmaId: questionario.turmaId ?? null,
+        expiraEm,
+      },
+    });
+
+    const qrCode = await QRCode.toDataURL(link);
+    res.json({ qrCode, link, expiraEm: convite.expiraEm });
   } catch (error) {
     next(error);
   }

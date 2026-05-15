@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
-  Platform,
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -25,12 +24,32 @@ export default function CadastroScreen() {
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [deficiencia, setDeficiencia] = useState('');
+  const [cep, setCep] = useState('');
+  const [logradouro, setLogradouro] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [buscandoCep, setBuscandoCep] = useState(false);
+
+  const buscarCep = async (valor: string) => {
+    const limpo = valor.replace(/\D/g, '');
+    setCep(valor);
+    if (limpo.length !== 8) return;
+    setBuscandoCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+      const dados = await response.json();
+      if (!dados.erro) {
+        setLogradouro(`${dados.logradouro}, ${dados.bairro} - ${dados.localidade}/${dados.uf}`);
+      }
+    } catch {
+      // silencioso — campo permanece editável
+    } finally {
+      setBuscandoCep(false);
+    }
+  };
 
   const handleCadastro = async () => {
-    // Validações
     if (!nome || !idade || !email || !telefone || !senha || !confirmarSenha) {
       Alert.alert('Atenção', 'Por favor, preencha todos os campos obrigatórios', [
         { text: 'OK', style: 'default' }
@@ -68,10 +87,11 @@ export default function CadastroScreen() {
         email,
         telefone,
         deficiencia: deficiencia || undefined,
+        cep: cep.replace(/\D/g, '') || undefined,
+        logradouro: logradouro || undefined,
         senha
       });
 
-      // Auto-login após cadastro e redirecionar para cadastro facial
       const loginResponse = await authService.login(email, senha);
       setAuthToken(loginResponse.token);
       setNeedsFaceSetup(true);
@@ -88,7 +108,7 @@ export default function CadastroScreen() {
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
@@ -115,7 +135,6 @@ export default function CadastroScreen() {
             onChangeText={setNome}
             autoCapitalize="words"
             accessibilityLabel="Campo de nome completo"
-            accessibilityHint="Digite seu nome completo"
           />
 
           <Text style={styles.label}>Idade *</Text>
@@ -127,7 +146,6 @@ export default function CadastroScreen() {
             onChangeText={setIdade}
             keyboardType="numeric"
             accessibilityLabel="Campo de idade"
-            accessibilityHint="Digite sua idade (mínimo 60 anos)"
           />
 
           <Text style={styles.label}>Email *</Text>
@@ -141,7 +159,6 @@ export default function CadastroScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             accessibilityLabel="Campo de email"
-            accessibilityHint="Digite seu endereço de email"
           />
 
           <Text style={styles.label}>Telefone *</Text>
@@ -153,7 +170,6 @@ export default function CadastroScreen() {
             onChangeText={setTelefone}
             keyboardType="phone-pad"
             accessibilityLabel="Campo de telefone"
-            accessibilityHint="Digite seu número de telefone"
           />
 
           <Text style={styles.label}>Deficiência (opcional)</Text>
@@ -165,7 +181,30 @@ export default function CadastroScreen() {
             value={deficiencia}
             onChangeText={setDeficiencia}
             accessibilityLabel="Campo de deficiência"
-            accessibilityHint="Digite se possui alguma deficiência (opcional)"
+          />
+
+          <Text style={styles.label}>CEP (opcional)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="00000-000"
+            placeholderTextColor="#9CA3AF"
+            value={cep}
+            onChangeText={buscarCep}
+            keyboardType="numeric"
+            accessibilityLabel="Campo de CEP"
+          />
+
+          <Text style={styles.label}>Endereço (opcional)</Text>
+          <Text style={styles.hint}>
+            {buscandoCep ? 'Buscando endereço...' : 'Preenchido automaticamente pelo CEP'}
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Logradouro, bairro - cidade/UF"
+            placeholderTextColor="#9CA3AF"
+            value={logradouro}
+            onChangeText={setLogradouro}
+            accessibilityLabel="Campo de endereço"
           />
 
           <Text style={styles.label}>Senha *</Text>
@@ -177,7 +216,6 @@ export default function CadastroScreen() {
             onChangeText={setSenha}
             secureTextEntry
             accessibilityLabel="Campo de senha"
-            accessibilityHint="Digite uma senha com no mínimo 6 caracteres"
           />
 
           <Text style={styles.label}>Confirmar Senha *</Text>
@@ -189,7 +227,6 @@ export default function CadastroScreen() {
             onChangeText={setConfirmarSenha}
             secureTextEntry
             accessibilityLabel="Campo de confirmação de senha"
-            accessibilityHint="Digite a senha novamente para confirmar"
           />
 
           <TouchableOpacity
@@ -198,7 +235,6 @@ export default function CadastroScreen() {
             disabled={loading}
             activeOpacity={0.7}
             accessibilityLabel="Botão de cadastro"
-            accessibilityHint="Toque para finalizar o cadastro"
           >
             <Text style={styles.buttonText}>
               {loading ? 'CADASTRANDO...' : '✓ CADASTRAR'}
@@ -209,7 +245,6 @@ export default function CadastroScreen() {
             style={styles.linkButton}
             onPress={() => navigation.goBack()}
             accessibilityLabel="Voltar para login"
-            accessibilityHint="Toque para voltar à tela de login"
           >
             <Text style={styles.linkText}>Já tem cadastro? Fazer login</Text>
           </TouchableOpacity>
@@ -338,4 +373,3 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline'
   }
 });
-

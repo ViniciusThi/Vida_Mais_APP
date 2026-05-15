@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { questionarioService } from '../services/questionarioService';
-import { Plus, BarChart3, Edit, Search, Filter, X, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { Plus, BarChart3, Edit, Search, Filter, X, CheckCircle, XCircle, FileText, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import { api } from '../lib/api';
 
 type FiltroStatus = 'todos' | 'com_respostas' | 'sem_respostas';
 type FiltroAtivo = 'todos' | 'ativo' | 'inativo';
@@ -12,6 +14,13 @@ export default function QuestionariosPage() {
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>('todos');
   const [filtroAtivo, setFiltroAtivo] = useState<FiltroAtivo>('todos');
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [qrModal, setQrModal] = useState<{ open: boolean; titulo: string } | null>(null);
+  const [qrData, setQrData] = useState<{ qrCode: string; link: string } | null>(null);
+
+  const qrMutation = useMutation({
+    mutationFn: (id: string) => api.post(`/prof/questionarios/${id}/qrcode`).then(r => r.data),
+    onSuccess: (data) => setQrData(data),
+  });
 
   const { data: questionarios, isLoading } = useQuery({
     queryKey: ['questionarios'],
@@ -263,15 +272,26 @@ export default function QuestionariosPage() {
             </div>
             
             <div className="flex gap-2">
-              <Link 
-                to={`/questionarios/${q.id}/relatorio`} 
+              <Link
+                to={`/questionarios/${q.id}/relatorio`}
                 className="btn-secondary flex-1 text-center text-sm"
               >
                 <BarChart3 size={16} className="inline mr-1" />
                 Relatório
               </Link>
-              <Link 
-                to={`/questionarios/${q.id}/editar`} 
+              <button
+                onClick={() => {
+                  setQrData(null);
+                  setQrModal({ open: true, titulo: q.titulo });
+                  qrMutation.mutate(q.id);
+                }}
+                className="btn-secondary text-sm"
+                title="Gerar QR Code"
+              >
+                <QrCode size={16} />
+              </button>
+              <Link
+                to={`/questionarios/${q.id}/editar`}
                 className="btn-secondary text-sm"
               >
                 <Edit size={16} />
@@ -300,6 +320,33 @@ export default function QuestionariosPage() {
               </Link>
             </>
           )}
+        </div>
+      )}
+
+      {/* Modal QR Code */}
+      {qrModal?.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">QR Code</h3>
+            <p className="text-sm text-gray-500 mb-4">{qrModal.titulo}</p>
+            {qrMutation.isPending && (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+              </div>
+            )}
+            {qrData && (
+              <div className="flex flex-col items-center gap-3">
+                <QRCodeSVG value={qrData.link} size={220} />
+                <p className="text-xs text-gray-400 break-all text-center">{qrData.link}</p>
+              </div>
+            )}
+            <button
+              onClick={() => { setQrModal(null); setQrData(null); }}
+              className="btn-secondary w-full mt-6"
+            >
+              Fechar
+            </button>
+          </div>
         </div>
       )}
     </div>

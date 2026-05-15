@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Platform, Modal, Alert } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
@@ -6,6 +6,7 @@ import { useFontSize } from '../contexts/FontSizeContext';
 import { alunoService, authService } from '../services/api';
 import FontSizeControl from '../components/FontSizeControl';
 import { useState } from 'react';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -146,6 +147,34 @@ function AlunoMenu({ navigation, fontScale }: any) {
     queryFn: authService.statusRosto,
   });
 
+  const [scannerVisible, setScannerVisible] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
+
+  const abrirScanner = async () => {
+    if (!permission?.granted) {
+      const result = await requestPermission();
+      if (!result.granted) {
+        Alert.alert('Permissão necessária', 'Permita o acesso à câmera para escanear QR codes.');
+        return;
+      }
+    }
+    setScanned(false);
+    setScannerVisible(true);
+  };
+
+  const handleQrScan = ({ data }: { data: string }) => {
+    if (scanned) return;
+    setScanned(true);
+    setScannerVisible(false);
+    const match = data.match(/vidamais:\/\/questionario\/([a-z0-9-]+)/);
+    if (match) {
+      navigation.navigate('Questionario', { id: match[1] });
+    } else {
+      Alert.alert('QR inválido', 'Este QR code não é um questionário Vida Mais.');
+    }
+  };
+
   const semTurma = !turmasLoading && turmas !== undefined && turmas.length === 0;
 
   const { data: questionarios, isLoading } = useQuery({
@@ -245,6 +274,42 @@ function AlunoMenu({ navigation, fontScale }: any) {
         </View>
         <Text style={[styles.menuArrow, { color: '#075D94' }]}>›</Text>
       </TouchableOpacity>
+
+      {/* QR Code scanner */}
+      <TouchableOpacity
+        style={[styles.menuCard, { borderLeftColor: '#9333EA', borderLeftWidth: 6, marginTop: 8 }]}
+        onPress={abrirScanner}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.menuIcon}>📷</Text>
+        <View style={styles.menuTextContainer}>
+          <Text style={[styles.menuTitle, { fontSize: Math.min(width * 0.055, 24) * fontScale }]}>
+            Escanear QR Code
+          </Text>
+          <Text style={[styles.menuSubtitle, { fontSize: Math.min(width * 0.04, 18) * fontScale }]}>
+            Abrir questionário pela câmera
+          </Text>
+        </View>
+        <Text style={[styles.menuArrow, { color: '#9333EA' }]}>›</Text>
+      </TouchableOpacity>
+
+      {/* Modal do scanner */}
+      <Modal visible={scannerVisible} animationType="slide" onRequestClose={() => setScannerVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: '#000' }}>
+          <CameraView
+            style={{ flex: 1 }}
+            facing="back"
+            barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+            onBarcodeScanned={handleQrScan}
+          />
+          <TouchableOpacity
+            style={{ backgroundColor: '#FF7E00', padding: 20, alignItems: 'center' }}
+            onPress={() => setScannerVisible(false)}
+          >
+            <Text style={{ color: '#FFF', fontSize: 20, fontWeight: 'bold' }}>Fechar</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
 
       {respondidos.length > 0 && (
         <>
