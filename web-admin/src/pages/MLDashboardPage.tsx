@@ -365,46 +365,48 @@ export default function MLDashboardPage() {
             </div>
           </div>
 
-          {/* Lista de Alunos em Risco */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900">Participantes que Necessitam Atenção:</h3>
-            {evasaoData.predictions
-              .filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio')
-              .slice(0, 10)
-              .map((pred: any, index: number) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border ${
-                    pred.nivelRisco === 'alto'
-                      ? 'bg-red-50 border-red-200'
-                      : 'bg-yellow-50 border-yellow-200'
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-gray-900">Participante #{index + 1}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Risco de abandono: <span className="font-bold">{pred.riscoEvasao}%</span>
-                      </p>
-                      <ul className="mt-2 space-y-1">
-                        {pred.fatores.map((fator: string, idx: number) => (
-                          <li key={idx} className="text-sm text-gray-700">• {fator}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        pred.nivelRisco === 'alto'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-yellow-600 text-white'
-                      }`}
-                    >
-                      {pred.nivelRisco === 'alto' ? 'ALTO' : 'MÉDIO'}
-                    </span>
-                  </div>
+          {/* Fatores de risco consolidados do grupo */}
+          {(() => {
+            const atRisk = evasaoData.predictions.filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio');
+            const total = evasaoData.predictions.length || 1;
+            const pctAlto = Math.round((evasaoData.alunosRiscoAlto / total) * 100);
+            const pctMedio = Math.round((evasaoData.alunosRiscoMedio / total) * 100);
+            const fatoresCount: Record<string, number> = {};
+            atRisk.forEach((p: any) => p.fatores?.forEach((f: string) => { fatoresCount[f] = (fatoresCount[f] || 0) + 1; }));
+            const topFatores = Object.entries(fatoresCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const recomendacoes = [];
+            if (pctAlto > 20) recomendacoes.push('Intensificar contato com o grupo nas próximas semanas.');
+            if (fatoresCount['Baixa frequência de respostas'] > 0) recomendacoes.push('Reforçar a importância de responder os check-ins semanais.');
+            if (fatoresCount['Nota média baixa'] > 0 || fatoresCount['Satisfação abaixo da média'] > 0) recomendacoes.push('Revisar as atividades oferecidas — satisfação do grupo está abaixo do esperado.');
+            if (pctMedio + pctAlto < 30) recomendacoes.push('Grupo com perfil saudável — manter a programação atual.');
+            return (
+              <div className="space-y-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Principais fatores de risco identificados no grupo:</h3>
+                  {topFatores.length > 0 ? (
+                    <ul className="space-y-2">
+                      {topFatores.map(([fator, count]) => (
+                        <li key={fator} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-700">• {fator}</span>
+                          <span className="text-gray-500 font-medium">{Math.round((count / total) * 100)}% do grupo</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500">Nenhum fator de risco significativo identificado.</p>
+                  )}
                 </div>
-              ))}
-          </div>
+                {recomendacoes.length > 0 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-blue-900 mb-2">💡 Recomendações para o coordenador:</h3>
+                    <ul className="space-y-1">
+                      {recomendacoes.map((rec, i) => <li key={i} className="text-sm text-blue-800">→ {rec}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 

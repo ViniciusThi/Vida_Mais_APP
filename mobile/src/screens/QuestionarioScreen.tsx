@@ -126,7 +126,7 @@ export default function QuestionarioScreen() {
   const pergunta = perguntas[currentIndex];
 
   const handleResposta = (valor: any, tipo: string) => {
-    Keyboard.dismiss();
+    if (tipo !== 'TEXTO') Keyboard.dismiss();
     setRespostas({
       ...respostas,
       [pergunta.id]: { perguntaId: pergunta.id, tipo, valor }

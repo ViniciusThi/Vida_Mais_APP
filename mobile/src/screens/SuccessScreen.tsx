@@ -25,7 +25,7 @@ export default function SuccessScreen() {
         
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
           activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>✓ VOLTAR AO INÍCIO</Text>
