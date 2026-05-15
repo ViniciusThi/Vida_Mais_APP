@@ -147,9 +147,9 @@ async function seed() {
       padrao: true,
       ano: 2025,
       perguntas: {
-        create: PERGUNTAS_Q1.map((p) => ({
+        create: PERGUNTAS_Q1.map(({ opcoes, ...p }) => ({
           ...p,
-          opcoesJson: p.opcoes ? JSON.stringify(p.opcoes) : null,
+          opcoesJson: opcoes ? JSON.stringify(opcoes) : null,
         })),
       },
     },
@@ -168,9 +168,9 @@ async function seed() {
       visibilidade: Visibilidade.TURMA,
       ativo: true,
       perguntas: {
-        create: PERGUNTAS_Q2.map((p) => ({
+        create: PERGUNTAS_Q2.map(({ opcoes, ...p }) => ({
           ...p,
-          opcoesJson: p.opcoes ? JSON.stringify(p.opcoes) : null,
+          opcoesJson: opcoes ? JSON.stringify(opcoes) : null,
         })),
       },
     },
