@@ -40,7 +40,15 @@ export default function DashboardLayout({ children }: Props) {
     { path: '/questionarios', icon: FileText, label: 'Questionários' }
   ];
 
-  const links = user?.role === 'ADMIN' ? adminLinks : profLinks;
+  const alunoLinks = [
+    { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/meus-questionarios', icon: FileText, label: 'Meus Questionários' },
+  ];
+
+  const links =
+    user?.role === 'ADMIN' ? adminLinks :
+    user?.role === 'ALUNO' ? alunoLinks :
+    profLinks;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

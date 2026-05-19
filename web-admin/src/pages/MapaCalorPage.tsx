@@ -133,8 +133,8 @@ export default function MapaCalorPage() {
 
           <div className="card p-0 overflow-hidden rounded-xl">
             <MapContainer
-              center={[-22.5, -47.0]}
-              zoom={8}
+              center={[-22.4370, -46.8591]}
+              zoom={13}
               style={{ height: 520, width: '100%' }}
             >
               <TileLayer

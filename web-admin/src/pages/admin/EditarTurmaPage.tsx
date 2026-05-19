@@ -1,13 +1,18 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { adminService } from '../../services/adminService';
 import { ArrowLeft, Plus, Trash2, Users } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
+
+type ConfirmState = { open: boolean; title: string; description: string; onConfirm: () => void };
 
 export default function EditarTurmaPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [confirm, setConfirm] = useState<ConfirmState>({ open: false, title: '', description: '', onConfirm: () => {} });
 
   const { data: turma, isLoading } = useQuery({
     queryKey: ['turma', id],
@@ -52,15 +57,21 @@ export default function EditarTurmaPage() {
   });
 
   const handleVincular = (alunoId: string, nomeAluno: string) => {
-    if (window.confirm(`Adicionar ${nomeAluno} a este grupo?`)) {
-      vincularMutation.mutate(alunoId);
-    }
+    setConfirm({
+      open: true,
+      title: 'Adicionar Participante',
+      description: `Adicionar ${nomeAluno} a este grupo?`,
+      onConfirm: () => { setConfirm(c => ({ ...c, open: false })); vincularMutation.mutate(alunoId); },
+    });
   };
 
   const handleDesvincular = (vinculoId: string, nomeAluno: string) => {
-    if (window.confirm(`Remover ${nomeAluno} deste grupo?`)) {
-      desvincularMutation.mutate(vinculoId);
-    }
+    setConfirm({
+      open: true,
+      title: 'Remover Participante',
+      description: `Remover ${nomeAluno} deste grupo?`,
+      onConfirm: () => { setConfirm(c => ({ ...c, open: false })); desvincularMutation.mutate(vinculoId); },
+    });
   };
 
   if (isLoading) {
@@ -204,7 +215,15 @@ export default function EditarTurmaPage() {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        open={confirm.open}
+        title={confirm.title}
+        description={confirm.description}
+        onConfirm={confirm.onConfirm}
+        onCancel={() => setConfirm(c => ({ ...c, open: false }))}
+        confirmLabel={confirm.title.startsWith('Remover') ? 'Remover' : 'Adicionar'}
+        variant={confirm.title.startsWith('Remover') ? 'danger' : 'default'}
+      />
     </div>
   );
 }
-

@@ -4,10 +4,13 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { adminService } from '../../services/adminService';
 import { Plus, X, Edit, Trash2, Users, Phone, MapPin } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
 export default function AlunosPage() {
   const [showModal, setShowModal] = useState(false);
   const [editando, setEditando] = useState<any>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [confirmNome, setConfirmNome] = useState('');
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm();
 
@@ -70,9 +73,8 @@ export default function AlunosPage() {
   };
 
   const handleExcluir = (id: string, nome: string) => {
-    if (window.confirm(`Tem certeza que deseja excluir o participante ${nome}?`)) {
-      deleteMutation.mutate(id);
-    }
+    setConfirmId(id);
+    setConfirmNome(nome);
   };
 
   const onSubmit = (data: any) => {
@@ -169,6 +171,15 @@ export default function AlunosPage() {
           </div>
         ))}
       </div>
+
+      <ConfirmModal
+        open={confirmId !== null}
+        title="Excluir Participante"
+        description={`Tem certeza que deseja excluir o participante ${confirmNome}?`}
+        onConfirm={() => { deleteMutation.mutate(confirmId!); setConfirmId(null); }}
+        onCancel={() => setConfirmId(null)}
+        confirmLabel="Excluir"
+      />
 
       {/* Modal */}
       {showModal && (

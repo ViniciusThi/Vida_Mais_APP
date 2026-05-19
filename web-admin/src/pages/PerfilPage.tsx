@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../stores/authStore';
 import { authService } from '../services/authService';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function PerfilPage() {
   const { user } = useAuthStore();
@@ -13,6 +14,7 @@ export default function PerfilPage() {
   const [cameraAberta, setCameraAberta] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [confirmAberto, setConfirmAberto] = useState(false);
 
   useEffect(() => {
     authService.statusRosto().then((r) => setFaceRegistrada(r.faceRegistrada));
@@ -28,7 +30,8 @@ export default function PerfilPage() {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => setCameraReady(true);
+        videoRef.current.oncanplay = () => setCameraReady(true);
+        videoRef.current.play().catch(() => {});
       }
       setCameraAberta(true);
     } catch {
@@ -65,8 +68,12 @@ export default function PerfilPage() {
     }
   };
 
-  const handleRemover = async () => {
-    if (!window.confirm('Deseja remover o cadastro facial?')) return;
+  const handleRemover = () => {
+    setConfirmAberto(true);
+  };
+
+  const confirmarRemover = async () => {
+    setConfirmAberto(false);
     setLoading(true);
     try {
       await authService.removerRosto();
@@ -164,6 +171,14 @@ export default function PerfilPage() {
           </>
         )}
       </div>
+      <ConfirmModal
+        open={confirmAberto}
+        title="Remover Reconhecimento Facial"
+        description="Deseja remover o cadastro facial? Você precisará recadastrar para fazer login sem senha."
+        onConfirm={confirmarRemover}
+        onCancel={() => setConfirmAberto(false)}
+        confirmLabel="Remover"
+      />
     </div>
   );
 }

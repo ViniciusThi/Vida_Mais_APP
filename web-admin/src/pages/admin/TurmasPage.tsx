@@ -5,11 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminService } from '../../services/adminService';
 import { Plus, X, Edit, Trash2, Users } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
 export default function TurmasPage() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editando, setEditando] = useState<any>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm();
 
@@ -76,9 +78,7 @@ export default function TurmasPage() {
   };
 
   const handleExcluir = (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir este grupo?')) {
-      deleteMutation.mutate(id);
-    }
+    setConfirmId(id);
   };
 
   const onSubmit = (data: any) => {
@@ -149,6 +149,15 @@ export default function TurmasPage() {
           </div>
         ))}
       </div>
+
+      <ConfirmModal
+        open={confirmId !== null}
+        title="Excluir Grupo"
+        description="Tem certeza que deseja excluir este grupo?"
+        onConfirm={() => { deleteMutation.mutate(confirmId!); setConfirmId(null); }}
+        onCancel={() => setConfirmId(null)}
+        confirmLabel="Excluir"
+      />
 
       {/* Modal */}
       {showModal && (
