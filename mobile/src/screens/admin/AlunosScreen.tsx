@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
+import { useToast } from '../../contexts/ToastContext';
 
 const { width } = Dimensions.get('window');
 
@@ -13,6 +14,7 @@ export default function AlunosScreen() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const { data: alunos, isLoading, refetch } = useQuery({
     queryKey: ['alunos'],
@@ -22,7 +24,7 @@ export default function AlunosScreen() {
   const createMutation = useMutation({
     mutationFn: adminService.createAluno,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Participante criado com sucesso!');
+      showToast('Participante criado com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
       setShowForm(false);
       setNome('');
@@ -30,18 +32,18 @@ export default function AlunosScreen() {
       setSenha('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar participante');
+      showToast(error.response?.data?.error || 'Erro ao criar participante', 'error');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteAluno,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Participante removido com sucesso!');
+      showToast('Participante removido com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover participante');
+      showToast(error.response?.data?.error || 'Erro ao remover participante', 'error');
     }
   });
 
@@ -58,7 +60,7 @@ export default function AlunosScreen() {
 
   const handleSubmit = () => {
     if (!nome || !email || !senha) {
-      Alert.alert('Atenção', 'Preencha todos os campos');
+      showToast('Preencha todos os campos', 'warning');
       return;
     }
     createMutation.mutate({ nome, email, senha });

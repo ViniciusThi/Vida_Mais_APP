@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ScrollView,
   Platform,
   Dimensions,
@@ -14,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { authService, setAuthToken } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,11 +24,11 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const setAuth = useAuthStore((state) => state.setAuth);
 
+  const { showToast } = useToast();
+
   const handleLogin = async () => {
     if (!emailOuTelefone || !senha) {
-      Alert.alert('Atenção', 'Por favor, preencha todos os campos', [
-        { text: 'OK', style: 'default' }
-      ]);
+      showToast('Por favor, preencha todos os campos', 'warning');
       return;
     }
 
@@ -38,10 +38,9 @@ export default function LoginScreen() {
       setAuthToken(response.token);
       await setAuth(response.token, response.user);
     } catch (error: any) {
-      Alert.alert(
-        'Não foi possível entrar',
+      showToast(
         error.response?.data?.error || 'Verifique seu email/telefone e senha',
-        [{ text: 'Tentar novamente', style: 'default' }]
+        'error',
       );
     } finally {
       setLoading(false);

@@ -26,8 +26,9 @@ export default function FaceLoginPage() {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.oncanplay = () => setCameraReady(true);
-        videoRef.current.play().catch(() => {});
+        videoRef.current.play()
+          .then(() => setCameraReady(true))
+          .catch(() => setCameraReady(true));
       }
     } catch {
       setError('Não foi possível acessar a câmera. Verifique as permissões do navegador.');

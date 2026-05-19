@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './src/stores/authStore';
 import { FontSizeProvider } from './src/contexts/FontSizeContext';
+import { ToastProvider } from './src/contexts/ToastContext';
 import { useEffect, useState } from 'react';
 import { Text, TextInput } from 'react-native';
 import { authService } from './src/services/api';
@@ -75,6 +76,7 @@ export default function App() {
   }
 
   return (
+    <ToastProvider>
     <FontSizeProvider>
       <QueryClientProvider client={queryClient}>
         <NavigationContainer>
@@ -214,6 +216,7 @@ export default function App() {
         </NavigationContainer>
       </QueryClientProvider>
     </FontSizeProvider>
+    </ToastProvider>
   );
 }
 

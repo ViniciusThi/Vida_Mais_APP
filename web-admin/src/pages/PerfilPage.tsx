@@ -28,16 +28,21 @@ export default function PerfilPage() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.oncanplay = () => setCameraReady(true);
-        videoRef.current.play().catch(() => {});
-      }
-      setCameraAberta(true);
+      setCameraAberta(true); // renderiza o <video> antes de acessar o ref
     } catch {
       toast.error('Não foi possível acessar a câmera. Verifique as permissões do navegador.');
     }
   };
+
+  // Seta srcObject só depois que o elemento <video> está no DOM
+  useEffect(() => {
+    if (cameraAberta && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play()
+        .then(() => setCameraReady(true))
+        .catch(() => setCameraReady(true));
+    }
+  }, [cameraAberta]);
 
   const stopCamera = () => {
     streamRef.current?.getTracks().forEach((t) => t.stop());

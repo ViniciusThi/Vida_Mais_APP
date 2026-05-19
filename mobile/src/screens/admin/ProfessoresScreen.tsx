@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
+import { useToast } from '../../contexts/ToastContext';
 
 const { width } = Dimensions.get('window');
 
@@ -13,6 +14,7 @@ export default function ProfessoresScreen() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const { data: professores, isLoading, refetch } = useQuery({
     queryKey: ['professores'],
@@ -22,7 +24,7 @@ export default function ProfessoresScreen() {
   const createMutation = useMutation({
     mutationFn: adminService.createProfessor,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Coordenador criado com sucesso!');
+      showToast('Coordenador criado com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
       setShowForm(false);
       setNome('');
@@ -30,18 +32,18 @@ export default function ProfessoresScreen() {
       setSenha('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar coordenador');
+      showToast(error.response?.data?.error || 'Erro ao criar coordenador', 'error');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteProfessor,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Coordenador removido com sucesso!');
+      showToast('Coordenador removido com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover coordenador');
+      showToast(error.response?.data?.error || 'Erro ao remover coordenador', 'error');
     }
   });
 
@@ -58,7 +60,7 @@ export default function ProfessoresScreen() {
 
   const handleSubmit = () => {
     if (!nome || !email || !senha) {
-      Alert.alert('Atenção', 'Preencha todos os campos');
+      showToast('Preencha todos os campos', 'warning');
       return;
     }
     createMutation.mutate({ nome, email, senha });

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState } from 'react';
+import { useToast } from '../../contexts/ToastContext';
 import { Picker } from '@react-native-picker/picker';
 
 const { width } = Dimensions.get('window');
@@ -14,6 +15,7 @@ export default function TurmasScreen() {
   const [ano, setAno] = useState('2025');
   const [professorId, setProfessorId] = useState('');
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const { data: turmas, isLoading, refetch } = useQuery({
     queryKey: ['turmas'],
@@ -28,7 +30,7 @@ export default function TurmasScreen() {
   const createMutation = useMutation({
     mutationFn: adminService.createTurma,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Grupo criado com sucesso!');
+      showToast('Grupo criado com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       setShowForm(false);
       setNome('');
@@ -36,18 +38,18 @@ export default function TurmasScreen() {
       setProfessorId('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao criar grupo');
+      showToast(error.response?.data?.error || 'Erro ao criar grupo', 'error');
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: adminService.deleteTurma,
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Grupo removido com sucesso!');
+      showToast('Grupo removido com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao remover grupo');
+      showToast(error.response?.data?.error || 'Erro ao remover grupo', 'error');
     }
   });
 
@@ -64,7 +66,7 @@ export default function TurmasScreen() {
 
   const handleSubmit = () => {
     if (!nome || !ano || !professorId) {
-      Alert.alert('Atenção', 'Preencha todos os campos');
+      showToast('Preencha todos os campos', 'warning');
       return;
     }
     createMutation.mutate({ nome, ano: parseInt(ano), professorId });

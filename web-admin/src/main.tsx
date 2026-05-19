@@ -22,7 +22,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <App />
-          <Toaster position="top-right" richColors />
+          <Toaster
+            position="top-center"
+            richColors
+            duration={5000}
+            toastOptions={{
+              style: { fontSize: '15px', borderRadius: '12px', fontWeight: '500', padding: '14px 18px' },
+            }}
+          />
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

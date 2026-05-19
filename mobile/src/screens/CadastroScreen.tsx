@@ -6,13 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ScrollView,
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { authService, setAuthToken } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { useToast } from '../contexts/ToastContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -49,33 +49,27 @@ export default function CadastroScreen() {
     }
   };
 
+  const { showToast } = useToast();
+
   const handleCadastro = async () => {
     if (!nome || !idade || !email || !telefone || !senha || !confirmarSenha) {
-      Alert.alert('Atenção', 'Por favor, preencha todos os campos obrigatórios', [
-        { text: 'OK', style: 'default' }
-      ]);
+      showToast('Por favor, preencha todos os campos obrigatórios', 'warning');
       return;
     }
 
     const idadeNum = parseInt(idade);
     if (isNaN(idadeNum) || idadeNum < 60) {
-      Alert.alert('Atenção', 'A idade mínima é 60 anos', [
-        { text: 'OK', style: 'default' }
-      ]);
+      showToast('A idade mínima é 60 anos', 'warning');
       return;
     }
 
     if (senha !== confirmarSenha) {
-      Alert.alert('Atenção', 'As senhas não coincidem', [
-        { text: 'OK', style: 'default' }
-      ]);
+      showToast('As senhas não coincidem', 'warning');
       return;
     }
 
     if (senha.length < 6) {
-      Alert.alert('Atenção', 'A senha deve ter no mínimo 6 caracteres', [
-        { text: 'OK', style: 'default' }
-      ]);
+      showToast('A senha deve ter no mínimo 6 caracteres', 'warning');
       return;
     }
 
@@ -97,10 +91,9 @@ export default function CadastroScreen() {
       setNeedsFaceSetup(true);
       await setAuth(loginResponse.token, loginResponse.user);
     } catch (error: any) {
-      Alert.alert(
-        'Erro no cadastro',
+      showToast(
         error.response?.data?.error || 'Não foi possível realizar o cadastro. Tente novamente.',
-        [{ text: 'OK', style: 'default' }]
+        'error',
       );
     } finally {
       setLoading(false);

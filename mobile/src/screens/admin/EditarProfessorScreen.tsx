@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState, useEffect } from 'react';
+import { useToast } from '../../contexts/ToastContext';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +12,7 @@ export default function EditarProfessorScreen() {
   const navigation = useNavigation();
   const { professorId } = route.params;
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -34,19 +36,18 @@ export default function EditarProfessorScreen() {
   const updateMutation = useMutation({
     mutationFn: (data: any) => adminService.updateProfessor(professorId, data),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Coordenador atualizado com sucesso!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      showToast('Coordenador atualizado com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['professores'] });
+      navigation.goBack();
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao atualizar coordenador');
+      showToast(error.response?.data?.error || 'Erro ao atualizar coordenador', 'error');
     }
   });
 
   const handleSubmit = () => {
     if (!nome || !email) {
-      Alert.alert('Atenção', 'Preencha nome e email');
+      showToast('Preencha nome e email', 'warning');
       return;
     }
 

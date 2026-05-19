@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
 import { useState, useEffect } from 'react';
+import { useToast } from '../../contexts/ToastContext';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +12,7 @@ export default function EditarAlunoScreen() {
   const navigation = useNavigation();
   const { alunoId } = route.params;
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -34,19 +36,18 @@ export default function EditarAlunoScreen() {
   const updateMutation = useMutation({
     mutationFn: (data: any) => adminService.updateAluno(alunoId, data),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Participante atualizado com sucesso!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      showToast('Participante atualizado com sucesso!', 'success');
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
+      navigation.goBack();
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao atualizar participante');
+      showToast(error.response?.data?.error || 'Erro ao atualizar participante', 'error');
     }
   });
 
   const handleSubmit = () => {
     if (!nome || !email) {
-      Alert.alert('Atenção', 'Preencha nome e email');
+      showToast('Preencha nome e email', 'warning');
       return;
     }
 

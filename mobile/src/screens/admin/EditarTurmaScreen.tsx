@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions, TextInput } from 'react-native';
+import { useToast } from '../../contexts/ToastContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
@@ -11,6 +12,7 @@ export default function EditarTurmaScreen() {
   const navigation = useNavigation();
   const { turmaId } = route.params;
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const [nome, setNome] = useState('');
   const [ano, setAno] = useState('');
@@ -53,14 +55,14 @@ export default function EditarTurmaScreen() {
   const addAlunoMutation = useMutation({
     mutationFn: (alunoId: string) => adminService.vincularAluno(alunoId, turmaId),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Participante adicionado ao grupo!');
+      showToast('Participante adicionado ao grupo!', 'success');
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
       setSelectedAluno('');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao adicionar aluno');
+      showToast(error.response?.data?.error || 'Erro ao adicionar aluno', 'error');
     }
   });
 
@@ -68,13 +70,13 @@ export default function EditarTurmaScreen() {
   const removeAlunoMutation = useMutation({
     mutationFn: (alunoTurmaId: string) => adminService.desvincularAluno(alunoTurmaId),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Participante removido do grupo!');
+      showToast('Participante removido do grupo!', 'success');
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
     },
     onError: (error: any) => {
-      Alert.alert('Erro', 'Erro ao remover participante do grupo');
+      showToast('Erro ao remover participante do grupo', 'error');
     }
   });
 
