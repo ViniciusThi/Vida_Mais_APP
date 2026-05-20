@@ -99,8 +99,8 @@ router.get('/status', async (req: AuthRequest, res, next) => {
   }
 });
 
-// ========== POST /face/registrar — ALUNO ==========
-router.post('/registrar', authorize(Role.ALUNO), async (req: AuthRequest, res, next) => {
+// ========== POST /face/registrar — autenticado ==========
+router.post('/registrar', async (req: AuthRequest, res, next) => {
   try {
     const { imagemBase64 } = imageSchema.parse(req.body);
 
@@ -137,8 +137,8 @@ router.post('/registrar', authorize(Role.ALUNO), async (req: AuthRequest, res, n
   }
 });
 
-// ========== DELETE /face/registrar — ALUNO ==========
-router.delete('/registrar', authorize(Role.ALUNO), async (req: AuthRequest, res, next) => {
+// ========== DELETE /face/registrar — autenticado ==========
+router.delete('/registrar', async (req: AuthRequest, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },

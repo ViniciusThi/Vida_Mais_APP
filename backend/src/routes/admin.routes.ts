@@ -56,8 +56,8 @@ router.put('/professores/:id', async (req: AuthRequest, res, next) => {
     const { id } = req.params;
     const { nome, email, senha } = z.object({
       nome: z.string().optional(),
-      email: z.string().email().optional(),
-      senha: z.string().min(6).optional()
+      email: z.preprocess(v => v === '' ? undefined : v, z.string().email().optional()),
+      senha: z.preprocess(v => v === '' ? undefined : v, z.string().min(6).optional())
     }).parse(req.body);
 
     // Verifica se o professor existe
@@ -274,8 +274,8 @@ router.put('/alunos/:id', async (req: AuthRequest, res, next) => {
     const { id } = req.params;
     const { nome, email, senha, telefone, idade, deficiencia, cep, logradouro } = z.object({
       nome: z.string().optional(),
-      email: z.string().email().optional(),
-      senha: z.string().min(6).optional(),
+      email: z.preprocess(v => v === '' ? undefined : v, z.string().email().optional()),
+      senha: z.preprocess(v => v === '' ? undefined : v, z.string().min(6).optional()),
       telefone: z.string().optional(),
       idade: z.number().int().optional(),
       deficiencia: z.string().optional(),
