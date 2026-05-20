@@ -17,6 +17,7 @@
     "db:limpar-questionarios": "tsx src/scripts/limpar-questionarios.ts",
     "db:seed-demo": "tsx src/scripts/seed-apresentacao.ts",
     "db:reset-demo": "tsx src/scripts/reset-apresentacao.ts && tsx src/scripts/seed-apresentacao.ts",
+    "face:limpar": "tsx src/scripts/limpar-rostos.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest",
     "test:watch": "jest --watch",
