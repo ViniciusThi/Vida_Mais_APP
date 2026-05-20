@@ -56,9 +56,6 @@ router.post('/login', async (req, res, next) => {
     if (!user.ativo) {
       return res.status(403).json({ error: 'Conta inativa. Contate o administrador.' });
     }
-    if (user.role !== Role.ALUNO) {
-      return res.status(403).json({ error: 'Login facial disponível apenas para participantes.' });
-    }
 
     const secret = process.env.JWT_SECRET;
     if (!secret) return res.status(500).json({ error: 'Configuração de autenticação inválida.' });
@@ -107,7 +104,21 @@ router.post('/registrar', async (req: AuthRequest, res, next) => {
     // Verificar se este rosto já pertence a outro usuário
     const existingMatch = await searchFace(imagemBase64);
     if (existingMatch && existingMatch.userId !== req.user!.id) {
-      return res.status(409).json({ error: 'Este rosto já está cadastrado para outro usuário.' });
+      if (req.user!.role === Role.ALUNO) {
+        return res.status(409).json({ error: 'Este rosto já está cadastrado para outro usuário.' });
+      }
+      // ADMIN/PROF podem sobrescrever: remove o rosto da conta anterior
+      const outraContaUser = await prisma.user.findUnique({
+        where: { id: existingMatch.userId },
+        select: { faceId: true },
+      });
+      if (outraContaUser?.faceId) {
+        await deleteFace(outraContaUser.faceId);
+      }
+      await prisma.user.update({
+        where: { id: existingMatch.userId },
+        data: { faceId: null, faceRegistrada: false },
+      });
     }
 
     const userAtual = await prisma.user.findUnique({
