@@ -1,7 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert, TouchableOpacity } from 'react-native';
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Picker } from '@react-native-picker/picker';
 import { professorService, adminService } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { ML_URL } from '../../config/api';
@@ -250,17 +249,26 @@ export default function MLInsightsScreen() {
         {/* Seletor de Turma */}
         <View style={styles.card}>
           <Text style={styles.pickerLabel}>Selecione um grupo para análise detalhada:</Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={selectedTurmaId}
-              onValueChange={(val) => setSelectedTurmaId(val)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Selecione um grupo..." value="" />
-              {turmas?.map((turma: any) => (
-                <Picker.Item key={turma.id} label={turma.nome} value={turma.id} />
-              ))}
-            </Picker>
+          <View style={styles.turmaList}>
+            {turmas?.map((turma: any) => {
+              const selected = selectedTurmaId === turma.id;
+              return (
+                <TouchableOpacity
+                  key={turma.id}
+                  style={[styles.turmaRow, selected && styles.turmaRowSelected]}
+                  onPress={() => setSelectedTurmaId(turma.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.turmaRadio, selected && styles.turmaRadioSelected]}>
+                    {selected && <View style={styles.turmaRadioDot} />}
+                  </View>
+                  <Text style={[styles.turmaRowText, selected && styles.turmaRowTextSelected]}>
+                    {turma.nome}
+                  </Text>
+                  {selected && <Text style={styles.turmaCheckmark}>✓</Text>}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -455,10 +463,25 @@ const styles = StyleSheet.create({
   kpiLabel: { fontSize: 13, color: '#6B7280' },
   kpiValue: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
 
-  // Picker
-  pickerLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 6 },
-  pickerWrapper: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, backgroundColor: '#F9FAFB' },
-  picker: { height: 48 },
+  // Seletor de turma
+  pickerLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 10 },
+  turmaList: { gap: 8 },
+  turmaRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    minHeight: 60, paddingHorizontal: 14, paddingVertical: 12,
+    borderWidth: 2, borderColor: '#E5E7EB', borderRadius: 10,
+    backgroundColor: '#F9FAFB'
+  },
+  turmaRowSelected: { borderColor: '#2563EB', backgroundColor: '#EFF6FF' },
+  turmaRadio: {
+    width: 22, height: 22, borderRadius: 11, borderWidth: 2,
+    borderColor: '#9CA3AF', justifyContent: 'center', alignItems: 'center'
+  },
+  turmaRadioSelected: { borderColor: '#2563EB' },
+  turmaRadioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#2563EB' },
+  turmaRowText: { flex: 1, fontSize: 16, color: '#374151', fontWeight: '500' },
+  turmaRowTextSelected: { color: '#1D4ED8', fontWeight: '700' },
+  turmaCheckmark: { fontSize: 18, color: '#2563EB', fontWeight: 'bold' },
 
   // Análise do grupo
   groupStatsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
