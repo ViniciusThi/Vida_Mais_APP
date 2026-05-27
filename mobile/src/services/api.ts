@@ -225,7 +225,7 @@ export const alunoService = {
 
   async enviarRespostas(payload: {
     questionarioId: string;
-    turmaId: string;
+    turmaId?: string;
     respostas: Array<{
       perguntaId: string;
       valorTexto?: string;

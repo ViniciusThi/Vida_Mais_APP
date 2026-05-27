@@ -18,7 +18,6 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import { useFontSize } from '../contexts/FontSizeContext';
 import * as Speech from 'expo-speech';
-import { Audio } from 'expo-av';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -34,50 +33,18 @@ export default function QuestionarioScreen() {
   const [respostas, setRespostas] = useState<Record<string, any>>(respostasIniciais || {});
   const [vozPtBr, setVozPtBr] = useState<string | null>(null);
   useEffect(() => {
-    const configurarAudio = async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false
-        });
-      } catch (error) {
-        console.error('Erro ao configurar modo de áudio:', error);
-      }
-    };
-
     const carregarVozes = async () => {
       try {
         const vozes = await Speech.getAvailableVoicesAsync();
-        
-        // 🇧🇷 PRIORIDADE 1: Buscar especificamente por pt-BR (Brasil)
-        let voz = vozes.find((item) => {
+        const voz = vozes.find((item) => {
           const idioma = item.language?.toLowerCase();
           return idioma?.startsWith('pt-br') || idioma?.includes('br');
-        });
-
-        // 🇵🇹 FALLBACK: Se não encontrar pt-BR, usa pt (Portugal)
-        if (!voz) {
-          voz = vozes.find((item) => {
-            const idioma = item.language?.toLowerCase();
-            return idioma?.startsWith('pt');
-          });
-        }
-
-        if (voz) {
-          setVozPtBr(voz.identifier);
-          console.log('✅ Voz selecionada:', voz.identifier, voz.language);
-        } else {
-          console.warn('⚠️ Nenhuma voz em português encontrada');
-        }
+        }) ?? vozes.find((item) => item.language?.toLowerCase().startsWith('pt'));
+        if (voz) setVozPtBr(voz.identifier);
       } catch (error) {
-        console.error('Erro ao carregar vozes disponíveis:', error);
+        console.error('Erro ao carregar vozes:', error);
       }
     };
-
-    configurarAudio();
     carregarVozes();
   }, []);
 
@@ -192,29 +159,26 @@ export default function QuestionarioScreen() {
 
     enviarMutation.mutate({
       questionarioId: id,
-      turmaId,
+      turmaId: turmaId || undefined,
       respostas: respostasArray
     });
   };
 
   const falar = async () => {
     try {
-      // Para perguntas de múltipla escolha, ler também as opções
       let textoParaLer = pergunta.enunciado;
-      
-      if (['UNICA', 'MULTIPLA'].includes(pergunta.tipo) && pergunta.opcoes && pergunta.opcoes.length > 0) {
+      if (['UNICA', 'MULTIPLA'].includes(pergunta.tipo) && pergunta.opcoes?.length > 0) {
         textoParaLer += '. Opções: ' + pergunta.opcoes.join('. ');
       }
 
       const falando = await Speech.isSpeakingAsync();
-      if (falando) {
-        await Speech.stop();
-      }
+      if (falando) await Speech.stop();
 
       const opcoesDeVoz: Speech.SpeechOptions = {
-        language: vozPtBr ? 'pt-BR' : undefined,
-        voice: vozPtBr ?? undefined,
-        rate: 0.7, // Mais lento para idosos
+        language: 'pt-BR',
+        // Identificador de voz só no iOS — no Android o formato é incompatível
+        ...(vozPtBr && Platform.OS === 'ios' ? { voice: vozPtBr } : {}),
+        rate: 0.7,
         pitch: 1.0,
         volume: 1.0
       };
@@ -222,16 +186,15 @@ export default function QuestionarioScreen() {
       Speech.speak(textoParaLer, opcoesDeVoz);
     } catch (error) {
       console.error('Erro ao reproduzir áudio:', error);
-      Alert.alert('Erro', 'Não foi possível reproduzir o áudio. Verifique as configurações do dispositivo.');
+      Alert.alert('Erro', 'Não foi possível reproduzir o áudio.');
     }
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      behavior="padding"
       style={styles.container}
     >
-      <View style={styles.container}>
         {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <Text style={[styles.progressText, { fontSize: Math.min(width * 0.06, 26) * fontScale }]}>
@@ -423,7 +386,6 @@ export default function QuestionarioScreen() {
             </TouchableOpacity>
           )}
         </View>
-      </View>
     </KeyboardAvoidingView>
   );
 }

@@ -31,7 +31,7 @@ export default function RevisarRespostasScreen() {
       navigation.replace('Success');
     },
     onError: (error: any) => {
-      Alert.alert('Erro', error.response?.data?.error || 'Erro ao enviar respostas');
+      Alert.alert('Erro ao Enviar', error.response?.data?.error || error.message || 'Não foi possível enviar as respostas. Verifique sua conexão e tente novamente.');
     }
   });
 
@@ -87,7 +87,7 @@ export default function RevisarRespostasScreen() {
             // Envia diretamente
             enviarMutation.mutate({
               questionarioId: id,
-              turmaId,
+              turmaId: turmaId || undefined,
               respostas: respostasArray
             });
           }
