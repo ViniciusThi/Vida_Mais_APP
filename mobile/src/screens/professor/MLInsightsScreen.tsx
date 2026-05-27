@@ -10,6 +10,20 @@ async function getToken() {
   return import('../../stores/authStore').then(m => m.useAuthStore.getState().token);
 }
 
+function ProgressBar({ value, total, color }: { value: number; total: number; color: string }) {
+  const pct = total > 0 ? Math.min((value / total) * 100, 100) : 0;
+  return (
+    <View style={pbStyles.track}>
+      <View style={[pbStyles.fill, { width: `${pct}%` as any, backgroundColor: color }]} />
+    </View>
+  );
+}
+
+const pbStyles = StyleSheet.create({
+  track: { flex: 1, height: 10, backgroundColor: '#F3F4F6', borderRadius: 5, overflow: 'hidden' },
+  fill: { height: 10, borderRadius: 5 }
+});
+
 export default function MLInsightsScreen() {
   const [selectedTurmaId, setSelectedTurmaId] = useState<string>('');
   const { user } = useAuthStore();
@@ -18,9 +32,7 @@ export default function MLInsightsScreen() {
     queryKey: ['ml-health'],
     queryFn: async () => {
       const token = await getToken();
-      const { data } = await axios.get(`${ML_URL}/health`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await axios.get(`${ML_URL}/health`, { headers: { Authorization: `Bearer ${token}` } });
       return data;
     },
     retry: false,
@@ -40,9 +52,7 @@ export default function MLInsightsScreen() {
     queryKey: ['ml-overview'],
     queryFn: async () => {
       const token = await getToken();
-      const { data } = await axios.get(`${ML_URL}/analytics/overview`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await axios.get(`${ML_URL}/analytics/overview`, { headers: { Authorization: `Bearer ${token}` } });
       return data;
     },
     retry: false
@@ -52,9 +62,7 @@ export default function MLInsightsScreen() {
     queryKey: ['ml-models-status'],
     queryFn: async () => {
       const token = await getToken();
-      const { data } = await axios.get(`${ML_URL}/models/status`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await axios.get(`${ML_URL}/models/status`, { headers: { Authorization: `Bearer ${token}` } });
       return data;
     },
     retry: false
@@ -64,9 +72,7 @@ export default function MLInsightsScreen() {
     queryKey: ['ml-turma-analytics', selectedTurmaId],
     queryFn: async () => {
       const token = await getToken();
-      const { data } = await axios.get(`${ML_URL}/analytics/turma/${selectedTurmaId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await axios.get(`${ML_URL}/analytics/turma/${selectedTurmaId}`, { headers: { Authorization: `Bearer ${token}` } });
       return data;
     },
     enabled: !!selectedTurmaId,
@@ -104,7 +110,7 @@ export default function MLInsightsScreen() {
 
   useEffect(() => {
     if (evasaoError) {
-      Alert.alert('Erro na Análise', 'Não foi possível carregar a predição de abandono para este grupo. Tente novamente.');
+      Alert.alert('Erro na Análise', 'Não foi possível carregar a predição de abandono. Tente novamente.');
     }
   }, [evasaoError]);
 
@@ -123,29 +129,22 @@ export default function MLInsightsScreen() {
   const isMLAvailable = health?.status === 'connected';
 
   if (loadingTurmas) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loading}>Carregando...</Text>
-      </View>
-    );
+    return <View style={s.centerScreen}><Text style={s.loadingText}>Carregando...</Text></View>;
   }
 
   if (health !== undefined && !isMLAvailable) {
     return (
-      <View style={styles.offlineContainer}>
-        <Text style={styles.offlineIcon}>⚠️</Text>
-        <Text style={styles.offlineTitle}>Serviço de ML Indisponível</Text>
-        <Text style={styles.offlineText}>
-          O serviço de Machine Learning não está rodando. Por favor, inicie o serviço Python.
-        </Text>
-        <View style={styles.offlineCode}>
-          <Text style={styles.offlineCodeText}>cd ml-service && python app.py</Text>
-        </View>
+      <View style={s.offlineScreen}>
+        <Text style={s.offlineEmoji}>⚠️</Text>
+        <Text style={s.offlineTitle}>Serviço ML Indisponível</Text>
+        <Text style={s.offlineBody}>O serviço de Machine Learning não está rodando. Inicie o serviço Python.</Text>
+        <View style={s.offlineCode}><Text style={s.offlineCodeText}>cd ml-service && python app.py</Text></View>
       </View>
     );
   }
 
-  const riskFactorsAndRecs = evasaoData ? (() => {
+  // Calcular fatores e recomendações a partir dos dados de evasão
+  const riskAnalysis = evasaoData ? (() => {
     const atRisk = evasaoData.predictions?.filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio') ?? [];
     const total = evasaoData.predictions?.length || 1;
     const pctAlto = Math.round((evasaoData.alunosRiscoAlto / total) * 100);
@@ -161,377 +160,320 @@ export default function MLInsightsScreen() {
     return { topFatores, recomendacoes, total };
   })() : null;
 
+  const wellbeingTotal = turmaAnalytics?.distribuicaoNotas
+    ? (turmaAnalytics.distribuicaoNotas.excelente + turmaAnalytics.distribuicaoNotas.bom +
+       turmaAnalytics.distribuicaoNotas.regular + turmaAnalytics.distribuicaoNotas.baixo) || 1
+    : 1;
+
   return (
     <ScrollView
-      style={styles.container}
+      style={s.screen}
+      contentContainerStyle={s.content}
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
     >
-      <View style={styles.content}>
+      {/* ── Header ── */}
+      <View style={s.header}>
+        <Text style={s.headerEmoji}>🧠</Text>
+        <Text style={s.headerTitle}>Análise Preditiva & Insights</Text>
+        <Text style={s.headerSub}>Machine Learning para bem-estar e engajamento</Text>
+        <View style={s.mlPill}><Text style={s.mlPillText}>✅  ML Online</Text></View>
+      </View>
 
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.title}>🧠 Análise Preditiva & Insights</Text>
-            <Text style={styles.subtitle}>
-              Machine Learning aplicado para acompanhar o bem-estar e engajamento dos participantes
-            </Text>
-          </View>
-          <View style={styles.mlBadge}>
-            <Text style={styles.mlBadgeText}>✅ ML Online</Text>
-          </View>
+      {/* ── Status dos Modelos ── */}
+      {modelsStatus && (
+        <View style={s.card}>
+          <Text style={s.cardTitle}>⚙️  Status dos Modelos</Text>
+          {[
+            { label: 'Modelo de Evasão', value: modelsStatus.evasaoModel ?? '—' },
+            { label: 'Modelo de Bem-Estar', value: modelsStatus.desempenhoModel ?? '—' },
+            {
+              label: 'Última Atualização',
+              value: modelsStatus.lastUpdate && modelsStatus.lastUpdate !== 'nunca' && modelsStatus.lastUpdate !== 'desconhecido'
+                ? new Date(modelsStatus.lastUpdate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                : 'Nunca treinado'
+            }
+          ].map((item, i, arr) => (
+            <View key={item.label} style={[s.modelRow, i < arr.length - 1 && s.modelRowBorder]}>
+              <Text style={s.modelLabel}>{item.label}</Text>
+              <Text style={s.modelValue}>{item.value}</Text>
+            </View>
+          ))}
         </View>
+      )}
 
-        {/* Status dos Modelos */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>⚙️ Status dos Modelos</Text>
-          <View style={styles.modelsGrid}>
-            <View style={styles.modelItem}>
-              <Text style={styles.modelLabel}>Modelo de Evasão</Text>
-              <Text style={styles.modelValue}>{modelsStatus?.evasaoModel ?? 'Carregando...'}</Text>
-            </View>
-            <View style={styles.modelItem}>
-              <Text style={styles.modelLabel}>Modelo de Bem-Estar</Text>
-              <Text style={styles.modelValue}>{modelsStatus?.desempenhoModel ?? 'Carregando...'}</Text>
-            </View>
-            <View style={[styles.modelItem, { borderBottomWidth: 0 }]}>
-              <Text style={styles.modelLabel}>Última Atualização</Text>
-              <Text style={styles.modelValue}>
-                {modelsStatus?.lastUpdate && modelsStatus.lastUpdate !== 'nunca' && modelsStatus.lastUpdate !== 'desconhecido'
-                  ? new Date(modelsStatus.lastUpdate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-                  : 'Nunca treinado'}
-              </Text>
-            </View>
+      {/* ── Visão Geral — 4 KPIs 2×2 ── */}
+      {overview && (
+        <>
+          <Text style={s.sectionTitle}>📊  Visão Geral</Text>
+          <View style={s.kpiGrid}>
+            {[
+              { label: 'Total de Participantes', value: overview.totalAlunos,       color: '#2563EB', bg: '#EFF6FF' },
+              { label: 'Taxa de Engajamento',    value: `${overview.taxaEngajamento}%`, color: '#16A34A', bg: '#F0FDF4' },
+              { label: 'Índice de Bem-Estar',    value: overview.mediaNotasGeral,   color: '#9333EA', bg: '#F3E8FF' },
+              { label: 'Questionários',           value: overview.totalQuestionarios, color: '#EA580C', bg: '#FFF7ED' },
+            ].map(kpi => (
+              <View key={kpi.label} style={[s.kpiCard, { backgroundColor: kpi.bg }]}>
+                <Text style={[s.kpiValue, { color: kpi.color }]}>{kpi.value}</Text>
+                <Text style={s.kpiLabel}>{kpi.label}</Text>
+              </View>
+            ))}
           </View>
+        </>
+      )}
+
+      {/* ── Seletor de Turma ── */}
+      <View style={s.card}>
+        <Text style={s.cardTitle}>🎯  Selecione um Grupo</Text>
+        <View style={s.turmaList}>
+          {turmas?.map((turma: any) => {
+            const selected = selectedTurmaId === turma.id;
+            return (
+              <TouchableOpacity
+                key={turma.id}
+                style={[s.turmaRow, selected && s.turmaRowOn]}
+                onPress={() => setSelectedTurmaId(turma.id)}
+                activeOpacity={0.7}
+              >
+                <View style={[s.radio, selected && s.radioOn]}>
+                  {selected && <View style={s.radioDot} />}
+                </View>
+                <Text style={[s.turmaText, selected && s.turmaTextOn]}>{turma.nome}</Text>
+                {selected && <Text style={s.checkmark}>✓</Text>}
+              </TouchableOpacity>
+            );
+          })}
         </View>
+      </View>
 
-        {/* Visão Geral — 4 KPIs */}
-        {overview && (
-          <View style={styles.kpiGrid}>
-            <View style={styles.kpiCard}>
-              <View style={[styles.kpiIcon, { backgroundColor: '#DBEAFE' }]}>
-                <Text style={styles.kpiIconText}>👥</Text>
-              </View>
-              <View>
-                <Text style={styles.kpiLabel}>Total de Participantes</Text>
-                <Text style={styles.kpiValue}>{overview.totalAlunos}</Text>
-              </View>
-            </View>
-            <View style={styles.kpiCard}>
-              <View style={[styles.kpiIcon, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={styles.kpiIconText}>📊</Text>
-              </View>
-              <View>
-                <Text style={styles.kpiLabel}>Taxa de Engajamento</Text>
-                <Text style={[styles.kpiValue, { color: '#16A34A' }]}>{overview.taxaEngajamento}%</Text>
-              </View>
-            </View>
-            <View style={styles.kpiCard}>
-              <View style={[styles.kpiIcon, { backgroundColor: '#F3E8FF' }]}>
-                <Text style={styles.kpiIconText}>📈</Text>
-              </View>
-              <View>
-                <Text style={styles.kpiLabel}>Índice de Bem-Estar</Text>
-                <Text style={[styles.kpiValue, { color: '#9333EA' }]}>{overview.mediaNotasGeral}</Text>
-              </View>
-            </View>
-            <View style={styles.kpiCard}>
-              <View style={[styles.kpiIcon, { backgroundColor: '#FFEDD5' }]}>
-                <Text style={styles.kpiIconText}>🎯</Text>
-              </View>
-              <View>
-                <Text style={styles.kpiLabel}>Questionários</Text>
-                <Text style={[styles.kpiValue, { color: '#EA580C' }]}>{overview.totalQuestionarios}</Text>
-              </View>
-            </View>
-          </View>
-        )}
+      {/* ── Análise do Grupo ── */}
+      {selectedTurmaId && turmaAnalytics && (
+        <View style={s.card}>
+          <Text style={s.cardTitle}>📈  Análise do Grupo</Text>
 
-        {/* Seletor de Turma */}
-        <View style={styles.card}>
-          <Text style={styles.pickerLabel}>Selecione um grupo para análise detalhada:</Text>
-          <View style={styles.turmaList}>
-            {turmas?.map((turma: any) => {
-              const selected = selectedTurmaId === turma.id;
-              return (
-                <TouchableOpacity
-                  key={turma.id}
-                  style={[styles.turmaRow, selected && styles.turmaRowSelected]}
-                  onPress={() => setSelectedTurmaId(turma.id)}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.turmaRadio, selected && styles.turmaRadioSelected]}>
-                    {selected && <View style={styles.turmaRadioDot} />}
-                  </View>
-                  <Text style={[styles.turmaRowText, selected && styles.turmaRowTextSelected]}>
-                    {turma.nome}
-                  </Text>
-                  {selected && <Text style={styles.turmaCheckmark}>✓</Text>}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Análise do Grupo */}
-        {selectedTurmaId && turmaAnalytics && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Análise do Grupo</Text>
-            <View style={styles.groupStatsRow}>
-              <View style={styles.groupStat}>
-                <Text style={styles.groupStatValue}>{turmaAnalytics.totalAlunos}</Text>
-                <Text style={styles.groupStatLabel}>Total de Participantes</Text>
-              </View>
-              <View style={styles.groupStat}>
-                <Text style={[styles.groupStatValue, { color: '#16A34A' }]}>{turmaAnalytics.alunosAtivos}</Text>
-                <Text style={styles.groupStatLabel}>Participantes Ativos</Text>
-              </View>
-              <View style={styles.groupStat}>
-                <Text style={[styles.groupStatValue, { color: '#2563EB' }]}>{turmaAnalytics.taxaEngajamento}%</Text>
-                <Text style={styles.groupStatLabel}>Taxa de Engajamento</Text>
-              </View>
+          {[
+            { label: 'Total de Participantes', value: turmaAnalytics.totalAlunos,      color: '#111827' },
+            { label: 'Participantes Ativos',   value: turmaAnalytics.alunosAtivos,     color: '#16A34A' },
+            { label: 'Taxa de Engajamento',    value: `${turmaAnalytics.taxaEngajamento}%`, color: '#2563EB' },
+          ].map((stat, i, arr) => (
+            <View key={stat.label} style={[s.statRow, i < arr.length - 1 && s.statRowBorder]}>
+              <Text style={s.statLabel}>{stat.label}</Text>
+              <Text style={[s.statValue, { color: stat.color }]}>{stat.value}</Text>
             </View>
+          ))}
 
-            {turmaAnalytics.distribuicaoNotas && (
-              <>
-                <Text style={styles.subTitle}>Distribuição de Bem-Estar</Text>
-                <View style={styles.wellbeingGrid}>
-                  <View style={[styles.wellbeingCard, { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' }]}>
-                    <Text style={[styles.wellbeingValue, { color: '#16A34A' }]}>{turmaAnalytics.distribuicaoNotas.excelente}</Text>
-                    <Text style={[styles.wellbeingLabel, { color: '#15803D' }]}>Excelente (8-10)</Text>
-                  </View>
-                  <View style={[styles.wellbeingCard, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}>
-                    <Text style={[styles.wellbeingValue, { color: '#2563EB' }]}>{turmaAnalytics.distribuicaoNotas.bom}</Text>
-                    <Text style={[styles.wellbeingLabel, { color: '#1D4ED8' }]}>Bom (6-8)</Text>
-                  </View>
-                  <View style={[styles.wellbeingCard, { backgroundColor: '#FEFCE8', borderColor: '#FDE68A' }]}>
-                    <Text style={[styles.wellbeingValue, { color: '#CA8A04' }]}>{turmaAnalytics.distribuicaoNotas.regular}</Text>
-                    <Text style={[styles.wellbeingLabel, { color: '#A16207' }]}>Regular (4-6)</Text>
-                  </View>
-                  <View style={[styles.wellbeingCard, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
-                    <Text style={[styles.wellbeingValue, { color: '#DC2626' }]}>{turmaAnalytics.distribuicaoNotas.baixo}</Text>
-                    <Text style={[styles.wellbeingLabel, { color: '#B91C1C' }]}>{'Baixo (<4)'}</Text>
+          {turmaAnalytics.distribuicaoNotas && (
+            <>
+              <Text style={[s.cardTitle, { marginTop: 20, marginBottom: 12 }]}>Distribuição de Bem-Estar</Text>
+              {[
+                { label: 'Excelente (8–10)', value: turmaAnalytics.distribuicaoNotas.excelente, color: '#16A34A' },
+                { label: 'Bom (6–8)',        value: turmaAnalytics.distribuicaoNotas.bom,       color: '#2563EB' },
+                { label: 'Regular (4–6)',    value: turmaAnalytics.distribuicaoNotas.regular,    color: '#CA8A04' },
+                { label: 'Baixo (<4)',       value: turmaAnalytics.distribuicaoNotas.baixo,      color: '#DC2626' },
+              ].map(item => (
+                <View key={item.label} style={s.barRow}>
+                  <Text style={s.barLabel}>{item.label}</Text>
+                  <View style={s.barTrackRow}>
+                    <ProgressBar value={item.value} total={wellbeingTotal} color={item.color} />
+                    <Text style={[s.barCount, { color: item.color }]}>{item.value}</Text>
                   </View>
                 </View>
-              </>
-            )}
-          </View>
-        )}
+              ))}
+            </>
+          )}
+        </View>
+      )}
 
-        {/* Análise de Risco de Abandono */}
-        {selectedTurmaId && evasaoData && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>
-              ⚠️ Análise de Risco de Abandono das Atividades
-              {evasaoData.metodo === 'heuristica' && (
-                <Text style={styles.heuristicNote}>{' '}(usando heurística - treine os modelos para ML)</Text>
-              )}
-            </Text>
+      {/* ── Risco de Abandono ── */}
+      {selectedTurmaId && evasaoData && (
+        <View style={s.card}>
+          <Text style={s.cardTitle}>⚠️  Risco de Abandono das Atividades</Text>
+          {evasaoData.metodo === 'heuristica' && (
+            <Text style={s.heuristicNote}>Usando análise heurística — treine os modelos para ML mais preciso.</Text>
+          )}
 
-            <View style={styles.riskCards}>
-              <View style={[styles.riskCard, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
-                <Text style={[styles.riskValue, { color: '#DC2626' }]}>{evasaoData.alunosRiscoAlto}</Text>
-                <Text style={[styles.riskLabel, { color: '#991B1B' }]}>Risco Alto</Text>
-              </View>
-              <View style={[styles.riskCard, { backgroundColor: '#FEFCE8', borderColor: '#FDE68A' }]}>
-                <Text style={[styles.riskValue, { color: '#CA8A04' }]}>{evasaoData.alunosRiscoMedio}</Text>
-                <Text style={[styles.riskLabel, { color: '#A16207' }]}>Risco Médio</Text>
-              </View>
-              <View style={[styles.riskCard, { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' }]}>
-                <Text style={[styles.riskValue, { color: '#16A34A' }]}>{evasaoData.alunosRiscoBaixo}</Text>
-                <Text style={[styles.riskLabel, { color: '#15803D' }]}>Risco Baixo</Text>
-              </View>
+          {[
+            { label: 'Risco Alto',  value: evasaoData.alunosRiscoAlto,  color: '#DC2626', border: '#FECACA', bg: '#FEF2F2' },
+            { label: 'Risco Médio', value: evasaoData.alunosRiscoMedio, color: '#CA8A04', border: '#FDE68A', bg: '#FEFCE8' },
+            { label: 'Risco Baixo', value: evasaoData.alunosRiscoBaixo, color: '#16A34A', border: '#BBF7D0', bg: '#F0FDF4' },
+          ].map(r => (
+            <View key={r.label} style={[s.riskRow, { backgroundColor: r.bg, borderLeftColor: r.color }]}>
+              <Text style={[s.riskValue, { color: r.color }]}>{r.value}</Text>
+              <Text style={[s.riskLabel, { color: r.color }]}>{r.label}</Text>
             </View>
+          ))}
 
-            {riskFactorsAndRecs && (
-              <>
-                {riskFactorsAndRecs.topFatores.length > 0 && (
-                  <View style={styles.factorsBox}>
-                    <Text style={styles.factorsTitle}>Principais fatores de risco identificados no grupo:</Text>
-                    {riskFactorsAndRecs.topFatores.map(([fator, count]) => (
-                      <View key={fator} style={styles.factorRow}>
-                        <Text style={styles.factorText}>• {fator}</Text>
-                        <Text style={styles.factorPct}>
-                          {Math.round((count / riskFactorsAndRecs.total) * 100)}% do grupo
-                        </Text>
-                      </View>
-                    ))}
+          {riskAnalysis && riskAnalysis.topFatores.length > 0 && (
+            <View style={s.factorsBox}>
+              <Text style={s.factorsTitle}>Principais fatores de risco no grupo:</Text>
+              <View style={s.chipsRow}>
+                {riskAnalysis.topFatores.map(([fator, count]) => (
+                  <View key={fator} style={s.chip}>
+                    <Text style={s.chipText}>{fator}</Text>
+                    <Text style={s.chipPct}> · {Math.round((count / riskAnalysis.total) * 100)}%</Text>
                   </View>
-                )}
-
-                {riskFactorsAndRecs.recomendacoes.length > 0 && (
-                  <View style={styles.recsBox}>
-                    <Text style={styles.recsTitle}>💡 Recomendações para o coordenador:</Text>
-                    {riskFactorsAndRecs.recomendacoes.map((rec, i) => (
-                      <Text key={i} style={styles.recItem}>→ {rec}</Text>
-                    ))}
-                  </View>
-                )}
-              </>
-            )}
-          </View>
-        )}
-
-        {/* Padrões de Engajamento */}
-        {selectedTurmaId && engagement && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Padrões de Engajamento</Text>
-            <View style={styles.engagementRow}>
-              <View style={[styles.engagementCard, { backgroundColor: '#F0FDF4' }]}>
-                <Text style={[styles.engagementValue, { color: '#16A34A' }]}>{engagement.altoEngajamento?.total ?? 0}</Text>
-                <Text style={styles.engagementLabel}>Alto Engajamento</Text>
-                <Text style={styles.engagementPct}>{engagement.altoEngajamento?.percentual ?? 0}% dos participantes</Text>
-              </View>
-              <View style={[styles.engagementCard, { backgroundColor: '#FEFCE8' }]}>
-                <Text style={[styles.engagementValue, { color: '#CA8A04' }]}>{engagement.medioEngajamento?.total ?? 0}</Text>
-                <Text style={styles.engagementLabel}>Médio Engajamento</Text>
-                <Text style={styles.engagementPct}>{engagement.medioEngajamento?.percentual ?? 0}% dos participantes</Text>
-              </View>
-              <View style={[styles.engagementCard, { backgroundColor: '#FEF2F2' }]}>
-                <Text style={[styles.engagementValue, { color: '#DC2626' }]}>{engagement.baixoEngajamento?.total ?? 0}</Text>
-                <Text style={styles.engagementLabel}>Baixo Engajamento</Text>
-                <Text style={styles.engagementPct}>{engagement.baixoEngajamento?.percentual ?? 0}% dos participantes</Text>
-              </View>
-            </View>
-
-            {engagement.insights && engagement.insights.length > 0 && (
-              <View style={styles.insightsBox}>
-                <Text style={styles.insightsTitle}>💡 Insights:</Text>
-                {engagement.insights.map((insight: string, idx: number) => (
-                  <Text key={idx} style={styles.insightItem}>{insight}</Text>
                 ))}
               </View>
-            )}
-          </View>
-        )}
+            </View>
+          )}
 
-      </View>
+          {riskAnalysis && riskAnalysis.recomendacoes.length > 0 && (
+            <View style={s.recsBox}>
+              <Text style={s.recsTitle}>💡  Recomendações para o coordenador:</Text>
+              {riskAnalysis.recomendacoes.map((rec, i) => (
+                <Text key={i} style={s.recItem}>→  {rec}</Text>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* ── Padrões de Engajamento ── */}
+      {selectedTurmaId && engagement && (
+        <View style={s.card}>
+          <Text style={s.cardTitle}>🔥  Padrões de Engajamento</Text>
+
+          {[
+            { label: 'Alto Engajamento',  data: engagement.altoEngajamento,  color: '#16A34A' },
+            { label: 'Médio Engajamento', data: engagement.medioEngajamento, color: '#CA8A04' },
+            { label: 'Baixo Engajamento', data: engagement.baixoEngajamento, color: '#DC2626' },
+          ].map(item => (
+            <View key={item.label} style={s.engRow}>
+              <View style={s.engHeader}>
+                <Text style={s.engLabel}>{item.label}</Text>
+                <Text style={[s.engValue, { color: item.color }]}>
+                  {item.data?.total ?? 0}
+                  <Text style={s.engPct}>  {item.data?.percentual ?? 0}%</Text>
+                </Text>
+              </View>
+              <ProgressBar value={item.data?.total ?? 0} total={(engagement.altoEngajamento?.total ?? 0) + (engagement.medioEngajamento?.total ?? 0) + (engagement.baixoEngajamento?.total ?? 0) || 1} color={item.color} />
+            </View>
+          ))}
+
+          {engagement.insights && engagement.insights.length > 0 && (
+            <View style={s.insightsBox}>
+              <Text style={s.insightsTitle}>💡  Insights:</Text>
+              {engagement.insights.map((insight: string, idx: number) => (
+                <Text key={idx} style={s.insightItem}>→  {insight}</Text>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
+
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
-  content: { padding: 16, paddingBottom: 40 },
-  loading: { fontSize: 20, textAlign: 'center', marginTop: 100, color: '#6B7280' },
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#F3F4F6' },
+  content: { padding: 16, paddingBottom: 48 },
+  centerScreen: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { fontSize: 18, color: '#6B7280' },
 
   // Offline
-  offlineContainer: {
-    flex: 1, backgroundColor: '#FFFBEB',
-    justifyContent: 'center', alignItems: 'center', padding: 32
-  },
-  offlineIcon: { fontSize: 56, marginBottom: 16 },
+  offlineScreen: { flex: 1, backgroundColor: '#FFFBEB', justifyContent: 'center', alignItems: 'center', padding: 32 },
+  offlineEmoji: { fontSize: 52, marginBottom: 16 },
   offlineTitle: { fontSize: 22, fontWeight: 'bold', color: '#92400E', marginBottom: 8, textAlign: 'center' },
-  offlineText: { fontSize: 15, color: '#B45309', textAlign: 'center', marginBottom: 20, lineHeight: 22 },
+  offlineBody: { fontSize: 16, color: '#B45309', textAlign: 'center', lineHeight: 22, marginBottom: 20 },
   offlineCode: { backgroundColor: '#FEF3C7', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 },
   offlineCodeText: { fontFamily: 'monospace', fontSize: 13, color: '#92400E' },
 
   // Header
   header: {
-    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, marginBottom: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2
+    alignItems: 'center', backgroundColor: '#F3E8FF',
+    borderRadius: 16, padding: 24, marginBottom: 16,
+    borderWidth: 2, borderColor: '#D8B4FE'
   },
-  headerLeft: { flex: 1, marginRight: 12 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#111827', marginBottom: 4 },
-  subtitle: { fontSize: 13, color: '#6B7280', lineHeight: 18 },
-  mlBadge: { backgroundColor: '#DCFCE7', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  mlBadgeText: { fontSize: 12, fontWeight: '600', color: '#15803D' },
+  headerEmoji: { fontSize: 52, marginBottom: 8 },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#581C87', textAlign: 'center', marginBottom: 6 },
+  headerSub: { fontSize: 14, color: '#7C3AED', textAlign: 'center', marginBottom: 12 },
+  mlPill: { backgroundColor: '#DCFCE7', borderRadius: 999, paddingHorizontal: 16, paddingVertical: 6 },
+  mlPillText: { fontSize: 14, fontWeight: '700', color: '#15803D' },
 
-  // Card genérico
+  // Card
   card: {
-    backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, marginBottom: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 14,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.07, shadowRadius: 4, elevation: 2
   },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: '#111827', marginBottom: 14 },
-  subTitle: { fontSize: 15, fontWeight: '600', color: '#111827', marginTop: 16, marginBottom: 10 },
+  cardTitle: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 14 },
+
+  // Seção título solto
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 10 },
 
   // Status dos modelos
-  modelsGrid: { gap: 0 },
-  modelItem: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
-  modelLabel: { fontSize: 13, color: '#6B7280' },
-  modelValue: { fontSize: 15, fontWeight: 'bold', color: '#111827', textTransform: 'capitalize', marginTop: 2 },
+  modelRow: { paddingVertical: 12 },
+  modelRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  modelLabel: { fontSize: 13, color: '#6B7280', marginBottom: 2 },
+  modelValue: { fontSize: 16, fontWeight: '700', color: '#111827', textTransform: 'capitalize' },
 
-  // KPIs
-  kpiGrid: { gap: 10, marginBottom: 14 },
-  kpiCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2
-  },
-  kpiIcon: { width: 48, height: 48, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  kpiIconText: { fontSize: 22 },
-  kpiLabel: { fontSize: 13, color: '#6B7280' },
-  kpiValue: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
+  // KPI 2×2
+  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 14 },
+  kpiCard: { width: '47.5%', borderRadius: 14, padding: 18, alignItems: 'center' },
+  kpiValue: { fontSize: 34, fontWeight: 'bold', marginBottom: 4 },
+  kpiLabel: { fontSize: 13, color: '#6B7280', textAlign: 'center' },
 
   // Seletor de turma
-  pickerLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 10 },
-  turmaList: { gap: 8 },
+  turmaList: { gap: 10 },
   turmaRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    minHeight: 60, paddingHorizontal: 14, paddingVertical: 12,
-    borderWidth: 2, borderColor: '#E5E7EB', borderRadius: 10,
-    backgroundColor: '#F9FAFB'
+    minHeight: 64, paddingHorizontal: 16, paddingVertical: 12,
+    borderWidth: 2, borderColor: '#E5E7EB', borderRadius: 12, backgroundColor: '#F9FAFB'
   },
-  turmaRowSelected: { borderColor: '#2563EB', backgroundColor: '#EFF6FF' },
-  turmaRadio: {
-    width: 22, height: 22, borderRadius: 11, borderWidth: 2,
-    borderColor: '#9CA3AF', justifyContent: 'center', alignItems: 'center'
-  },
-  turmaRadioSelected: { borderColor: '#2563EB' },
-  turmaRadioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#2563EB' },
-  turmaRowText: { flex: 1, fontSize: 16, color: '#374151', fontWeight: '500' },
-  turmaRowTextSelected: { color: '#1D4ED8', fontWeight: '700' },
-  turmaCheckmark: { fontSize: 18, color: '#2563EB', fontWeight: 'bold' },
+  turmaRowOn: { borderColor: '#2563EB', backgroundColor: '#EFF6FF' },
+  radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#9CA3AF', justifyContent: 'center', alignItems: 'center' },
+  radioOn: { borderColor: '#2563EB' },
+  radioDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#2563EB' },
+  turmaText: { flex: 1, fontSize: 16, color: '#374151', fontWeight: '500' },
+  turmaTextOn: { color: '#1D4ED8', fontWeight: '700' },
+  checkmark: { fontSize: 20, color: '#2563EB', fontWeight: 'bold' },
 
-  // Análise do grupo
-  groupStatsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  groupStat: { flex: 1, alignItems: 'center' },
-  groupStatValue: { fontSize: 28, fontWeight: 'bold', color: '#111827' },
-  groupStatLabel: { fontSize: 12, color: '#6B7280', textAlign: 'center', marginTop: 2 },
+  // Análise do grupo — stats
+  statRow: { paddingVertical: 14 },
+  statRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  statLabel: { fontSize: 13, color: '#6B7280', marginBottom: 2 },
+  statValue: { fontSize: 28, fontWeight: 'bold' },
 
-  // Distribuição bem-estar
-  wellbeingGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  wellbeingCard: { flex: 1, minWidth: '45%', padding: 12, borderRadius: 10, borderWidth: 1 },
-  wellbeingValue: { fontSize: 26, fontWeight: 'bold', marginBottom: 2 },
-  wellbeingLabel: { fontSize: 12 },
+  // Barras de progresso — bem-estar
+  barRow: { marginBottom: 12 },
+  barLabel: { fontSize: 14, color: '#374151', fontWeight: '500', marginBottom: 6 },
+  barTrackRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  barCount: { fontSize: 16, fontWeight: '700', width: 30, textAlign: 'right' },
 
   // Risco
-  riskCards: { flexDirection: 'row', gap: 8, marginBottom: 14 },
-  riskCard: { flex: 1, padding: 12, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
-  riskValue: { fontSize: 26, fontWeight: 'bold' },
-  riskLabel: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-  heuristicNote: { fontSize: 12, color: '#6B7280', fontWeight: 'normal' },
-
-  // Fatores
-  factorsBox: {
-    backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB',
-    borderRadius: 10, padding: 12, marginBottom: 10
+  riskRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    borderRadius: 12, padding: 16, marginBottom: 10,
+    borderLeftWidth: 5
   },
-  factorsTitle: { fontSize: 14, fontWeight: '600', color: '#111827', marginBottom: 8 },
-  factorRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  factorText: { fontSize: 13, color: '#374151', flex: 1 },
-  factorPct: { fontSize: 12, color: '#6B7280', fontWeight: '500', marginLeft: 8 },
+  riskValue: { fontSize: 32, fontWeight: 'bold', width: 42 },
+  riskLabel: { fontSize: 15, fontWeight: '700' },
+
+  // Fatores chips
+  factorsBox: { marginTop: 8, marginBottom: 8 },
+  factorsTitle: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 10 },
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: {
+    flexDirection: 'row', backgroundColor: '#F3F4F6',
+    borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6
+  },
+  chipText: { fontSize: 13, color: '#374151' },
+  chipPct: { fontSize: 13, color: '#6B7280', fontWeight: '600' },
 
   // Recomendações
-  recsBox: {
-    backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE',
-    borderRadius: 10, padding: 12
-  },
-  recsTitle: { fontSize: 14, fontWeight: '600', color: '#1E40AF', marginBottom: 6 },
-  recItem: { fontSize: 13, color: '#1D4ED8', marginBottom: 5, lineHeight: 18 },
+  recsBox: { backgroundColor: '#EFF6FF', borderRadius: 12, padding: 14, marginTop: 4 },
+  recsTitle: { fontSize: 15, fontWeight: '700', color: '#1E40AF', marginBottom: 8 },
+  recItem: { fontSize: 15, color: '#1D4ED8', marginBottom: 6, lineHeight: 22 },
+  heuristicNote: { fontSize: 13, color: '#6B7280', marginBottom: 14, fontStyle: 'italic' },
 
   // Engajamento
-  engagementRow: { gap: 8 },
-  engagementCard: { borderRadius: 10, padding: 12 },
-  engagementValue: { fontSize: 26, fontWeight: 'bold', marginBottom: 2 },
-  engagementLabel: { fontSize: 13, color: '#374151', fontWeight: '600' },
-  engagementPct: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  engRow: { marginBottom: 16 },
+  engHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 },
+  engLabel: { fontSize: 15, fontWeight: '600', color: '#374151' },
+  engValue: { fontSize: 22, fontWeight: 'bold' },
+  engPct: { fontSize: 13, color: '#6B7280', fontWeight: 'normal' },
 
   // Insights
-  insightsBox: {
-    backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE',
-    borderRadius: 10, padding: 12, marginTop: 10
-  },
-  insightsTitle: { fontSize: 14, fontWeight: '600', color: '#1E40AF', marginBottom: 6 },
-  insightItem: { fontSize: 13, color: '#1D4ED8', marginBottom: 5, lineHeight: 18 },
+  insightsBox: { backgroundColor: '#EFF6FF', borderRadius: 12, padding: 14, marginTop: 8 },
+  insightsTitle: { fontSize: 15, fontWeight: '700', color: '#1E40AF', marginBottom: 8 },
+  insightItem: { fontSize: 15, color: '#1D4ED8', marginBottom: 6, lineHeight: 22 },
 });
