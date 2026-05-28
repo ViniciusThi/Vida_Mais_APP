@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import { useFontSize } from '../contexts/FontSizeContext';
 import * as Speech from 'expo-speech';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -32,6 +33,8 @@ export default function QuestionarioScreen() {
   const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
   const [respostas, setRespostas] = useState<Record<string, any>>(respostasIniciais || {});
   const [vozPtBr, setVozPtBr] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const perguntaRef = useRef<any>(null);
   useEffect(() => {
     const carregarVozes = async () => {
       try {
@@ -48,6 +51,37 @@ export default function QuestionarioScreen() {
     carregarVozes();
   }, []);
 
+
+  // Eventos de reconhecimento de voz
+  useSpeechRecognitionEvent('result', (event) => {
+    const transcript = event.results?.[0]?.transcript;
+    if (transcript && perguntaRef.current?.tipo === 'TEXTO') {
+      setRespostas(prev => ({
+        ...prev,
+        [perguntaRef.current!.id]: { perguntaId: perguntaRef.current!.id, tipo: 'TEXTO', valor: transcript }
+      }));
+    }
+  });
+
+  useSpeechRecognitionEvent('end', () => setIsListening(false));
+
+  useSpeechRecognitionEvent('error', (event: any) => {
+    setIsListening(false);
+    if (event.error !== 'aborted' && event.error !== 'no-speech') {
+      Alert.alert('Voz', 'Não foi possível reconhecer a fala. Tente novamente.');
+    }
+  });
+
+  // Para ao trocar de pergunta
+  useEffect(() => {
+    if (isListening) {
+      ExpoSpeechRecognitionModule.abort();
+      setIsListening(false);
+    }
+  }, [currentIndex]);
+
+  // Para ao desmontar
+  useEffect(() => () => { ExpoSpeechRecognitionModule.abort(); }, []);
 
   const { data: questionario, isLoading } = useQuery({
     queryKey: ['questionario', id],
@@ -99,6 +133,23 @@ export default function QuestionarioScreen() {
       </View>
     );
   }
+
+  perguntaRef.current = pergunta;
+
+  const toggleVoiceInput = async () => {
+    if (isListening) {
+      ExpoSpeechRecognitionModule.abort();
+      setIsListening(false);
+      return;
+    }
+    const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+    if (!granted) {
+      Alert.alert('Permissão necessária', 'Permita o acesso ao microfone nas configurações do dispositivo.');
+      return;
+    }
+    setIsListening(true);
+    ExpoSpeechRecognitionModule.start({ lang: 'pt-BR', interimResults: true, maxAlternatives: 1 });
+  };
 
   const handleResposta = (valor: any, tipo: string) => {
     if (tipo !== 'TEXTO') Keyboard.dismiss();
@@ -256,12 +307,14 @@ export default function QuestionarioScreen() {
                   autoCapitalize="sentences"
                 />
                 <TouchableOpacity
-                  style={styles.micButton}
-                  onPress={() => Alert.alert('Entrada por Voz', 'A entrada por voz estará disponível na próxima versão do aplicativo.\n\nPor enquanto, use o botão "Ouvir" para escutar a pergunta e digite sua resposta.')}
+                  style={[styles.micButton, isListening && styles.micButtonActive]}
+                  onPress={toggleVoiceInput}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.micIcon}>🎤</Text>
-                  <Text style={[styles.micText, { fontSize: Math.min(width * 0.04, 16) * fontScale }]}>Falar resposta</Text>
+                  <Text style={styles.micIcon}>{isListening ? '🔴' : '🎤'}</Text>
+                  <Text style={[styles.micText, { fontSize: Math.min(width * 0.04, 16) * fontScale }, isListening && styles.micTextActive]}>
+                    {isListening ? 'Parar' : 'Falar resposta'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -501,6 +554,13 @@ const styles = StyleSheet.create({
     fontSize: Math.min(width * 0.04, 16),
     color: '#374151',
     fontWeight: '600'
+  },
+  micButtonActive: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#DC2626'
+  },
+  micTextActive: {
+    color: '#DC2626'
   },
   question: {
     fontSize: Math.min(width * 0.08, 36),

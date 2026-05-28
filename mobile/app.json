@@ -25,7 +25,9 @@
         "CFBundleLocalizations": [
           "pt_BR"
         ],
-        "NSCameraUsageDescription": "O aplicativo usa a câmera para login pelo reconhecimento facial."
+        "NSCameraUsageDescription": "O aplicativo usa a câmera para login pelo reconhecimento facial.",
+        "NSMicrophoneUsageDescription": "O aplicativo usa o microfone para transcrever sua resposta por voz.",
+        "NSSpeechRecognitionUsageDescription": "O aplicativo usa reconhecimento de fala para converter sua voz em texto."
       }
     },
     "android": {
@@ -34,7 +36,10 @@
       },
       "package": "com.vidamais.app",
       "backgroundColor": "#FFFFFF",
-      "permissions": ["android.permission.CAMERA"],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
       "intentFilters": []
     },
     "web": {},
@@ -46,7 +51,8 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-camera"
+      "expo-camera",
+      "expo-speech-recognition"
     ]
   }
 }
