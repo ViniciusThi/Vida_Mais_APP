@@ -18,17 +18,23 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import { useFontSize } from '../contexts/FontSizeContext';
 import * as Speech from 'expo-speech';
+import Constants from 'expo-constants';
 
-// expo-speech-recognition requer Development Build (não funciona no Expo Go).
-// Carregamento dinâmico com fallback para evitar crash de módulo nativo ausente.
+// expo-speech-recognition requer Development Build — não funciona no Expo Go.
+// Verificamos appOwnership antes de chamar require() para evitar crash nativo.
+const _isExpoGo = Constants.appOwnership === 'expo';
+
 let ExpoSpeechRecognitionModule: any = null;
 let useSpeechRecognitionEvent: (event: string, handler: any) => void = () => {};
-try {
-  const mod = require('expo-speech-recognition');
-  ExpoSpeechRecognitionModule = mod.ExpoSpeechRecognitionModule;
-  useSpeechRecognitionEvent = mod.useSpeechRecognitionEvent;
-} catch {
-  // Expo Go — módulo nativo indisponível; STT desativado graciosamente
+
+if (!_isExpoGo) {
+  try {
+    const mod = require('expo-speech-recognition');
+    ExpoSpeechRecognitionModule = mod.ExpoSpeechRecognitionModule;
+    useSpeechRecognitionEvent = mod.useSpeechRecognitionEvent;
+  } catch {
+    // Dev build sem o módulo compilado — fallback silencioso
+  }
 }
 
 const { width, height } = Dimensions.get('window');
