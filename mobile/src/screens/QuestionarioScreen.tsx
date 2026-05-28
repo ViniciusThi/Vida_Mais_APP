@@ -92,6 +92,14 @@ export default function QuestionarioScreen() {
   const perguntas = questionario.perguntas || [];
   const pergunta = perguntas[currentIndex];
 
+  if (!pergunta) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Nenhuma pergunta encontrada.</Text>
+      </View>
+    );
+  }
+
   const handleResposta = (valor: any, tipo: string) => {
     if (tipo !== 'TEXTO') Keyboard.dismiss();
     setRespostas({
