@@ -18,7 +18,18 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import { useFontSize } from '../contexts/FontSizeContext';
 import * as Speech from 'expo-speech';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+
+// expo-speech-recognition requer Development Build (não funciona no Expo Go).
+// Carregamento dinâmico com fallback para evitar crash de módulo nativo ausente.
+let ExpoSpeechRecognitionModule: any = null;
+let useSpeechRecognitionEvent: (event: string, handler: any) => void = () => {};
+try {
+  const mod = require('expo-speech-recognition');
+  ExpoSpeechRecognitionModule = mod.ExpoSpeechRecognitionModule;
+  useSpeechRecognitionEvent = mod.useSpeechRecognitionEvent;
+} catch {
+  // Expo Go — módulo nativo indisponível; STT desativado graciosamente
+}
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -74,14 +85,14 @@ export default function QuestionarioScreen() {
 
   // Para ao trocar de pergunta
   useEffect(() => {
-    if (isListening) {
+    if (isListening && ExpoSpeechRecognitionModule) {
       ExpoSpeechRecognitionModule.abort();
       setIsListening(false);
     }
   }, [currentIndex]);
 
   // Para ao desmontar
-  useEffect(() => () => { ExpoSpeechRecognitionModule.abort(); }, []);
+  useEffect(() => () => { ExpoSpeechRecognitionModule?.abort(); }, []);
 
   const { data: questionario, isLoading } = useQuery({
     queryKey: ['questionario', id],
@@ -137,6 +148,10 @@ export default function QuestionarioScreen() {
   perguntaRef.current = pergunta;
 
   const toggleVoiceInput = async () => {
+    if (!ExpoSpeechRecognitionModule) {
+      Alert.alert('Recurso indisponível', 'O reconhecimento de voz não está disponível no Expo Go. Use a versão instalada do app ou digite sua resposta.');
+      return;
+    }
     if (isListening) {
       ExpoSpeechRecognitionModule.abort();
       setIsListening(false);
