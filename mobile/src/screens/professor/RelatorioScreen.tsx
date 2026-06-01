@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute } from '@react-navigation/native';
 import { professorService } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
+import { API_URL } from '../../config/api';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
@@ -14,83 +16,57 @@ export default function RelatorioScreen() {
     queryFn: () => professorService.getRelatorio(id)
   });
 
-  const handleExport = async (formato: 'xlsx' | 'csv') => {
-    try {
-      Alert.alert(
-        'Exportar Relatório',
-        `Deseja baixar o relatório em ${formato.toUpperCase()}?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Baixar',
-            onPress: async () => {
-              try {
-                // Exibir loading
-                Alert.alert('Aguarde', 'Preparando arquivo para download...');
+  const handleExport = (formato: 'xlsx' | 'csv') => {
+    Alert.alert(
+      'Exportar Relatório',
+      `Deseja baixar o relatório em ${formato.toUpperCase()}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Baixar',
+          onPress: async () => {
+            try {
+              Alert.alert('Aguarde', 'Preparando arquivo para download...');
 
-                // Fazer download do backend
-                const blob = await professorService.exportar(id, formato);
-                
-                // Criar nome do arquivo
-                const fileName = `relatorio-${id}-${Date.now()}.${formato}`;
-                const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+              const token = useAuthStore.getState().token;
+              const fileName = `relatorio-${id}-${Date.now()}.${formato}`;
+              const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-                // Converter blob para base64 (necessário para React Native)
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = async () => {
-                  const base64data = reader.result as string;
-                  const base64 = base64data.split(',')[1]; // Remove o prefixo data:...
+              await FileSystem.downloadAsync(
+                `${API_URL}/prof/export/${id}?formato=${formato}`,
+                fileUri,
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
 
-                  // Salvar arquivo
-                  await FileSystem.writeAsStringAsync(fileUri, base64, {
-                    encoding: FileSystem.EncodingType.Base64
-                  });
-
-                  // Verificar se o arquivo pode ser compartilhado
-                  const canShare = await Sharing.isAvailableAsync();
-                  
-                  if (canShare) {
-                    // Compartilhar/Salvar arquivo
-                    await Sharing.shareAsync(fileUri, {
-                      mimeType: formato === 'xlsx' 
-                        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                        : 'text/csv',
-                      dialogTitle: 'Salvar Relatório',
-                      UTI: formato === 'xlsx' ? 'org.openxmlformats.spreadsheetml.sheet' : 'public.comma-separated-values-text'
-                    });
-
-                    Alert.alert(
-                      'Sucesso! 🎉', 
-                      `Relatório exportado com sucesso!\n\nVocê pode abrir o arquivo com:\n• Excel\n• Google Sheets\n• Outros apps compatíveis`,
-                      [{ text: 'OK' }]
-                    );
-                  } else {
-                    Alert.alert(
-                      'Download Concluído',
-                      `Arquivo salvo em:\n${fileUri}\n\nAcesse através do gerenciador de arquivos do seu dispositivo.`,
-                      [{ text: 'OK' }]
-                    );
-                  }
-                };
-
-                reader.onerror = () => {
-                  throw new Error('Erro ao processar arquivo');
-                };
-              } catch (err) {
-                console.error('Erro ao exportar:', err);
+              const canShare = await Sharing.isAvailableAsync();
+              if (canShare) {
+                await Sharing.shareAsync(fileUri, {
+                  mimeType: formato === 'xlsx'
+                    ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    : 'text/csv',
+                  dialogTitle: 'Salvar Relatório',
+                  UTI: formato === 'xlsx' ? 'org.openxmlformats.spreadsheetml.sheet' : 'public.comma-separated-values-text'
+                });
                 Alert.alert(
-                  'Erro',
-                  'Não foi possível exportar o relatório. Tente novamente ou use o painel web.'
+                  'Sucesso!',
+                  'Relatório exportado com sucesso!\n\nVocê pode abrir o arquivo com:\n• Excel\n• Google Sheets\n• Outros apps compatíveis',
+                  [{ text: 'OK' }]
+                );
+              } else {
+                Alert.alert(
+                  'Download Concluído',
+                  `Arquivo salvo em:\n${fileUri}\n\nAcesse através do gerenciador de arquivos do seu dispositivo.`,
+                  [{ text: 'OK' }]
                 );
               }
+            } catch (err) {
+              console.error('Erro ao exportar:', err);
+              Alert.alert('Erro', 'Não foi possível exportar o relatório. Tente novamente ou use o painel web.');
             }
           }
-        ]
-      );
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível exportar');
-    }
+        }
+      ]
+    );
   };
 
   if (isLoading || !relatorio) {

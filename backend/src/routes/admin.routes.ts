@@ -195,6 +195,7 @@ router.post('/alunos/import', async (req: AuthRequest, res, next) => {
     stream
       .pipe(parse({ headers: true, trim: true }))
       .on('data', (row: any) => alunos.push(row))
+      .on('error', (err) => next(err))
       .on('end', async () => {
         try {
           const created = [];

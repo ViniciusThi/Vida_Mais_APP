@@ -342,7 +342,7 @@ router.post('/perguntas', async (req: AuthRequest, res, next) => {
 
     res.status(201).json({
       ...pergunta,
-      opcoes: pergunta.opcoesJson ? JSON.parse(pergunta.opcoesJson) : null
+      opcoes: (() => { try { return pergunta.opcoesJson ? JSON.parse(pergunta.opcoesJson) : null; } catch { return null; } })()
     });
   } catch (error) {
     next(error);
@@ -381,7 +381,7 @@ router.put('/perguntas/:id', async (req: AuthRequest, res, next) => {
 
     res.json({
       ...updated,
-      opcoes: updated.opcoesJson ? JSON.parse(updated.opcoesJson) : null
+      opcoes: (() => { try { return updated.opcoesJson ? JSON.parse(updated.opcoesJson) : null; } catch { return null; } })()
     });
   } catch (error) {
     next(error);
@@ -650,7 +650,8 @@ router.get('/relatorios/:questionarioId', async (req: AuthRequest, res, next) =>
         agregacao.sim = sim;
         agregacao.nao = nao;
       } else if ([TipoPergunta.MULTIPLA, TipoPergunta.UNICA].includes(pergunta.tipo)) {
-        const opcoes = pergunta.opcoesJson ? JSON.parse(pergunta.opcoesJson) : [];
+        let opcoes: string[] = [];
+        try { opcoes = pergunta.opcoesJson ? JSON.parse(pergunta.opcoesJson) : []; } catch { opcoes = []; }
         const distribuicao: Record<string, number> = {};
         
         opcoes.forEach((opcao: string) => {

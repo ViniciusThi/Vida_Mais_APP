@@ -17,7 +17,9 @@ export default function PerfilPage() {
   const [confirmAberto, setConfirmAberto] = useState(false);
 
   useEffect(() => {
-    authService.statusRosto().then((r) => setFaceRegistrada(r.faceRegistrada));
+    authService.statusRosto()
+      .then((r) => setFaceRegistrada(r.faceRegistrada))
+      .catch(() => setFaceRegistrada(false));
   }, []);
 
   useEffect(() => {
