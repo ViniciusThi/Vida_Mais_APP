@@ -78,7 +78,7 @@ router.post('/login', async (req, res, next) => {
 // Schema de validação para cadastro
 const cadastroSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
-  idade: z.number().int().min(60, 'Idade mínima é 60 anos'),
+  idade: z.number().int().min(60, 'Idade mínima é 60 anos').max(120, 'Idade inválida'),
   email: z.string().email('Email inválido'),
   telefone: z.string().min(10, 'Telefone inválido'),
   deficiencia: z.string().optional(),

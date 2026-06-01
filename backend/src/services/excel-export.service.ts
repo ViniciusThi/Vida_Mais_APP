@@ -9,18 +9,19 @@ interface QuestionarioData {
   id: string;
   titulo: string;
   descricao: string | null;
-  turma: any;
-  perguntas: any[];
+  turma: { id: string; nome: string } | null;
+  perguntas: { id: string; ordem: number; enunciado: string; tipo: string; opcoesJson: string | null }[];
 }
 
 interface RespostaData {
   alunoId: string;
   perguntaId: string;
   aluno: {
+    id: string;
     nome: string;
     email: string;
   };
-  pergunta: any;
+  pergunta: { id: string; ordem: number };
   valorTexto: string | null;
   valorNum: number | null;
   valorBool: boolean | null;
@@ -333,6 +334,9 @@ export class ExcelExportService {
    * Calcular estatísticas numéricas
    */
   private static calculateNumericStats(valores: number[]) {
+    if (valores.length === 0) {
+      return { count: 0, sum: 0, mean: 0, median: 0, min: 0, max: 0, stdDev: 0 };
+    }
     const sorted = [...valores].sort((a, b) => a - b);
     const count = valores.length;
     const sum = valores.reduce((a, b) => a + b, 0);

@@ -146,9 +146,9 @@ export default function MLInsightsScreen() {
   // Calcular fatores e recomendações a partir dos dados de evasão
   const riskAnalysis = evasaoData ? (() => {
     const atRisk = evasaoData.predictions?.filter((p: any) => p.nivelRisco === 'alto' || p.nivelRisco === 'medio') ?? [];
-    const total = evasaoData.predictions?.length || 1;
-    const pctAlto = Math.round((evasaoData.alunosRiscoAlto / total) * 100);
-    const pctMedio = Math.round((evasaoData.alunosRiscoMedio / total) * 100);
+    const total = evasaoData.predictions?.length ?? 0;
+    const pctAlto = total > 0 ? Math.round((evasaoData.alunosRiscoAlto / total) * 100) : 0;
+    const pctMedio = total > 0 ? Math.round((evasaoData.alunosRiscoMedio / total) * 100) : 0;
     const fatoresCount: Record<string, number> = {};
     atRisk.forEach((p: any) => p.fatores?.forEach((f: string) => { fatoresCount[f] = (fatoresCount[f] || 0) + 1; }));
     const topFatores = Object.entries(fatoresCount).sort((a, b) => b[1] - a[1]).slice(0, 5);

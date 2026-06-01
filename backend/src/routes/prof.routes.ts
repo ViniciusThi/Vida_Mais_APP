@@ -94,6 +94,12 @@ router.post('/questionarios', async (req: AuthRequest, res, next) => {
       return res.status(400).json({ error: 'turmaId é obrigatório para questionários de turma' });
     }
 
+    // Validar intervalo de datas
+    if (data.periodoInicio && data.periodoFim &&
+        new Date(data.periodoFim) <= new Date(data.periodoInicio)) {
+      return res.status(400).json({ error: 'periodoFim deve ser posterior a periodoInicio' });
+    }
+
     // Verificar se o professor é dono da turma (se não for admin)
     if (req.user!.role === Role.PROF && data.turmaId) {
       const turma = await prisma.turma.findFirst({
@@ -249,6 +255,12 @@ router.put('/questionarios/:id', async (req: AuthRequest, res, next) => {
 
     if (req.user!.role === Role.PROF && questionario.criadoPor !== req.user!.id) {
       return res.status(403).json({ error: 'Sem permissão' });
+    }
+
+    // Validar intervalo de datas
+    if (data.periodoInicio && data.periodoFim &&
+        new Date(data.periodoFim) <= new Date(data.periodoInicio)) {
+      return res.status(400).json({ error: 'periodoFim deve ser posterior a periodoInicio' });
     }
 
     const updated = await prisma.questionario.update({
@@ -482,6 +494,10 @@ router.post('/questionarios-padrao', async (req: AuthRequest, res, next) => {
 // POST /prof/questionarios-padrao/:id/duplicar - Duplicar questionário padrão de um ano para outro
 router.post('/questionarios-padrao/:id/duplicar', async (req: AuthRequest, res, next) => {
   try {
+    if (req.user!.role !== Role.ADMIN) {
+      return res.status(403).json({ error: 'Apenas administradores podem duplicar questionários padrão' });
+    }
+
     const { ano } = z.object({
       ano: z.number().int().min(2020)
     }).parse(req.body);
@@ -1097,76 +1113,6 @@ router.post('/questionarios-padrao/:id/encerrar', authorize(Role.ADMIN), async (
     res.json({
       message: 'Questionário padrão encerrado com sucesso',
       questionario: atualizado
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// POST /prof/questionarios-padrao/:id/duplicar - Duplicar questionário padrão para novo ano
-// (Apenas ADMIN pode duplicar)
-router.post('/questionarios-padrao/:id/duplicar', authorize(Role.ADMIN), async (req: AuthRequest, res, next) => {
-  try {
-    const { id } = req.params;
-    const { novoAno } = z.object({
-      novoAno: z.number().int().min(2020).max(2100)
-    }).parse(req.body);
-
-    // Buscar questionário original
-    const original = await prisma.questionario.findFirst({
-      where: {
-        id,
-        padrao: true
-      },
-      include: {
-        perguntas: {
-          orderBy: { ordem: 'asc' }
-        }
-      }
-    });
-
-    if (!original) {
-      return res.status(404).json({ error: 'Questionário padrão não encontrado' });
-    }
-
-    // Verificar se já existe para o novo ano
-    const existente = await prisma.questionario.findFirst({
-      where: { padrao: true, ano: novoAno }
-    });
-
-    if (existente) {
-      return res.status(409).json({ 
-        error: `Já existe um questionário padrão para o ano ${novoAno}` 
-      });
-    }
-
-    // Duplicar questionário
-    const duplicado = await prisma.questionario.create({
-      data: {
-        titulo: `Pesquisa de Satisfação dos Usuários - ${novoAno}`,
-        descricao: `Pesquisa com os Beneficiados do Forms Tech no ano de ${novoAno}`,
-        criadoPor: req.user!.id,
-        padrao: true,
-        ano: novoAno,
-        ativo: false,
-        perguntas: {
-          create: original.perguntas.map(p => ({
-            enunciado: p.enunciado,
-            tipo: p.tipo,
-            opcoesJson: p.opcoesJson,
-            ordem: p.ordem,
-            obrigatoria: p.obrigatoria
-          }))
-        }
-      },
-      include: {
-        perguntas: true
-      }
-    });
-
-    res.status(201).json({
-      message: 'Questionário duplicado com sucesso',
-      questionario: duplicado
     });
   } catch (error) {
     next(error);

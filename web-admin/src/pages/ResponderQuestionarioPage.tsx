@@ -95,7 +95,7 @@ export default function ResponderQuestionarioPage() {
     if (!validarRespostas()) {
       return;
     }
-    if (!questionario || !turmas || turmas.length === 0) return;
+    if (!questionario || !turmas?.[0]?.id) return;
 
     const payload = {
       questionarioId: id!,

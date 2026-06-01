@@ -39,10 +39,13 @@ export async function indexFace(
   imageBase64: string,
   externalUserId: string
 ): Promise<string> {
+  let imageBytes: Buffer;
+  try { imageBytes = Buffer.from(imageBase64, 'base64'); } catch { throw new Error('INVALID_BASE64'); }
+
   const response = await getClient().send(
     new IndexFacesCommand({
       CollectionId: COLLECTION_ID,
-      Image: { Bytes: Buffer.from(imageBase64, 'base64') },
+      Image: { Bytes: imageBytes },
       ExternalImageId: externalUserId,
       MaxFaces: 1,
       QualityFilter: 'AUTO',
@@ -63,10 +66,13 @@ export async function indexFace(
 export async function searchFace(
   imageBase64: string
 ): Promise<{ userId: string; similarity: number } | null> {
+  let imageBytes: Buffer;
+  try { imageBytes = Buffer.from(imageBase64, 'base64'); } catch { throw new Error('INVALID_BASE64'); }
+
   const response = await getClient().send(
     new SearchFacesByImageCommand({
       CollectionId: COLLECTION_ID,
-      Image: { Bytes: Buffer.from(imageBase64, 'base64') },
+      Image: { Bytes: imageBytes },
       MaxFaces: 1,
       FaceMatchThreshold: MIN_SIMILARITY,
       QualityFilter: 'AUTO',
