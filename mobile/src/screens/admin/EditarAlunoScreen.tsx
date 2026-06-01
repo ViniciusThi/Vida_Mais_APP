@@ -130,7 +130,7 @@ export default function EditarAlunoScreen() {
         <View style={styles.turmasCard}>
           <Text style={styles.turmasTitle}>📚 Grupos do Participante</Text>
 
-          <Text style={styles.infoText} style={{ marginBottom: 16 }}>
+          <Text style={[styles.infoText, { marginBottom: 16 }]}>
             Para adicionar ou remover o participante de grupos, vá em <Text style={{ fontWeight: 'bold', color: '#075D94' }}>Grupos → Editar Grupo</Text>
           </Text>
           

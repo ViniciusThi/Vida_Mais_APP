@@ -59,7 +59,6 @@ export default function EditarTurmaScreen() {
       queryClient.invalidateQueries({ queryKey: ['turma', turmaId] });
       queryClient.invalidateQueries({ queryKey: ['turmas'] });
       queryClient.invalidateQueries({ queryKey: ['alunos'] });
-      setSelectedAluno('');
     },
     onError: (error: any) => {
       showToast(error.response?.data?.error || 'Erro ao adicionar aluno', 'error');

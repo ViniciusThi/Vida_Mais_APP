@@ -19,6 +19,8 @@ export async function captureAndResize(
     skipProcessing: true,
   });
 
+  if (!photo) throw new Error('Falha ao capturar foto');
+
   const result = await ImageManipulator.manipulateAsync(
     photo.uri,
     [{ resize: { width: 640 } }],
