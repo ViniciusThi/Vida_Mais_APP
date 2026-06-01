@@ -6,8 +6,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { ML_URL } from '../../config/api';
 import axios from 'axios';
 
-async function getToken() {
-  return import('../../stores/authStore').then(m => m.useAuthStore.getState().token);
+function getToken() {
+  return Promise.resolve(useAuthStore.getState().token);
 }
 
 function ProgressBar({ value, total, color }: { value: number; total: number; color: string }) {

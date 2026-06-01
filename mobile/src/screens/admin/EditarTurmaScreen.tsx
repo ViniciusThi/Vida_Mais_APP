@@ -177,7 +177,7 @@ export default function EditarTurmaScreen() {
           </Text>
           
           {turma.alunos?.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhum participante neste grupo ainda.</Text>
+            <Text style={styles.emptyListText}>Nenhum participante neste grupo ainda.</Text>
           ) : (
             turma.alunos?.map((alunoTurma: any) => (
               <View key={alunoTurma.id} style={styles.alunoCard}>
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   removeButtonText: {
     fontSize: 24
   },
-  emptyText: {
+  emptyListText: {
     fontSize: Math.min(width * 0.04, 18),
     color: '#9ca3af',
     textAlign: 'center',

@@ -38,17 +38,10 @@ const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
 
 // Configuração global para evitar quebra de layout com fontes muito grandes
-Text.defaultProps = {
-  ...(Text.defaultProps || {}),
-  allowFontScaling: true,
-  maxFontSizeMultiplier: 1.3
-};
-
-TextInput.defaultProps = {
-  ...(TextInput.defaultProps || {}),
-  allowFontScaling: true,
-  maxFontSizeMultiplier: 1.3
-};
+// @ts-expect-error defaultProps existe em runtime mas não nos tipos do RN 0.76+
+Text.defaultProps = { ...(Text.defaultProps || {}), allowFontScaling: true, maxFontSizeMultiplier: 1.3 };
+// @ts-expect-error
+TextInput.defaultProps = { ...(TextInput.defaultProps || {}), allowFontScaling: true, maxFontSizeMultiplier: 1.3 };
 
 export default function App() {
   const { token, user, loadToken, needsFaceSetup, setNeedsFaceSetup } = useAuthStore();

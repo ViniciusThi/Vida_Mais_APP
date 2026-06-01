@@ -18,7 +18,8 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { alunoService } from '../services/api';
 import { useFontSize } from '../contexts/FontSizeContext';
 import * as Speech from 'expo-speech';
-import Constants from 'expo-constants';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Constants = require('expo-constants').default ?? require('expo-constants');
 
 // expo-speech-recognition requer Development Build — não funciona no Expo Go.
 // Verificamos appOwnership antes de chamar require() para evitar crash nativo.
@@ -70,7 +71,7 @@ export default function QuestionarioScreen() {
 
 
   // Eventos de reconhecimento de voz
-  useSpeechRecognitionEvent('result', (event) => {
+  useSpeechRecognitionEvent('result', (event: any) => {
     const transcript = event.results?.[0]?.transcript;
     if (transcript && perguntaRef.current?.tipo === 'TEXTO') {
       setRespostas(prev => ({
