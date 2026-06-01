@@ -50,6 +50,10 @@ build/
 .expo/
 .expo-shared/
 
+# Native folders gerados pelo expo prebuild (CNG)
+mobile/android/
+mobile/ios/
+
 # Database
 *.db
 *.sqlite

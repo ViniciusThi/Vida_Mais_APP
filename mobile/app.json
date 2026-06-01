@@ -36,8 +36,7 @@
       },
       "package": "com.vidamais.app",
       "backgroundColor": "#FFFFFF",
-      "minSdkVersion": 21,
-      "permissions": [
+"permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
