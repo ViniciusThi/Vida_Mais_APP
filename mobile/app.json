@@ -53,7 +53,8 @@
     "plugins": [
       "expo-secure-store",
       "expo-camera",
-      "expo-speech-recognition"
+      "expo-speech-recognition",
+      "expo-asset"
     ]
   }
 }
