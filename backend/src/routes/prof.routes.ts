@@ -6,6 +6,7 @@ import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middle
 import ExcelJS from 'exceljs';
 import { ExcelExportService } from '../services/excel-export.service';
 import QRCode from 'qrcode';
+import { QUESTIONARIO_PADRAO_2025 } from '../data/questionario-padrao';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -882,8 +883,6 @@ router.get('/export/:questionarioId', async (req: AuthRequest, res, next) => {
 // GET /prof/templates - Buscar templates de questionários disponíveis
 router.get('/templates', async (req: AuthRequest, res, next) => {
   try {
-    const { QUESTIONARIO_PADRAO_2025 } = await import('../data/questionario-padrao');
-    
     res.json({
       templates: [
         {
@@ -955,10 +954,6 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
       }
     }
 
-    // Importar perguntas do template
-    const { QUESTIONARIO_PADRAO_2025 } = await import('../data/questionario-padrao');
-    const { TipoPergunta, Visibilidade } = await import('@prisma/client');
-
     // Criar questionário
     const questionario = await prisma.questionario.create({
       data: {
@@ -994,28 +989,6 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
       message: 'Questionário criado com sucesso a partir do template',
       questionario
     });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// GET /prof/questionarios-padrao - Listar todos os questionários padrão
-router.get('/questionarios-padrao', async (req: AuthRequest, res, next) => {
-  try {
-    const questionariosPadrao = await prisma.questionario.findMany({
-      where: { padrao: true },
-      include: {
-        _count: {
-          select: {
-            perguntas: true,
-            respostas: true
-          }
-        }
-      },
-      orderBy: { ano: 'desc' }
-    });
-
-    res.json(questionariosPadrao);
   } catch (error) {
     next(error);
   }

@@ -45,12 +45,6 @@ export default function EditarTurmaScreen() {
     );
   }) || [];
 
-  // Debug: log dos dados
-  console.log('📊 EditarTurmaScreen DEBUG:');
-  console.log('- Total alunos:', todosAlunos?.length || 0);
-  console.log('- Alunos na turma:', turma?.alunos?.length || 0);
-  console.log('- Alunos disponíveis:', alunosDisponiveis.length);
-
   // Mutation para adicionar aluno na turma
   const addAlunoMutation = useMutation({
     mutationFn: (alunoId: string) => adminService.vincularAluno(alunoId, turmaId),

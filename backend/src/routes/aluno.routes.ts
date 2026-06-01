@@ -186,7 +186,7 @@ const enviarRespostasSchema = z.object({
       valorBool: z.boolean().optional(),
       valorOpcao: z.string().optional()
     })
-  )
+  ).min(1, 'Pelo menos uma resposta é necessária')
 });
 
 // POST /aluno/respostas
