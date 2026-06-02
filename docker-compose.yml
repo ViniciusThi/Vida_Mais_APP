@@ -47,6 +47,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: sa-east-1
       AWS_REKOGNITION_COLLECTION_ID: vida-mais-faces
+      MIN_FACE_SIMILARITY: "85"
     depends_on:
       db:
         condition: service_healthy

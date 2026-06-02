@@ -27,7 +27,7 @@ function getClient(): RekognitionClient {
 const COLLECTION_ID =
   process.env.AWS_REKOGNITION_COLLECTION_ID || 'vida-mais-faces';
 
-const MIN_SIMILARITY = 95;
+const MIN_SIMILARITY = parseInt(process.env.MIN_FACE_SIMILARITY || '85', 10);
 
 /**
  * Indexa uma face na collection do Rekognition.
