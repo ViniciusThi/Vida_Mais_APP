@@ -12,22 +12,17 @@ interface GeoPoint {
   count: number;
 }
 
-async function geocodeCep(cep: string, logradouro?: string): Promise<{ lat: number; lng: number } | null> {
-  // Tenta geocodificar pelo endereço (mais preciso para cidades pequenas)
-  if (logradouro) {
-    try {
-      const addr = logradouro
-        .replace('—', ',')
-        .replace('Itapira/SP', 'Itapira, SP, Brasil');
-      const r = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1`,
-        { headers: { 'User-Agent': 'VidaMaisApp/1.0' } }
-      );
-      const data = await r.json();
-      if (data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-    } catch { /* silencioso */ }
-  }
-  // Fallback: geocodifica pelo CEP
+// Coordenadas fixas para CEPs de Itapira/SP (Nominatim não resolve CEPs locais da cidade)
+const CEP_COORDS: Record<string, { lat: number; lng: number }> = {
+  '13970000': { lat: -22.4370, lng: -46.8591 }, // Centro
+  '13971000': { lat: -22.4280, lng: -46.8620 }, // Bairro Industrial
+  '13972000': { lat: -22.4460, lng: -46.8555 }, // Jardim América
+  '13970390': { lat: -22.4340, lng: -46.8690 }, // Jardim São José
+  '13971610': { lat: -22.4410, lng: -46.8490 }, // Jardim São Paulo
+};
+
+async function geocodeCep(cep: string): Promise<{ lat: number; lng: number } | null> {
+  if (CEP_COORDS[cep]) return CEP_COORDS[cep];
   try {
     const r = await fetch(
       `https://nominatim.openstreetmap.org/search?postalcode=${cep}&country=BR&format=json&limit=1`,
@@ -80,7 +75,7 @@ export default function MapaCalorPage() {
       for (let i = 0; i < ceps.length; i++) {
         if (cancelled) break;
         const cep = ceps[i];
-        const geo = await geocodeCep(cep, grouped[cep].logradouro);
+        const geo = await geocodeCep(cep);
         if (geo) {
           points.push({ cep, logradouro: grouped[cep].logradouro, count: grouped[cep].count, ...geo });
           setGeoPoints([...points]);
