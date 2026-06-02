@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import { setAuthToken } from '../services/api';
 
 interface User {
   id: string;
@@ -28,6 +29,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const token = await SecureStore.getItemAsync('token');
       const userStr = await SecureStore.getItemAsync('user');
       const user = userStr ? JSON.parse(userStr) : null;
+      if (token) setAuthToken(token);
       set({ token, user });
     } catch (error) {
       console.error('Error loading token:', error);
