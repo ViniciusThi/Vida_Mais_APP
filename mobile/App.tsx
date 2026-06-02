@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
+import { Text, TextInput, ToastAndroid, Platform, Alert } from 'react-native';
 import { useAuthStore } from './src/stores/authStore';
 import { FontSizeProvider } from './src/contexts/FontSizeContext';
 import { ToastProvider } from './src/contexts/ToastContext';
 import { useEffect, useState } from 'react';
-import { Text, TextInput } from 'react-native';
 import { authService } from './src/services/api';
 
 // Screens
@@ -35,7 +35,27 @@ import MinhasTurmasScreen from './src/screens/professor/MinhasTurmasScreen';
 import MLInsightsScreen from './src/screens/professor/MLInsightsScreen';
 
 const Stack = createNativeStackNavigator();
-const queryClient = new QueryClient();
+
+function mostrarErroRede() {
+  const msg = 'Erro de conexão. Verifique sua internet.';
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(msg, ToastAndroid.SHORT);
+  } else {
+    Alert.alert('Sem conexão', msg);
+  }
+}
+
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (_error, query) => {
+      if (query.state.data !== undefined) return; // já tinha dado em cache, ignora
+      mostrarErroRede();
+    },
+  }),
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30_000 },
+  },
+});
 
 // Configuração global para evitar quebra de layout com fontes muito grandes
 // @ts-expect-error defaultProps existe em runtime mas não nos tipos do RN 0.76+

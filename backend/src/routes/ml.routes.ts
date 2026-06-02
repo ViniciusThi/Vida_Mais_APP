@@ -6,6 +6,7 @@ import { Router } from 'express';
 import axios from 'axios';
 import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middleware';
 import { Role } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
 
@@ -36,10 +37,12 @@ router.get('/analytics/turma/:id', authorize(Role.ADMIN, Role.PROF), async (req:
   try {
     const { id } = req.params;
     
-    // Verificar permissão (professor só pode ver suas turmas)
+    // Verificar permissão (professor só pode ver suas próprias turmas)
     if (req.user!.role === Role.PROF) {
-      // TODO: Verificar se o professor é dono da turma
-      // Por enquanto, permitimos
+      const turma = await prisma.turma.findUnique({ where: { id }, select: { professorId: true } });
+      if (!turma || turma.professorId !== req.user!.id) {
+        return res.status(403).json({ error: 'Acesso negado: esta turma não pertence a você.' });
+      }
     }
     
     const response = await axios.get(`${ML_SERVICE_URL}/analytics/turma/${id}`);

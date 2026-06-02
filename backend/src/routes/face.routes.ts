@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { PrismaClient, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middleware';
 import { indexFace, searchFace, deleteFace } from '../services/rekognition.service';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 const imageSchema = z.object({
   imagemBase64: z.string().min(100, 'Imagem inválida ou muito pequena'),

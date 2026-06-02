@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
-import { PrismaClient, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middleware';
 import { parse } from 'fast-csv';
 import { Readable } from 'stream';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Aplicar autenticação e autorização para todas as rotas
 router.use(authenticate);

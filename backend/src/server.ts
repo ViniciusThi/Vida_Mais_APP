@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 import { authRouter } from './routes/auth.routes';
 import { adminRouter } from './routes/admin.routes';
 import { profRouter } from './routes/prof.routes';
@@ -12,7 +13,19 @@ import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET env var is required — configure o arquivo .env');
+}
+
 const app = express();
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
+});
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
@@ -53,6 +66,8 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+app.use('/auth/login', authLimiter);
+app.use('/face/login', authLimiter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/prof', profRouter);

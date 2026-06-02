@@ -1,15 +1,14 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { PrismaClient, Role, Visibilidade, TipoPergunta } from '@prisma/client';
+import { Role, Visibilidade, TipoPergunta } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middleware';
-import ExcelJS from 'exceljs';
 import { ExcelExportService } from '../services/excel-export.service';
 import QRCode from 'qrcode';
 import { QUESTIONARIO_PADRAO_2025 } from '../data/questionario-padrao';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Aplicar autenticação e autorização
 router.use(authenticate);
