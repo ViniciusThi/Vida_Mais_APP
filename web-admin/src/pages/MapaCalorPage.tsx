@@ -12,7 +12,22 @@ interface GeoPoint {
   count: number;
 }
 
-async function geocodeCep(cep: string): Promise<{ lat: number; lng: number } | null> {
+async function geocodeCep(cep: string, logradouro?: string): Promise<{ lat: number; lng: number } | null> {
+  // Tenta geocodificar pelo endereço (mais preciso para cidades pequenas)
+  if (logradouro) {
+    try {
+      const addr = logradouro
+        .replace('—', ',')
+        .replace('Itapira/SP', 'Itapira, SP, Brasil');
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1`,
+        { headers: { 'User-Agent': 'VidaMaisApp/1.0' } }
+      );
+      const data = await r.json();
+      if (data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    } catch { /* silencioso */ }
+  }
+  // Fallback: geocodifica pelo CEP
   try {
     const r = await fetch(
       `https://nominatim.openstreetmap.org/search?postalcode=${cep}&country=BR&format=json&limit=1`,
@@ -65,7 +80,7 @@ export default function MapaCalorPage() {
       for (let i = 0; i < ceps.length; i++) {
         if (cancelled) break;
         const cep = ceps[i];
-        const geo = await geocodeCep(cep);
+        const geo = await geocodeCep(cep, grouped[cep].logradouro);
         if (geo) {
           points.push({ cep, logradouro: grouped[cep].logradouro, count: grouped[cep].count, ...geo });
           setGeoPoints([...points]);
