@@ -79,7 +79,7 @@ const createQuestionarioSchema = z.object({
   titulo: z.string().min(3),
   descricao: z.string().optional(),
   visibilidade: z.nativeEnum(Visibilidade),
-  turmaId: z.string().uuid().optional(),
+  turmaId: z.string().min(1).optional(),
   periodoInicio: z.string().optional(),
   periodoFim: z.string().optional()
 });
@@ -933,7 +933,7 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
       descricao: z.string().optional(),
       ano: z.number().int().min(2020).max(2100),
       visibilidade: z.enum(['GLOBAL', 'TURMA']).optional(),
-      turmaId: z.string().uuid().optional()
+      turmaId: z.string().min(1).optional()
     }).parse(req.body);
 
     const TEMPLATES: Record<string, typeof QUESTIONARIO_PADRAO_2025> = {

@@ -525,8 +525,8 @@ router.delete('/turmas/:id', async (req: AuthRequest, res, next) => {
 // ========== VINCULAR ALUNO ==========
 
 const vincularAlunoSchema = z.object({
-  alunoId: z.string().uuid(),
-  turmaId: z.string().uuid()
+  alunoId: z.string().min(1),
+  turmaId: z.string().min(1)
 });
 
 // POST /admin/vincular-aluno
