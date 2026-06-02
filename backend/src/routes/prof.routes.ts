@@ -6,6 +6,7 @@ import { authenticate, authorize, AuthRequest } from '../middlewares/auth.middle
 import { ExcelExportService } from '../services/excel-export.service';
 import QRCode from 'qrcode';
 import { QUESTIONARIO_PADRAO_2025 } from '../data/questionario-padrao';
+import { TEMPLATE_PI2026 } from '../data/template-pi2026';
 import prisma from '../lib/prisma';
 
 const router = Router();
@@ -907,6 +908,13 @@ router.get('/templates', async (req: AuthRequest, res, next) => {
           descricao: 'Questionário anual com 38 perguntas sobre satisfação e bem-estar dos associados',
           totalPerguntas: QUESTIONARIO_PADRAO_2025.length,
           perguntas: QUESTIONARIO_PADRAO_2025
+        },
+        {
+          id: 'template-pi2026',
+          nome: 'Template PI2026 — Demonstração',
+          descricao: 'Template com 1 pergunta de cada tipo: Escala (0-10), Sim/Não, Múltipla Escolha e Texto Livre',
+          totalPerguntas: TEMPLATE_PI2026.length,
+          perguntas: TEMPLATE_PI2026
         }
       ]
     });
@@ -928,9 +936,14 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
       turmaId: z.string().uuid().optional()
     }).parse(req.body);
 
-    if (templateId !== 'pesquisa-satisfacao') {
+    const TEMPLATES: Record<string, typeof QUESTIONARIO_PADRAO_2025> = {
+      'pesquisa-satisfacao': QUESTIONARIO_PADRAO_2025,
+      'template-pi2026': TEMPLATE_PI2026,
+    };
+    if (!TEMPLATES[templateId]) {
       return res.status(404).json({ error: 'Template não encontrado' });
     }
+    const templateData = TEMPLATES[templateId];
 
     const isAdmin = req.user!.role === 'ADMIN';
     
@@ -982,7 +995,7 @@ router.post('/questionarios/criar-de-template', async (req: AuthRequest, res, ne
         visibilidade: visibilidade ? Visibilidade[visibilidade] : Visibilidade.GLOBAL,
         turmaId: visibilidade === 'TURMA' ? turmaId : null,
         perguntas: {
-          create: QUESTIONARIO_PADRAO_2025.map(p => ({
+          create: templateData.map(p => ({
             enunciado: p.enunciado,
             tipo: TipoPergunta[p.tipo],
             opcoesJson: p.opcoes ? JSON.stringify(p.opcoes) : null,

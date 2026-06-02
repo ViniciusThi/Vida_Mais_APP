@@ -5,7 +5,7 @@
 
 export interface PerguntaPadrao {
   enunciado: string;
-  tipo: 'MULTIPLA' | 'TEXTO' | 'ESCALA';
+  tipo: 'MULTIPLA' | 'TEXTO' | 'ESCALA' | 'UNICA' | 'BOOLEAN';
   opcoes?: string[];
   ordem: number;
   obrigatoria: boolean;
