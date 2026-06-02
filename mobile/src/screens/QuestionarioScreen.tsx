@@ -40,6 +40,17 @@ if (!_isExpoGo) {
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
+const isSmallScreen = height < 700;
+
+function normalizeTranscript(text: string): string {
+  const map: Record<string, string> = {
+    'zero': '0', 'um': '1', 'uma': '1', 'dois': '2', 'duas': '2',
+    'três': '3', 'tres': '3', 'quatro': '4', 'cinco': '5', 'seis': '6',
+    'sete': '7', 'oito': '8', 'nove': '9', 'dez': '10',
+  };
+  return text.replace(/\b(zero|um|uma|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez)\b/gi,
+    (match) => map[match.toLowerCase()] ?? match);
+}
 
 export default function QuestionarioScreen() {
   const route = useRoute<any>();
@@ -52,7 +63,14 @@ export default function QuestionarioScreen() {
   const [respostas, setRespostas] = useState<Record<string, any>>(respostasIniciais || {});
   const [vozPtBr, setVozPtBr] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const perguntaRef = useRef<any>(null);
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
   useEffect(() => {
     const carregarVozes = async () => {
       try {
@@ -74,9 +92,10 @@ export default function QuestionarioScreen() {
   useSpeechRecognitionEvent('result', (event: any) => {
     const transcript = event.results?.[0]?.transcript;
     if (transcript && perguntaRef.current?.tipo === 'TEXTO') {
+      const valor = normalizeTranscript(transcript);
       setRespostas(prev => ({
         ...prev,
-        [perguntaRef.current!.id]: { perguntaId: perguntaRef.current!.id, tipo: 'TEXTO', valor: transcript }
+        [perguntaRef.current!.id]: { perguntaId: perguntaRef.current!.id, tipo: 'TEXTO', valor }
       }));
     }
   });
@@ -170,7 +189,7 @@ export default function QuestionarioScreen() {
       return;
     }
     setIsListening(true);
-    ExpoSpeechRecognitionModule.start({ lang: 'pt-BR', interimResults: true, maxAlternatives: 1 });
+    ExpoSpeechRecognitionModule.start({ lang: 'pt-BR', interimResults: false, maxAlternatives: 1 });
   };
 
   const handleResposta = (valor: any, tipo: string) => {
@@ -273,7 +292,7 @@ export default function QuestionarioScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior="padding"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
         {/* Progress Bar */}
@@ -317,9 +336,9 @@ export default function QuestionarioScreen() {
             {pergunta.tipo === 'TEXTO' && (
               <View>
                 <TextInput
-                  style={[styles.textInput, { fontSize: Math.min(width * 0.058, 24) * fontScale }]}
+                  style={[styles.textInput, { fontSize: Math.min(width * 0.058, 24) * fontScale, minHeight: isSmallScreen ? 90 : 120, maxHeight: isSmallScreen ? 110 : 150 }]}
                   multiline
-                  numberOfLines={4}
+                  numberOfLines={isSmallScreen ? 3 : 4}
                   placeholder="Digite sua resposta aqui..."
                   placeholderTextColor="#9CA3AF"
                   value={respostas[pergunta.id]?.valor || ''}
@@ -430,8 +449,8 @@ export default function QuestionarioScreen() {
           </View>
         </ScrollView>
 
-        {/* Navigation Footer */}
-        <View style={styles.footer}>
+        {/* Navigation Footer — esconde quando teclado está aberto */}
+        {!keyboardVisible && <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.navButton, styles.navButtonSecondary, currentIndex === 0 && styles.navButtonDisabled]}
             onPress={handleAnterior}
@@ -468,7 +487,7 @@ export default function QuestionarioScreen() {
               </Text>
             </TouchableOpacity>
           )}
-        </View>
+        </View>}
     </KeyboardAvoidingView>
   );
 }
@@ -498,19 +517,19 @@ const styles = StyleSheet.create({
   progressContainer: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: width * 0.05,
-    paddingVertical: 18,
+    paddingVertical: isSmallScreen ? 8 : 18,
     borderBottomWidth: 3,
-    borderBottomColor: '#7ABA43' // Verde
+    borderBottomColor: '#7ABA43'
   },
   progressText: {
     fontSize: Math.min(width * 0.06, 26),
-    color: '#075D94', // Azul
-    marginBottom: 12,
+    color: '#075D94',
+    marginBottom: isSmallScreen ? 6 : 12,
     textAlign: 'center',
     fontWeight: '700'
   },
   progressBar: {
-    height: 12,
+    height: isSmallScreen ? 8 : 12,
     backgroundColor: '#E5E7EB',
     borderRadius: 6,
     overflow: 'hidden'
@@ -522,7 +541,7 @@ const styles = StyleSheet.create({
   questionCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: width * 0.05,
+    padding: isSmallScreen ? width * 0.035 : width * 0.05,
     marginBottom: 12,
     borderWidth: 3,
     borderColor: '#075D94', // Azul
@@ -537,14 +556,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    backgroundColor: '#FFE5CC', // Laranja claro
-    paddingVertical: 14,
+    backgroundColor: '#FFE5CC',
+    paddingVertical: isSmallScreen ? 8 : 14,
     paddingHorizontal: 22,
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: isSmallScreen ? 10 : 16,
     borderWidth: 3,
-    borderColor: '#FF7E00', // Laranja
-    minHeight: 70
+    borderColor: '#FF7E00',
+    minHeight: isSmallScreen ? 56 : 70
   },
   speakerIcon: {
     fontSize: 36,
@@ -605,8 +624,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     fontSize: Math.min(width * 0.058, 24),
-    minHeight: 120,
-    maxHeight: 150,
     textAlignVertical: 'top',
     color: '#1F2937',
     backgroundColor: '#F9FAFB'
@@ -707,10 +724,10 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     gap: 12,
-    padding: width * 0.04,
+    padding: isSmallScreen ? width * 0.025 : width * 0.04,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 3,
-    borderTopColor: '#075D94', // Azul
+    borderTopColor: '#075D94',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
@@ -719,11 +736,11 @@ const styles = StyleSheet.create({
   },
   navButton: {
     flex: 1,
-    paddingVertical: 20,
+    paddingVertical: isSmallScreen ? 12 : 20,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 70
+    minHeight: isSmallScreen ? 58 : 70
   },
   navButtonSecondary: {
     backgroundColor: '#F3F4F6',

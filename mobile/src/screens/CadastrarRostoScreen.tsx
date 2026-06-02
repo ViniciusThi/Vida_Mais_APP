@@ -78,7 +78,7 @@ export default function CadastrarRostoScreen() {
         </View>
         <TouchableOpacity
           style={styles.irInicioBtn}
-          onPress={() => setNeedsFaceSetup(false)}
+          onPress={handlePular}
           activeOpacity={0.8}
         >
           <Text style={styles.irInicioBtnTexto}>IR PARA O INÍCIO</Text>
