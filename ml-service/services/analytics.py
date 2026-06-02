@@ -193,17 +193,26 @@ class AnalyticsService:
                     'message': 'Sem dados de engajamento disponíveis'
                 }
             
-            # Classificar alunos por nível de engajamento
+            # Total de questionários ativos no sistema (base para o percentual)
+            total_qs_result = self.db.execute_query(
+                "SELECT COUNT(*) as total FROM questionarios WHERE ativo = 1"
+            )
+            total_qs = total_qs_result[0]['total'] if total_qs_result else 1
+            if total_qs == 0:
+                total_qs = 1
+
+            # Classificar alunos por percentual de questionários respondidos
             alto_engajamento = []
             medio_engajamento = []
             baixo_engajamento = []
-            
+
             for aluno in engagement:
                 questionarios = aluno.get('questionarios_respondidos', 0)
-                
-                if questionarios >= 5:
+                taxa = questionarios / total_qs
+
+                if taxa >= 0.8:   # respondeu >= 80% dos questionários disponíveis
                     alto_engajamento.append(aluno['aluno_nome'])
-                elif questionarios >= 2:
+                elif taxa >= 0.4: # respondeu >= 40%
                     medio_engajamento.append(aluno['aluno_nome'])
                 else:
                     baixo_engajamento.append(aluno['aluno_nome'])
