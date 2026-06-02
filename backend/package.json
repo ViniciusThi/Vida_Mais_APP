@@ -17,6 +17,8 @@
     "db:limpar-questionarios": "tsx src/scripts/limpar-questionarios.ts",
     "db:seed-demo": "tsx src/scripts/seed-apresentacao.ts",
     "db:reset-demo": "tsx src/scripts/reset-apresentacao.ts && tsx src/scripts/seed-apresentacao.ts",
+    "db:seed-banca": "tsx src/scripts/seed-banca.ts",
+    "db:reset-banca": "tsx src/scripts/reset-banca.ts && tsx src/scripts/seed-banca.ts",
     "face:limpar": "tsx src/scripts/limpar-rostos.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest",
