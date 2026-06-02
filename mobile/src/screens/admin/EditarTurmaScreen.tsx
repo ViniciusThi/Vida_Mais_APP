@@ -3,7 +3,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { adminService } from '../../services/api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const { width } = Dimensions.get('window');
 
@@ -20,15 +20,15 @@ export default function EditarTurmaScreen() {
   // Buscar dados da turma COM alunos
   const { data: turma, isLoading } = useQuery({
     queryKey: ['turma', turmaId],
-    queryFn: async () => {
-      const turmaData = await adminService.getTurma(turmaId);
-      if (turmaData) {
-        setNome(turmaData.nome);
-        setAno(turmaData.ano.toString());
-      }
-      return turmaData;
-    }
+    queryFn: () => adminService.getTurma(turmaId)
   });
+
+  useEffect(() => {
+    if (turma) {
+      setNome(turma.nome);
+      setAno(turma.ano.toString());
+    }
+  }, [turma]);
 
   // Buscar todos os alunos (para adicionar)
   const { data: todosAlunos, isLoading: isLoadingAlunos } = useQuery({
