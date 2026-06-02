@@ -6,9 +6,6 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "primaryColor": "#FF7E00",
-    "locales": {
-      "pt": "./locales/pt-BR.json"
-    },
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#075D94"
