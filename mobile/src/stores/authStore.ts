@@ -16,7 +16,7 @@ interface AuthState {
   loadToken: () => Promise<void>;
   setAuth: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
-  setNeedsFaceSetup: (val: boolean) => void;
+  setNeedsFaceSetup: (val: boolean) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -28,9 +28,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const token = await SecureStore.getItemAsync('token');
       const userStr = await SecureStore.getItemAsync('user');
+      const needsFaceSetupStr = await SecureStore.getItemAsync('needsFaceSetup');
       const user = userStr ? JSON.parse(userStr) : null;
+      const needsFaceSetup = needsFaceSetupStr === 'true';
       if (token) setAuthToken(token);
-      set({ token, user });
+      set({ token, user, needsFaceSetup });
     } catch (error) {
       console.error('Error loading token:', error);
     }
@@ -50,12 +52,18 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await SecureStore.deleteItemAsync('token');
       await SecureStore.deleteItemAsync('user');
+      await SecureStore.deleteItemAsync('needsFaceSetup');
       set({ token: null, user: null, needsFaceSetup: false });
     } catch (error) {
       console.error('Error logging out:', error);
     }
   },
 
-  setNeedsFaceSetup: (val: boolean) => set({ needsFaceSetup: val }),
+  setNeedsFaceSetup: async (val: boolean) => {
+    try {
+      await SecureStore.setItemAsync('needsFaceSetup', val ? 'true' : 'false');
+    } catch { /* silencioso — estado em memória ainda funciona */ }
+    set({ needsFaceSetup: val });
+  },
 }));
 
